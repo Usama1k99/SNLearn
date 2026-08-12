@@ -1,0 +1,79 @@
+<%- include('../../partials/head', { title: 'Discovery & Normalization — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#content-library" class="toc-link">The Content Library</a><a href="#status" class="toc-link">Normalization Statuses</a><a href="#rules" class="toc-link">Normalization Rules</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Discovery & Normalization</span>
+                    </div>
+                    <h1 class="content-title"><span class="gradient-text">Normalization</span></h1>
+                    <p class="content-subtitle">
+                        Transforming messy, inconsistent raw strings into standard Publisher, Product, and Version names to make reconciliation mathematically possible.
+                    </p>
+                </div>
+
+                <section class="content-section" id="content-library">
+                    <h2>The Central Content Library</h2>
+                    <p>
+                        ServiceNow maintains a massive, cloud-based Content Library containing millions of Publisher Part Numbers (PPNs), publisher names, and product lifecycles. 
+                    </p>
+                    <p>
+                        When raw data is ingested into your instance, the Normalization Engine compares it against this library. By opting into the <strong>Content Service</strong>, instances securely send unrecognized strings to ServiceNow's research team, who continually add them to the global library.
+                    </p>
+                </section>
+
+                <section class="content-section" id="status">
+                    <h2>Normalization Statuses</h2>
+                    <p>Every Discovery Model evaluates to a specific Normalization Status:</p>
+                    
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Normalized</div>
+                        <p>A perfect match was found. Publisher, Product, and Version were definitively identified based on library rules.</p>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Partially Normalized</div>
+                        <p>Publisher and Product were identified, but the exact Version or Edition could not be determined. This often requires manual intervention.</p>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Publisher Normalized</div>
+                        <p>Only the Publisher (e.g., "Microsoft") was recognized. The product itself remains unknown to the library.</p>
+                    </div>
+
+                    <div class="info-card info-card--danger">
+                        <div class="info-card-title">Match Not Found</div>
+                        <p>The raw string is entirely unrecognized. This is common for proprietary, in-house developed software. You must create custom Normalization Rules for these.</p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="rules">
+                    <h2>Custom Normalization Rules</h2>
+                    <p>
+                        For software not found in the Content Library, SAM administrators can create custom rules. 
+                    </p>
+                    <ul>
+                        <li><strong>Exact Match:</strong> Requires the raw string to match the specified condition exactly.</li>
+                        <li><strong>Pattern Match:</strong> Uses Regular Expressions (Regex) or "Starts With/Contains" logic. For example, any software containing "InHouse CRM v*" is automatically normalized to the custom Publisher "MyCorp".</li>
+                    </ul>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

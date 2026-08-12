@@ -1,0 +1,73 @@
+<%- include('../../partials/head', { title: 'Reconciliation & ELP — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#elp" class="toc-link">Effective License Position (ELP)</a><a href="#metrics" class="toc-link">License Metrics</a><a href="#complex-rules" class="toc-link">Downgrades & Complex Rules</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Reconciliation</span>
+                    </div>
+                    <h1 class="content-title"><span class="gradient-text">Reconciliation</span></h1>
+                    <p class="content-subtitle">
+                        The mathematical heart of SAM. It calculates the financial compliance gap by comparing what you own against what you use.
+                    </p>
+                </div>
+
+                <section class="content-section" id="elp">
+                    <h2>The Effective License Position (ELP)</h2>
+                    <p>
+                        Reconciliation is typically run as a scheduled job (e.g., weekly) or on-demand. The primary output is the <strong>Effective License Position (ELP)</strong>.
+                    </p>
+                    <p>The core formula is simple, but the application is highly complex:</p>
+                    <div class="code-block" style="text-align:center; padding: 20px; font-size: 1.2rem; font-weight: bold; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
+                        Rights Owned - Rights Used = True-up Cost (or Surplus)
+                    </div>
+                    <p>
+                        If the result is negative, the organization is <strong>Non-Compliant</strong> and facing audit risk. If positive, they have unused shelf-ware and are over-spending.
+                    </p>
+                </section>
+
+                <section class="content-section" id="metrics">
+                    <h2>License Metrics</h2>
+                    <p>
+                        You cannot just count installations. Publishers sell software using highly complex "License Metrics" which the Reconciliation engine must compute mathematically:
+                    </p>
+                    <ul>
+                        <li><strong>Per User:</strong> Counts the unique users accessing the software, regardless of how many devices they install it on.</li>
+                        <li><strong>Per Device:</strong> Licenses the specific machine. Anyone logging into that machine can use it.</li>
+                        <li><strong>Per Core (Microsoft SQL/Oracle):</strong> Counts the physical or virtual CPU cores on the server hosting the software. Highly complex in clustered VM environments.</li>
+                        <li><strong>SaaS Subscriptions:</strong> Tied directly to active accounts on platforms like Salesforce or Zoom.</li>
+                    </ul>
+                </section>
+
+                <section class="content-section" id="complex-rules">
+                    <h2>Downgrade Rights and Suites</h2>
+                    <p>The reconciliation engine is intelligent enough to apply complex software rights automatically:</p>
+                    <div class="info-card">
+                        <div class="info-card-title">Downgrade Rights</div>
+                        <p>If you own Entitlements for "Windows Server 2022", but the engine discovers an installation of "Windows Server 2019", it will automatically use the 2022 license to cover the older version, saving you from purchasing outdated licenses.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Software Suites</div>
+                        <p>If Discovery finds Word, Excel, and PowerPoint installed on the same machine, the engine infers that this is actually "Microsoft Office Professional" and requires a single Suite license, rather than three individual licenses.</p>
+                    </div>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

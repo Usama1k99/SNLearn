@@ -1,0 +1,73 @@
+<%- include('../../partials/head', { title: 'Hardware Asset Management | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-hub">
+        <div class="container">
+            
+        <div class="irm-hub-header">
+            <div class="breadcrumb">
+                <a href="/">Home</a>
+                <span class="breadcrumb-sep">›</span>
+                <span>HAM</span>
+            </div>
+            <div class="irm-title-row">
+                <div class="irm-icon-badge">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="irm-hub-title">Hardware Asset <span class="gradient-text">Management</span></h1>
+                    <p class="irm-hub-subtitle">
+                        Master the full lifecycle of physical assets from procurement to disposal. Understand the synchronization between financial records and operational CIs.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pages-grid">
+            <a href="/ham/overview" class="module-card-horizontal page-card">
+                <span class="page-card-number">01</span>
+                <h3 class="page-card-title">Overview & Architecture</h3>
+                <p class="page-card-desc">The high-level architecture of HAM, core tables, and the standard hardware asset lifecycle.</p>
+            </a>
+            <a href="/ham/data-model" class="module-card-horizontal page-card">
+                <span class="page-card-number">02</span>
+                <h3 class="page-card-title">Asset & CI Data Model</h3>
+                <p class="page-card-desc">Deep dive into alm_hardware, cmdb_ci, and how Model Categories sync financial and operational records.</p>
+            </a>
+            <a href="/ham/procurement" class="module-card-horizontal page-card">
+                <span class="page-card-number">03</span>
+                <h3 class="page-card-title">Procurement Lifecycle</h3>
+                <p class="page-card-desc">Follow the money: Requests, Purchase Orders, Receiving Slips, and automatic asset creation.</p>
+            </a>
+            <a href="/ham/inventory" class="module-card-horizontal page-card">
+                <span class="page-card-number">04</span>
+                <h3 class="page-card-title">Stockrooms & Inventory</h3>
+                <p class="page-card-desc">Learn how to manage physical inventory using Stockrooms, Stock Rules, and Transfer Orders.</p>
+            </a>
+            <a href="/ham/disposal" class="module-card-horizontal page-card">
+                <span class="page-card-number">05</span>
+                <h3 class="page-card-title">Disposal & Retirement</h3>
+                <p class="page-card-desc">The end-of-life process: Disposal Orders, lease returns, data sanitization, and compliance requirements.</p>
+            </a>
+            <a href="/ham/developer-patterns" class="module-card-horizontal page-card">
+                <span class="page-card-number">06</span>
+                <h3 class="page-card-title">Developer Patterns & APIs</h3>
+                <p class="page-card-desc">Asset-CI sync Business Rules, Flow Designer automation, REST API patterns, and common customizations.</p>
+            </a>
+            <a href="/ham/simulator" class="module-card-horizontal page-card">
+                <span class="page-card-number">07</span>
+                <h3 class="page-card-title">Process Simulator</h3>
+                <p class="page-card-desc">Interactive playground to trace Assets, Contracts, and Purchase Orders through their actual database states.</p>
+            </a>
+        </div>
+        
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

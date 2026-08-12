@@ -1,0 +1,268 @@
+<%- include('../../partials/head', { title: 'Security Incident Response — SecOps | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'secops' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'secops', moduleLabel: 'SecOps', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#sir-overview" class="toc-link">SIR Overview</a>
+                        <a href="#lifecycle" class="toc-link">Lifecycle States</a>
+                        <a href="#process-defs" class="toc-link">Process Definitions</a>
+                        <a href="#playbooks" class="toc-link">Playbooks</a>
+                        <a href="#phishing" class="toc-link">Phishing Response</a>
+                        <a href="#workspace" class="toc-link">SIR Workspace</a>
+                        <a href="#pir" class="toc-link">Post-Incident Review</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb"><a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/secops">SecOps</a><span class="breadcrumb-sep">›</span><span>Security Incident Response</span></div>
+                    <h1 class="content-title">Security Incident <span class="gradient-text">Response</span></h1>
+                    <p class="content-subtitle">
+                        SIR provides a structured, automated framework for managing the entire lifecycle of a 
+                        security incident — from detection and analysis to containment, eradication, recovery, 
+                        and post-incident review.
+                    </p>
+                </div>
+
+                <section class="content-section" id="sir-overview">
+                    <h2>SIR Overview</h2>
+                    <p>
+                        <strong>Security Incident Response (SIR)</strong> is the core SecOps application for managing 
+                        security threats. Unlike standard ITSM incidents, SIR incidents are purpose-built for 
+                        security workflows — they support threat intelligence enrichment, attack categorization, 
+                        containment actions, and multi-team collaboration.
+                    </p>
+                    <p>Key capabilities include:</p>
+                    <ul>
+                        <li><strong>Automated alert ingestion</strong> from SIEM, EDR, and detection tools</li>
+                        <li><strong>Business impact prioritization</strong> using CMDB service mapping</li>
+                        <li><strong>Playbook-driven response</strong> with guided task sequences</li>
+                        <li><strong>Observable tracking</strong> — IPs, domains, file hashes linked to incidents</li>
+                        <li><strong>MITRE ATT&CK mapping</strong> for technique classification</li>
+                        <li><strong>SLA management</strong> for response time commitments</li>
+                    </ul>
+                </section>
+
+                <section class="content-section" id="lifecycle">
+                    <h2>Lifecycle States</h2>
+                    <p>
+                        Security incidents follow a structured state model based on industry frameworks (NIST, SANS). 
+                        The progression through states is controlled by <strong>Process Definitions</strong>.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">SIR Lifecycle (NIST Model)</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-num">01</span>
+                                <span class="flow-step-label">Draft</span>
+                                <span class="flow-step-desc">Alert received, incident created</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">02</span>
+                                <span class="flow-step-label">Analysis</span>
+                                <span class="flow-step-desc">Triage, scoping, threat assessment</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">03</span>
+                                <span class="flow-step-label">Contain</span>
+                                <span class="flow-step-desc">Isolate threat, stop spreading</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">04</span>
+                                <span class="flow-step-label">Eradicate</span>
+                                <span class="flow-step-desc">Remove malware, close vectors</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">05</span>
+                                <span class="flow-step-label">Recover</span>
+                                <span class="flow-step-desc">Restore systems, validate</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">06</span>
+                                <span class="flow-step-label">Review</span>
+                                <span class="flow-step-desc">PIR, lessons learned</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">07</span>
+                                <span class="flow-step-label">Closed</span>
+                                <span class="flow-step-desc">Incident resolved</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>State Details</h3>
+                    <ul>
+                        <li><strong>Draft:</strong> Incident created (manually or via alert ingestion). Basic details captured — source, category, affected CIs.</li>
+                        <li><strong>Analysis:</strong> Analyst triages the incident, assesses severity, enriches with threat intel, links observables, and determines scope of impact.</li>
+                        <li><strong>Contain:</strong> Active containment measures — isolating hosts, blocking IPs, disabling compromised accounts. Goal: stop the threat from spreading.</li>
+                        <li><strong>Eradicate:</strong> Remove the root cause — malware removal, patching exploited vulnerabilities, closing attack vectors.</li>
+                        <li><strong>Recover:</strong> Restore affected systems to normal operation. Validate that the threat has been fully eliminated. Monitor for recurrence.</li>
+                        <li><strong>Review:</strong> Post-incident review. Document timeline, actions taken, impact, and generate lessons learned / knowledge articles.</li>
+                        <li><strong>Closed:</strong> Incident fully resolved and documented.</li>
+                    </ul>
+                </section>
+
+                <section class="content-section" id="process-defs">
+                    <h2>Process Definitions</h2>
+                    <p>
+                        Process Definitions control <em>how</em> an incident moves through states. ServiceNow 
+                        provides three built-in models:
+                    </p>
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="tab-nist-stateful">NIST Stateful</button>
+                            <button class="tab-btn" data-tab="tab-nist-open">NIST Open</button>
+                            <button class="tab-btn" data-tab="tab-sans">SANS</button>
+                        </div>
+                        <div class="tab-panel active" id="tab-nist-stateful">
+                            <h3>NIST Stateful (Default)</h3>
+                            <p>
+                                The strictest model. Incidents must progress through stages <strong>sequentially</strong> 
+                                — you cannot skip from Analysis directly to Recover. This ensures every phase is 
+                                properly executed and documented.
+                            </p>
+                            <p><strong>Best for:</strong> Organizations requiring strict compliance and audit trails (financial, healthcare, government).</p>
+                        </div>
+                        <div class="tab-panel" id="tab-nist-open">
+                            <h3>NIST Open</h3>
+                            <p>
+                                Allows analysts to move <strong>more freely between stages</strong>. You can go from 
+                                Analysis back to Draft, or jump from Contain to Review if the situation warrants it. 
+                                More flexible but less auditable.
+                            </p>
+                            <p><strong>Best for:</strong> Mature SOC teams that need operational agility.</p>
+                        </div>
+                        <div class="tab-panel" id="tab-sans">
+                            <h3>SANS</h3>
+                            <p>
+                                Similar to NIST Stateful — enforces <strong>strict sequential progression</strong> 
+                                but uses SANS-specific terminology and stage definitions. The SANS model 
+                                uses phases like Preparation, Identification, Containment, Eradication, Recovery, 
+                                and Lessons Learned.
+                            </p>
+                            <p><strong>Best for:</strong> Organizations that follow the SANS incident handling methodology.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="playbooks">
+                    <h2>Playbooks</h2>
+                    <p>
+                        <strong>Playbooks</strong> provide task-oriented, visual guides for incident response. 
+                        They ensure analysts follow consistent, repeatable steps for different types of incidents.
+                    </p>
+                    <h3>How Playbooks Work</h3>
+                    <ul>
+                        <li><strong>Trigger:</strong> Playbooks can be auto-triggered based on incident category, 
+                        or manually added by an analyst</li>
+                        <li><strong>Task generation:</strong> Each playbook step creates a task that can be manual 
+                        (human action) or automated (Flow Designer action)</li>
+                        <li><strong>Visual rendering:</strong> Displayed in the SIR Workspace as an interactive 
+                        process flow that analysts can follow step-by-step</li>
+                        <li><strong>Creation tools:</strong> Built using <strong>Process Automation Designer (PAD)</strong> 
+                        or <strong>Flow Designer</strong></li>
+                    </ul>
+                    <h3>Common Playbook Types</h3>
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">Phishing Response Playbook</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p>1. Extract email headers and embedded URLs<br>2. Check URLs against threat intelligence feeds<br>3. Identify all recipients of the phishing email<br>4. Search mailboxes for similar emails<br>5. Block sender domain/IP on email gateway<br>6. Notify affected users<br>7. Reset credentials for users who clicked links<br>8. Document findings and close</p>
+                            </div></div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">Malware Response Playbook</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p>1. Isolate affected endpoint from network<br>2. Capture forensic image of affected system<br>3. Extract and submit file hashes to threat intel<br>4. Identify lateral movement indicators<br>5. Scan for related IoCs across all endpoints<br>6. Remove malware and restore from clean backup<br>7. Update endpoint protection signatures<br>8. Post-incident review and PIR</p>
+                            </div></div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">Ransomware Response Playbook</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p>1. Isolate affected systems immediately<br>2. Determine ransomware variant and encryption method<br>3. Assess scope — which systems and data are affected<br>4. Notify legal, executive leadership, and PR teams<br>5. Evaluate backup integrity and recovery options<br>6. Coordinate with law enforcement if required<br>7. Begin recovery from clean backups<br>8. Implement additional controls to prevent recurrence</p>
+                            </div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="phishing">
+                    <h2>Phishing Response</h2>
+                    <p>
+                        SecOps includes a specialized <strong>Phishing Response</strong> capability that automates 
+                        much of the phishing investigation workflow:
+                    </p>
+                    <ul>
+                        <li><strong>Email parsing:</strong> Automatically extracts headers, URLs, attachments, and sender information</li>
+                        <li><strong>URL detonation:</strong> Submits suspicious URLs to sandbox environments for analysis</li>
+                        <li><strong>Recipient identification:</strong> Queries email systems to find all users who received the phishing email</li>
+                        <li><strong>Bulk actions:</strong> Delete phishing emails from all mailboxes, reset passwords for affected users</li>
+                        <li><strong>User reporting:</strong> Integration with email clients for one-click phishing report buttons</li>
+                    </ul>
+                </section>
+
+                <section class="content-section" id="workspace">
+                    <h2>SIR Workspace</h2>
+                    <p>
+                        The <strong>SIR Workspace</strong> is the analyst's primary interface. It provides a unified 
+                        view of all active incidents with context-rich details:
+                    </p>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Incident Queue</strong></td><td>Prioritized list of open incidents with severity indicators and SLA countdown</td></tr>
+                                <tr><td><strong>Incident Detail</strong></td><td>Full incident record with tabs for observables, affected CIs, tasks, timeline</td></tr>
+                                <tr><td><strong>Playbook Panel</strong></td><td>Visual playbook execution with interactive task completion</td></tr>
+                                <tr><td><strong>Observable Panel</strong></td><td>All associated IoCs with enrichment status and threat scores</td></tr>
+                                <tr><td><strong>MITRE Panel</strong></td><td>ATT&CK technique mapping visualization for the current incident</td></tr>
+                                <tr><td><strong>Activity Stream</strong></td><td>Real-time timeline of all actions, notes, and state changes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-section" id="pir">
+                    <h2>Post-Incident Review (PIR)</h2>
+                    <p>
+                        When an incident reaches the Review state, a <strong>Post-Incident Review</strong> is created 
+                        in the <code>sn_si_write_up</code> table. PIRs capture:
+                    </p>
+                    <ul>
+                        <li>Complete incident timeline with all actions taken</li>
+                        <li>Root cause analysis</li>
+                        <li>Impact assessment — what was compromised, data affected, business disruption</li>
+                        <li>Lessons learned and improvement recommendations</li>
+                        <li>Knowledge article generation for the SOC knowledge base</li>
+                    </ul>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Integration with IRM</div>
+                        <p>
+                            Security incidents can be linked to IRM risk records. A pattern of recurring incidents 
+                            may indicate a systemic risk that needs to be formally assessed through the IRM risk 
+                            lifecycle. This cross-module integration is a key value of the Now Platform.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/secops/data-model" class="page-nav-link"><span class="page-nav-label">← Previous</span><span class="page-nav-title">Data Model & Key Tables</span></a>
+                    <a href="/secops/vulnerability-response" class="page-nav-link page-nav-link--next"><span class="page-nav-label">Next →</span><span class="page-nav-title">Vulnerability Response</span></a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

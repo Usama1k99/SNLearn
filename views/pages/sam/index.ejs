@@ -1,0 +1,71 @@
+<%- include('../../partials/head', { title: 'Software Asset Management | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-hub">
+        <div class="container">
+            
+        <div class="irm-hub-header">
+            <div class="breadcrumb">
+                <a href="/">Home</a>
+                <span class="breadcrumb-sep">›</span>
+                <span>SAM</span>
+            </div>
+            <div class="irm-title-row">
+                <div class="irm-icon-badge">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="irm-hub-title">Software Asset <span class="gradient-text">Management</span></h1>
+                    <p class="irm-hub-subtitle">
+                        Master the closed-loop engine. Learn how discovery data is normalized and reconciled against license entitlements to calculate compliance and optimize software spend.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pages-grid">
+            <a href="/sam/overview" class="module-card-horizontal page-card">
+                <span class="page-card-number">01</span>
+                <h3 class="page-card-title">Overview & Architecture</h3>
+                <p class="page-card-desc">The SAM closed-loop architecture, from discovery and normalization to reconciliation and remediation.</p>
+            </a>
+            <a href="/sam/data-model" class="module-card-horizontal page-card">
+                <span class="page-card-number">02</span>
+                <h3 class="page-card-title">Data Model & Key Tables</h3>
+                <p class="page-card-desc">Deep-dive into cmdb_sam_sw_install, discovery models, software models, and entitlements.</p>
+            </a>
+            <a href="/sam/normalization" class="module-card-horizontal page-card">
+                <span class="page-card-number">03</span>
+                <h3 class="page-card-title">Discovery & Normalization</h3>
+                <p class="page-card-desc">Understand how raw strings become normalized records using the Content Library and PPNs.</p>
+            </a>
+            <a href="/sam/reconciliation" class="module-card-horizontal page-card">
+                <span class="page-card-number">04</span>
+                <h3 class="page-card-title">Reconciliation & ELP</h3>
+                <p class="page-card-desc">Learn how the Effective License Position (ELP) is calculated to identify compliance gaps.</p>
+            </a>
+            <a href="/sam/remediation" class="module-card-horizontal page-card">
+                <span class="page-card-number">05</span>
+                <h3 class="page-card-title">Reclamation & Remediation</h3>
+                <p class="page-card-desc">Workflows for uninstalling unused software and purchasing shortfalls.</p>
+            </a>
+            <a href="/sam/developer-patterns" class="module-card-horizontal page-card">
+                <span class="page-card-number">06</span>
+                <h3 class="page-card-title">Developer Patterns & APIs</h3>
+                <p class="page-card-desc">Scripting custom metrics, Service Graph Connectors, and Flow Designer automation.</p>
+            </a>
+            <a href="/sam/simulator" class="module-card-horizontal page-card">
+                <span class="page-card-number">07</span>
+                <h3 class="page-card-title">Process Simulator</h3>
+                <p class="page-card-desc">Interactive simulator to explore the SAM tables from installation to license allocation.</p>
+            </a>
+        </div>
+        
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

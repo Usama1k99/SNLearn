@@ -1,0 +1,166 @@
+<%- include('../../partials/head', { title: 'Overview & Architecture — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'ham', moduleLabel: 'HAM', activePage: 'overview' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-ham" class="toc-link">What is HAM?</a>
+                    <a href="#core-tables" class="toc-link">Core Tables</a>
+                    <a href="#cmdb-integration" class="toc-link">CMDB Integration</a>
+                    <a href="#asset-lifecycle" class="toc-link">Asset Lifecycle</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/ham">HAM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Overview & Architecture</span>
+                </div>
+                <h1 class="content-title">Hardware Asset <span class="gradient-text">Management</span></h1>
+                <p class="content-subtitle">
+                    End-to-end visibility and automation of the hardware lifecycle. Manage IT physical assets from procurement to disposal, fully integrated with the CMDB.
+                </p>
+            </div>
+
+            <section class="content-section" id="what-is-ham">
+                <h2 class="section-title">What is HAM?</h2>
+                <div class="prose">
+                    <p>
+                        ServiceNow Hardware Asset Management (HAM) automates the IT lifecycle of physical assets on a single platform. It tracks the financial, contractual, and physical details of hardware. 
+                    </p>
+                    <p>
+                        While the CMDB tracks the operational and technical status of a Configuration Item (CI), HAM tracks its financial value, ownership, and warranty information. The true power of HAM is its seamless synchronization with the CMDB, ensuring that when an asset changes state, its corresponding CI is updated automatically.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="core-tables">
+                <h2 class="section-title">Core Tables Architecture</h2>
+                <div class="prose">
+                    <p>HAM relies on a robust hierarchy of tables extending from the core Asset application.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
+                        </div>
+                        <h3>Hardware Asset <code>[alm_hardware]</code></h3>
+                        <p>Extends <code>alm_asset</code>. The primary table for servers, laptops, and networking gear. It tracks status, substatus, stockroom, cost, and assignment.</p>
+                    </div>
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        </div>
+                        <h3>Hardware Model <code>[cmdb_hardware_product_model]</code></h3>
+                        <p>Defines the specifications of a product (e.g., Apple MacBook Pro 14"). Holds End of Life (EOL) and warranty definitions.</p>
+                    </div>
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <h3>Consumables <code>[alm_consumable]</code></h3>
+                        <p>Tracks bulk items that are not individually tracked by serial number (e.g., keyboards, mice, cables). Extends <code>alm_asset</code>.</p>
+                    </div>
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                        </div>
+                        <h3>Stockrooms <code>[alm_stockroom]</code></h3>
+                        <p>Physical locations where assets are stored. Crucial for inventory management and sourcing requests.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="cmdb-integration">
+                <h2 class="section-title">Asset & CI Synchronization</h2>
+                <div class="prose">
+                    <p>The <strong>Asset-CI Mapping</strong> process automatically creates and links a CI when a Hardware Asset is created (and vice versa) based on Model Categories.</p>
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    flowchart LR
+                        Model[Hardware Model] -->|Defines| Category[Model Category]
+                        Category -->|Links| Asset[alm_hardware]
+                        Category -->|Links| CI[cmdb_ci_computer]
+                        
+                        Asset <-->|Syncs Status/State| CI
+                        
+                        classDef default fill:#1f2937,stroke:#374151,color:#e5e7eb
+                        classDef asset fill:#10b981,stroke:#047857,color:#ffffff
+                        classDef ci fill:#3b82f6,stroke:#1d4ed8,color:#ffffff
+                        class Asset asset
+                        class CI ci
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="asset-lifecycle">
+                <h2 class="section-title">The Complete Hardware Lifecycle</h2>
+                <div class="prose">
+                    <p>HAM uses automated workflows to manage assets through <strong>eight distinct phases</strong>, from initial planning to final disposal. Each phase has specific states, substates, and automated actions that ensure data accuracy and prevent ghost assets.</p>
+                </div>
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    graph TD
+                        subgraph "Planning & Request"
+                        A["Planning<br/>Identify Need / Check Reuse"] --> B["Request<br/>Service Catalog"]
+                        end
+
+                        subgraph "Acquisition"
+                        B --> C["Procurement<br/>Purchase Order Created"]
+                        C --> D["Receiving<br/>Asset Record Created"]
+                        end
+
+                        subgraph "Operational"
+                        D --> S["Stockroom<br/>State: In Stock"]
+                        S --> E["Deployment<br/>Assign to User / Location"]
+                        E --> F["In Use<br/>State: In Use"]
+                        F -.-> M["Repair<br/>State: In Maintenance"]
+                        F -.-> X["Missing<br/>State: Missing"]
+                        M -.->|Fixed| S
+                        end
+
+                        subgraph "End of Life"
+                        S -.->|Obsolete| G["Retirement<br/>State: Retired"]
+                        F --> G
+                        M -.->|Beyond Repair| G
+                        G --> H["Disposal<br/>Disposal Order Workflow"]
+                        end
+
+                        classDef plan fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                        classDef acquire fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef operate fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                        classDef eol fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+
+                        class A,B plan
+                        class C,D acquire
+                        class E,F,S,M,X operate
+                        class G,H eol
+
+                        click B "/ham/procurement#request-phase" "Request Phase"
+                        click C "/ham/procurement#po-phase" "Purchase Orders"
+                        click D "/ham/procurement#receiving-phase" "Receiving"
+                        click E "/ham/overview#cmdb-integration" "CMDB Integration"
+                        click F "/ham/inventory" "Inventory Management"
+                        click S "/ham/inventory" "Stockrooms"
+                        click M "/ham/inventory" "Maintenance & Repair"
+                        click X "/ham/inventory" "Missing Assets"
+                        click G "/ham/disposal#retirement" "Retirement"
+                        click H "/ham/disposal#disposal-orders" "Disposal Orders"
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

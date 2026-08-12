@@ -1,0 +1,94 @@
+<%- include('../../partials/head', { title: 'Stockrooms & Transfer Orders — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'ham', moduleLabel: 'HAM', activePage: 'inventory' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#stockrooms" class="toc-link">Stockrooms</a>
+                    <a href="#stock-rules" class="toc-link">Stock Rules</a>
+                    <a href="#transfer-orders" class="toc-link">Transfer Orders</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/ham">HAM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Stockrooms & Transfer Orders</span>
+                </div>
+                <h1 class="content-title">Inventory <span class="gradient-text">Management</span></h1>
+                <p class="content-subtitle">
+                    Learn how HAM handles physical inventory locations, automated restocking, and moving assets across the globe.
+                </p>
+            </div>
+
+            <section class="content-section" id="stockrooms">
+                <h2 class="section-title">Stockrooms (<code>alm_stockroom</code>)</h2>
+                <div class="prose">
+                    <p>
+                        A <strong>Stockroom</strong> is a physical or logical location where assets are stored when they are not in use. This could be a massive central warehouse, or a small IT closet in a regional office.
+                    </p>
+                    <p>
+                        When an asset is assigned to a stockroom, its State is typically <code>In Stock</code> and its Substate might be <code>Available</code> or <code>Reserved</code>.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="stock-rules">
+                <h2 class="section-title">Automated Restocking via Stock Rules</h2>
+                <div class="prose">
+                    <p>
+                        HAM Pro can automate inventory management using <strong>Stock Rules</strong>. A stock rule watches a specific Stockroom for a specific Model (e.g., "Watch the London Office for MacBook Pros").
+                    </p>
+                    <p>
+                        If the quantity falls below the <strong>Threshold</strong>, the rule can automatically trigger one of two actions:
+                    </p>
+                    <ul>
+                        <li><strong>Vendor Order:</strong> Automatically generates a Purchase Order to buy more from a vendor.</li>
+                        <li><strong>Transfer:</strong> Automatically generates a Transfer Order to pull stock from a parent warehouse.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section" id="transfer-orders">
+                <h2 class="section-title">Transfer Orders (<code>alm_transfer_order</code>)</h2>
+                <div class="prose">
+                    <p>
+                        When you need to move an asset from one stockroom to another (e.g., from the Central Warehouse to the New York Office), you use a <strong>Transfer Order</strong>.
+                    </p>
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    stateDiagram-v2
+                        direction TB
+                        
+                        Draft --> Requested
+                        Requested --> Shipment_Prep
+                        Shipment_Prep --> In_Transit
+                        In_Transit --> Received
+                        
+                        note right of Draft
+                            Select Source & Dest Stockrooms
+                        end note
+                        note right of In_Transit
+                            Asset state changes to "In Transit"
+                        end note
+                        note right of Received
+                            Asset state changes back to "In Stock", new Stockroom assigned
+                        end note
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

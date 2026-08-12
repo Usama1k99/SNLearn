@@ -1,0 +1,49 @@
+<%- include('../../partials/head', { title: 'Process Simulator — SAM | SN Learn', styles: ['/styles/module-layout.css', '/styles/simulator.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#how-to-use" class="toc-link">How to Use</a>
+                        <a href="#simulator" class="toc-link">Record Simulator</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Process Simulator</span>
+                    </div>
+                    <h1 class="content-title">Process <span class="gradient-text">Simulator</span></h1>
+                    <p class="content-subtitle">Explore realistic sample records from key SAM tables. Click any record to expand its full form view.</p>
+                </div>
+                <section class="content-section" id="how-to-use">
+                    <h2>How to Use This Simulator</h2>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Interactive Guide</div>
+                        <p>
+                            <strong>Click any record</strong> to expand its form view.
+                            <strong>Choice fields</strong> are shown as dropdowns.
+                            <strong>Reference fields</strong> have a small info button to see which table they reference.
+                            Tabs are ordered by the SAM <strong>lifecycle flow</strong> — from discovery to licensing.
+                        </p>
+                    </div>
+                </section>
+                <section class="content-section" id="simulator">
+                    <h2>Record Explorer</h2>
+                    <div class="sim-tabs-header" id="sim-tabs-header"></div>
+                    <div class="sim-tabs-content" id="sim-tabs-content"></div>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js', '/scripts/sam-simulator.js', '/scripts/simulator-core.js'] }) %>

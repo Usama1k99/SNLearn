@@ -1,0 +1,204 @@
+<%- include('../../partials/head', { title: 'Disposal & Retirement — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'ham', moduleLabel: 'HAM', activePage: 'disposal' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#retirement" class="toc-link">Retirement vs. Disposal</a>
+                    <a href="#disposal-orders" class="toc-link">Disposal Orders</a>
+                    <a href="#disposal-workflow" class="toc-link">Disposal Workflow</a>
+                    <a href="#lease-returns" class="toc-link">Lease Returns</a>
+                    <a href="#compliance" class="toc-link">Data & Compliance</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/ham">HAM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Disposal & Retirement</span>
+                </div>
+                <h1 class="content-title">Disposal & <span class="gradient-text">Retirement</span></h1>
+                <p class="content-subtitle">
+                    Understand the critical final stages of the hardware lifecycle — from decommissioning assets to certified disposal and lease returns.
+                </p>
+            </div>
+
+            <section class="content-section" id="retirement">
+                <h2 class="section-title">Retirement vs. Disposal</h2>
+                <div class="prose">
+                    <p>
+                        In ServiceNow HAM, <strong>Retirement</strong> and <strong>Disposal</strong> are two distinct phases that are often confused. Understanding the difference is essential for proper asset tracking.
+                    </p>
+                </div>
+                <div class="grid-2">
+                    <div class="page-card" style="border-top: 4px solid var(--accent-primary)">
+                        <h3>Retirement</h3>
+                        <p><strong>Asset State:</strong> <code>Retired</code></p>
+                        <ul>
+                            <li>The asset is <strong>no longer in active use</strong> but still physically exists</li>
+                            <li>It may be sitting in a warehouse awaiting disposal</li>
+                            <li>The CI status changes to <code>Retired</code></li>
+                            <li>Financial depreciation may still be tracked</li>
+                        </ul>
+                    </div>
+                    <div class="page-card" style="border-top: 4px solid var(--accent-secondary)">
+                        <h3>Disposal</h3>
+                        <p><strong>Substatus:</strong> <code>Disposed</code></p>
+                        <ul>
+                            <li>The asset has been <strong>physically removed</strong> from the organization</li>
+                            <li>May be recycled, donated, auctioned, or destroyed</li>
+                            <li>A formal <strong>Disposal Order</strong> tracks the process</li>
+                            <li>No further financial tracking after disposal</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="disposal-orders">
+                <h2 class="section-title">Disposal Orders (<code>alm_disposal_order</code>)</h2>
+                <div class="prose">
+                    <p>
+                        A <strong>Disposal Order</strong> is the formal record that manages the end-of-life process for one or more hardware assets. It ensures proper tracking, compliance, and accountability throughout the disposal process.
+                    </p>
+                    <p>
+                        Each Disposal Order contains <strong>Disposal Order Lines</strong> (<code>alm_disposal_order_line</code>) — one for each asset being disposed. This allows bulk processing while tracking each asset individually.
+                    </p>
+                </div>
+                <div class="grid-2">
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        </div>
+                        <h3>Disposal Order <code>[alm_disposal_order]</code></h3>
+                        <p>Parent record containing disposal method (Recycle, Donate, Auction, Destroy), target date, assigned vendor, and overall status.</p>
+                    </div>
+                    <div class="page-card">
+                        <div class="card-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        </div>
+                        <h3>Disposal Order Line <code>[alm_disposal_order_line]</code></h3>
+                        <p>Individual asset record within the disposal order. References the specific <code>alm_hardware</code> record being disposed and tracks its individual disposal status.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="disposal-workflow">
+                <h2 class="section-title">The Disposal Workflow</h2>
+                <div class="prose">
+                    <p>
+                        ServiceNow provides a multi-stage workflow for disposal orders, ensuring proper verification at each step. This prevents assets from being prematurely disposed and maintains audit compliance.
+                    </p>
+                </div>
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    graph TD
+                        A["Planning<br/>Identify assets for disposal"] --> B["Scheduled<br/>Set disposal date & method"]
+                        B --> C["Ready for Disposal<br/>Assets collected & verified"]
+                        C --> D{"Data Sanitization<br/>Required?"}
+                        D -->|Yes| E["Sanitization<br/>Wipe drives / destroy data"]
+                        D -->|No| F["Disposal Verification<br/>Final check & sign-off"]
+                        E --> F
+                        F --> G["Disposed<br/>Asset removed from inventory"]
+                        G --> H["Record Updated<br/>Substatus = Disposed"]
+
+                        classDef plan fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                        classDef process fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef verify fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef done fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                        classDef decision fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+
+                        class A,B plan
+                        class C,E process
+                        class D decision
+                        class F verify
+                        class G,H done
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Key Insight</div>
+                    <p>
+                        When a Disposal Order moves to the <strong>Disposed</strong> stage, ServiceNow automatically updates each linked asset's substatus to <code>Disposed</code>. This ensures the asset is no longer counted in active inventory reports or financial calculations.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="lease-returns">
+                <h2 class="section-title">Lease Returns</h2>
+                <div class="prose">
+                    <p>
+                        Not all hardware is purchased outright. Many organizations <strong>lease</strong> equipment through vendors like Dell Financial Services or HP Financial. When a lease expires, the process differs from standard disposal.
+                    </p>
+                </div>
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">Owned Assets</div>
+                        <p>Follow the full disposal workflow. The organization decides whether to recycle, donate, auction, or destroy the hardware. A disposal vendor may be engaged for certified destruction.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Leased Assets</div>
+                        <p>Must be returned to the leasing company by the lease end date. HAM tracks the associated <strong>Contract</strong> (<code>ast_contract</code>) and alerts teams before the return deadline. Failure to return on time incurs penalty charges.</p>
+                    </div>
+                </div>
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Contract Integration</div>
+                    <p>
+                        HAM's Lease Contract records (<code>ast_contract</code>) store the lease start/end dates, payment schedule, and the list of assets covered. When a contract approaches expiration, automated notifications can trigger a review — teams must decide whether to <strong>renew</strong>, <strong>buy out</strong>, or <strong>return</strong> the leased equipment.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="compliance">
+                <h2 class="section-title">Data Sanitization & Compliance</h2>
+                <div class="prose">
+                    <p>
+                        Before any asset leaves the organization, data security protocols must be followed. Many industries have strict regulatory requirements (HIPAA, GDPR, PCI-DSS) governing how data on decommissioned hardware must be handled.
+                    </p>
+                </div>
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Disposal Method</th>
+                                <th>Use Case</th>
+                                <th>Data Handling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Recycle</strong></td>
+                                <td>Environmentally responsible disposal of non-functional hardware</td>
+                                <td>Full data wipe or physical destruction of storage media</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Donate</strong></td>
+                                <td>Functional hardware given to schools, charities, or non-profits</td>
+                                <td>Certified multi-pass data wipe required</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auction / Resale</strong></td>
+                                <td>Recover residual value from functional hardware</td>
+                                <td>Certified wipe with documentation / certificate of destruction</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Destroy</strong></td>
+                                <td>High-security environments (defense, healthcare, finance)</td>
+                                <td>Physical destruction (shredding) with certificate of destruction</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

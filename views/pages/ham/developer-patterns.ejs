@@ -1,0 +1,304 @@
+<%- include('../../partials/head', { title: 'Developer Patterns & APIs — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'ham', moduleLabel: 'HAM', activePage: 'developer-patterns' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#asset-ci-sync" class="toc-link">Asset-CI Sync Rules</a>
+                    <a href="#lifecycle-automation" class="toc-link">Lifecycle Automation</a>
+                    <a href="#rest-api" class="toc-link">REST API Patterns</a>
+                    <a href="#common-customizations" class="toc-link">Common Customizations</a>
+                    <a href="#best-practices" class="toc-link">Best Practices</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/ham">HAM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Developer Patterns & APIs</span>
+                </div>
+                <h1 class="content-title">Developer <span class="gradient-text">Patterns & APIs</span></h1>
+                <p class="content-subtitle">
+                    Practical developer guidance for extending and integrating with Hardware Asset Management — Business Rules, Flow Designer, REST APIs, and common customization patterns.
+                </p>
+            </div>
+
+            <section class="content-section" id="asset-ci-sync">
+                <h2 class="section-title">Asset-CI Synchronization Rules</h2>
+                <div class="prose">
+                    <p>
+                        The backbone of HAM is the automatic synchronization between Asset records (<code>alm_hardware</code>) and Configuration Items (<code>cmdb_ci_*</code>). This is handled by out-of-the-box <strong>Business Rules</strong> that fire on insert, update, and delete operations.
+                    </p>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Critical: Don't Break the Sync</div>
+                    <p>
+                        The Asset-CI sync Business Rules are one of the most commonly broken customizations in ServiceNow. Before modifying any Business Rule on <code>alm_hardware</code> or <code>cmdb_ci_computer</code>, ensure your changes don't interfere with the sync process. Always test state transitions end-to-end.
+                    </p>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Business Rule</th>
+                                <th>Table</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Create CI from Asset</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td>When a new asset is created, automatically creates the corresponding CI based on Model Category</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sync Asset to CI</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td>When asset state changes (e.g., In Use → Retired), updates the CI's operational status</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sync CI to Asset</strong></td>
+                                <td><code>cmdb_ci_computer</code></td>
+                                <td>When CI status changes, reflects the change back to the linked Asset record</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delete CI on Asset Delete</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td>Optionally removes or retires the CI when an asset record is deleted</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    graph LR
+                        A["Asset State Change<br/>(alm_hardware)"] --> B["Business Rule Fires"]
+                        B --> C["Update CI Status<br/>(cmdb_ci_computer)"]
+
+                        D["CI Status Change<br/>(cmdb_ci_computer)"] --> E["Business Rule Fires"]
+                        E --> F["Update Asset State<br/>(alm_hardware)"]
+
+                        classDef asset fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                        classDef rule fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef ci fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+
+                        class A,F asset
+                        class B,E rule
+                        class C,D ci
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="lifecycle-automation">
+                <h2 class="section-title">Lifecycle Automation with Flow Designer</h2>
+                <div class="prose">
+                    <p>
+                        ServiceNow <strong>Flow Designer</strong> allows you to build no-code/low-code automations for HAM lifecycle events. Common automation patterns include:
+                    </p>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-onboarding">Onboarding</button>
+                        <button class="tab-btn" data-tab="tab-warranty">Warranty Alerts</button>
+                        <button class="tab-btn" data-tab="tab-restock">Auto-Restock</button>
+                    </div>
+                    <div class="tab-panel active" id="tab-onboarding">
+                        <h3>New Employee Hardware Onboarding</h3>
+                        <p>When HR creates a new employee record, automatically provision hardware:</p>
+                        <ul>
+                            <li><strong>Trigger:</strong> Record created on <code>sys_user</code> with role = Employee</li>
+                            <li><strong>Check Stockroom:</strong> Query <code>alm_stockroom</code> for available laptops matching the role's default model</li>
+                            <li><strong>Reserve or Order:</strong> If stock available, create an asset assignment. If not, generate a Purchase Order</li>
+                            <li><strong>Notify:</strong> Send the IT logistics team a deployment task</li>
+                        </ul>
+                    </div>
+                    <div class="tab-panel" id="tab-warranty">
+                        <h3>Warranty Expiration Notifications</h3>
+                        <p>Proactively alert teams before warranties expire:</p>
+                        <ul>
+                            <li><strong>Trigger:</strong> Scheduled Flow running daily</li>
+                            <li><strong>Query:</strong> Find all assets where <code>warranty_expiration</code> is within 30 days</li>
+                            <li><strong>Action:</strong> Create a task for the asset owner to decide: extend warranty, plan replacement, or accept risk</li>
+                            <li><strong>Escalation:</strong> If no action within 7 days, escalate to the asset manager</li>
+                        </ul>
+                    </div>
+                    <div class="tab-panel" id="tab-restock">
+                        <h3>Automated Restocking</h3>
+                        <p>Keep stockrooms at optimal levels:</p>
+                        <ul>
+                            <li><strong>Trigger:</strong> Asset state changes to <code>In Use</code> or <code>Retired</code> (stock decreases)</li>
+                            <li><strong>Check:</strong> Count remaining assets of the same Model in the Stockroom</li>
+                            <li><strong>Threshold:</strong> If count drops below the Stock Rule minimum, trigger restock</li>
+                            <li><strong>Action:</strong> Generate a Transfer Order (from warehouse) or Purchase Order (from vendor)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="rest-api">
+                <h2 class="section-title">REST API Patterns</h2>
+                <div class="prose">
+                    <p>
+                        HAM tables are accessible via the standard ServiceNow <strong>Table API</strong>. Here are common integration patterns for external systems.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">Query Assets by Stockroom</div>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST API</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+                            <pre><code>GET /api/now/table/alm_hardware
+  ?sysparm_query=stockroom.name=Central Warehouse
+    ^install_status=6
+  &sysparm_fields=display_name,serial_number,model.name,
+    install_status,stockroom.name
+  &sysparm_limit=50</code></pre>
+                        </div>
+                    </div>
+                    <p><small>Returns all assets in "Central Warehouse" with status <code>In Stock</code> (install_status=6).</small></p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">Create a New Asset</div>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST API</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+                            <pre><code>POST /api/now/table/alm_hardware
+Content-Type: application/json
+
+{
+  "model": "&lt;sys_id_of_hardware_model&gt;",
+  "serial_number": "SN-2024-00142",
+  "stockroom": "&lt;sys_id_of_stockroom&gt;",
+  "install_status": "6",
+  "substatus": "available"
+}</code></pre>
+                        </div>
+                    </div>
+                    <p><small>Creates a new hardware asset. The Asset-CI sync Business Rule will automatically create the corresponding CI.</small></p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">Generate a Transfer Order</div>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST API</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+                            <pre><code>POST /api/now/table/alm_transfer_order
+Content-Type: application/json
+
+{
+  "from_stockroom": "&lt;source_stockroom_sys_id&gt;",
+  "to_stockroom": "&lt;destination_stockroom_sys_id&gt;",
+  "stage": "requested",
+  "expected_delivery": "2024-03-15"
+}</code></pre>
+                        </div>
+                    </div>
+                    <p><small>Creates a transfer order to move assets between stockrooms. Add Transfer Order Lines to specify which assets to move.</small></p>
+                </div>
+            </section>
+
+            <section class="content-section" id="common-customizations">
+                <h2 class="section-title">Common Customizations</h2>
+                <div class="prose">
+                    <p>
+                        While HAM provides robust out-of-the-box functionality, most organizations customize it to fit their specific processes.
+                    </p>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span>Custom Substatus Values</span>
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>
+                                The default substatus values (Available, Reserved, In Maintenance, etc.) often don't capture all organizational states. You can add custom substatus choices to the <code>substatus</code> field on <code>alm_hardware</code>.
+                            </p>
+                            <p>
+                                <strong>Example:</strong> Adding "Pending Approval" as a substatus under the "In Stock" state to indicate assets that are received but awaiting quality inspection before being made available.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span>Custom Depreciation Methods</span>
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>
+                                HAM supports <strong>Straight-Line</strong> and <strong>Declining Balance</strong> depreciation out of the box. For organizations with specialized accounting requirements, custom depreciation schedules can be implemented by extending the <code>fm_depreciation</code> table.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span>Model Category Extensions</span>
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>
+                                Creating new Model Categories is common when introducing new hardware types (e.g., IoT devices, smart badges). Define both the <strong>Asset Class</strong> and <strong>CI Class</strong> to control which tables get records created.
+                            </p>
+                            <p>
+                                <strong>Tip:</strong> Leave the CI Class empty if the hardware doesn't need operational tracking (e.g., furniture, office supplies).
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span>Hardware Normalization</span>
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>
+                                Similar to SAM's software normalization, HAM uses <strong>Hardware Normalization</strong> to standardize discovered hardware data. When Discovery finds a device, it may report the manufacturer as "DELL" or "Dell Inc." — normalization maps these to a canonical Hardware Product Model.
+                            </p>
+                            <p>
+                                This is configured through the <strong>Hardware Model Normalization</strong> plugin and the Content Library, which contains publisher-verified hardware model definitions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="best-practices">
+                <h2 class="section-title">Developer Best Practices</h2>
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">Never Bypass Model Categories</div>
+                        <p>Always create assets through proper Model → Model Category workflows. Directly inserting into <code>alm_hardware</code> without a valid Model reference breaks the Asset-CI sync chain and creates orphaned records.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Use GlideRecord for Bulk Ops</div>
+                        <p>When updating multiple assets (e.g., bulk retirement), use server-side <code>GlideRecord</code> with <code>setWorkflow(false)</code> only when you explicitly handle CI sync yourself. Otherwise, let Business Rules fire naturally.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Test State Transitions</div>
+                        <p>Always verify the complete state chain: Asset state → CI status → related Contract/Lease status. A missing sync can cause ghost assets (CI exists, asset deleted) or phantom CIs (asset exists, no CI).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Leverage Domain Separation</div>
+                        <p>In multi-tenant instances, ensure Stockrooms, Transfer Orders, and Disposal Orders respect domain boundaries. Test cross-domain scenarios to prevent data leakage between business units.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

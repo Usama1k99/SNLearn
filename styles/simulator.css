@@ -1,0 +1,605 @@
+/* ============================================
+   SECOPS PROCESS SIMULATOR — Styles
+   ============================================ */
+
+/* -- Simulator Tab Navigation -- */
+.sim-tabs-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: var(--space-xl);
+    padding-bottom: 0;
+}
+
+.sim-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+    transition: color var(--transition-fast);
+    font-family: var(--font-sans);
+}
+
+.sim-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.sim-tab-btn.active {
+    color: #34d399;
+}
+
+.sim-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #10b981;
+    border-radius: 2px 2px 0 0;
+}
+
+.sim-tab-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.sim-tab-label {
+    font-size: 13px;
+}
+
+/* -- Tab Panels -- */
+.sim-tab-panel {
+    display: none;
+}
+
+.sim-tab-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* -- Table Meta Header -- */
+.sim-table-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+}
+
+.sim-table-meta-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sim-table-name code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+.sim-table-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+.sim-record-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* -- Records List -- */
+.sim-records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--space-xl);
+}
+
+/* -- Record Row -- */
+.sim-record-row {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.sim-record-row:hover {
+    border-color: var(--border-default);
+}
+
+.sim-record-row.open {
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.06);
+}
+
+/* -- Record Header (clickable) -- */
+.sim-record-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    gap: var(--space-md);
+}
+
+.sim-record-header:hover {
+    background: rgba(16, 185, 129, 0.04);
+}
+
+.sim-record-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-width: 0;
+    flex: 1;
+}
+
+.sim-record-id {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: #34d399;
+    flex-shrink: 0;
+}
+
+.sim-record-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sim-record-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+
+/* -- State Badge -- */
+.sim-state-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.sim-badge-draft {
+    background: rgba(99, 102, 241, 0.12);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.sim-badge-active {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.sim-badge-review {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.sim-badge-closed {
+    background: rgba(100, 116, 139, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.sim-badge-special {
+    background: rgba(236, 72, 153, 0.12);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+.sim-badge-default {
+    background: var(--bg-elevated);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-subtle);
+}
+
+/* -- Expand Icon -- */
+.sim-expand-icon {
+    color: var(--text-muted);
+    transition: transform var(--transition-base);
+    display: flex;
+    align-items: center;
+}
+
+.sim-record-row.open .sim-expand-icon {
+    transform: rotate(180deg);
+}
+
+/* -- Record Body (form view) -- */
+.sim-record-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sim-record-row.open .sim-record-body {
+    max-height: 3000px;
+}
+
+/* -- Form Layout -- */
+.sim-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.sim-form-field {
+    display: flex;
+    background: var(--bg-primary);
+    min-height: 40px;
+    position: relative;
+}
+
+.sim-form-field:has(.sim-ref-tooltip.visible),
+.sim-form-control:has(.sim-ref-tooltip.visible),
+.sim-ref-wrapper:has(.sim-ref-tooltip.visible) {
+    z-index: 1000;
+}
+
+/* Full-width for textarea fields */
+.sim-form-field:has(.sim-textarea) {
+    grid-column: 1 / -1;
+}
+
+.sim-form-label {
+    width: 160px;
+    min-width: 160px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: flex-start;
+    border-right: 1px solid var(--border-subtle);
+    line-height: 1.6;
+}
+
+.sim-form-control {
+    flex: 1;
+    padding: 6px 12px;
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    position: relative;
+    overflow: visible;
+}
+
+/* -- Form Field Renderers -- */
+
+/* Select / Choice */
+.sim-select-wrapper {
+    width: 100%;
+}
+
+.sim-select {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+    cursor: default;
+    transition: border-color var(--transition-fast);
+}
+
+.sim-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+/* Reference Field */
+.sim-ref-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.sim-ref-value {
+    font-size: 13px;
+    color: #60a5fa;
+    text-decoration: underline;
+    text-decoration-color: rgba(96, 165, 250, 0.3);
+    text-underline-offset: 2px;
+    cursor: default;
+}
+
+.sim-ref-empty {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-style: italic;
+}
+
+/* Reference Info Button */
+.sim-ref-info-btn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.sim-ref-info-btn:hover {
+    border-color: #10b981;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.08);
+}
+
+/* Reference Tooltip — uses FIXED positioning to escape all overflow:hidden ancestors */
+.sim-ref-tooltip {
+    position: fixed;
+    background: #0f172a;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 6px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 999999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    transform: scale(0.95);
+}
+
+.sim-ref-tooltip::after {
+    display: none;
+}
+
+.sim-ref-tooltip.visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.sim-ref-tooltip-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.sim-ref-tooltip code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Text / String / Number / Datetime inputs */
+.sim-input {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 2px 0;
+    word-break: break-word;
+}
+
+.sim-input.sim-empty,
+.sim-textarea.sim-empty {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.sim-input-number {
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.sim-input-datetime {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Textarea */
+.sim-textarea {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* -- Process Explanation Section -- */
+.sim-process-section {
+    margin-top: var(--space-xl);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.sim-process-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+    opacity: 0.6;
+}
+
+.sim-process-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    color: #34d399;
+}
+
+.sim-process-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.sim-process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.sim-process-step {
+    padding-left: var(--space-lg);
+    border-left: 2px solid rgba(16, 185, 129, 0.2);
+    transition: border-color var(--transition-fast);
+}
+
+.sim-process-step:hover {
+    border-left-color: #10b981;
+}
+
+.sim-process-step h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.sim-process-step p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.sim-process-step code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: #34d399;
+}
+
+/* -- Responsive -- */
+@media (max-width: 900px) {
+    .sim-form {
+        grid-template-columns: 1fr;
+    }
+
+    .sim-form-field:has(.sim-textarea) {
+        grid-column: 1;
+    }
+
+    .sim-form-label {
+        width: 140px;
+        min-width: 140px;
+    }
+
+    .sim-table-meta {
+        flex-direction: column;
+    }
+
+    .sim-record-header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .sim-record-title {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 600px) {
+    .sim-form-field {
+        flex-direction: column;
+    }
+
+    .sim-form-label {
+        width: 100%;
+        min-width: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 6px 12px;
+    }
+
+    .sim-tab-btn {
+        padding: 8px 10px;
+    }
+
+    .sim-tab-label {
+        font-size: 11px;
+    }
+
+    .sim-tab-icon {
+        font-size: 13px;
+    }
+}

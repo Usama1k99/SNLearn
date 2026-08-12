@@ -1,0 +1,294 @@
+<%- include('../../partials/head', { title: 'Data Model & Key Tables — SecOps | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'secops' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'secops', moduleLabel: 'SecOps', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#task-inheritance" class="toc-link">Task Inheritance</a>
+                        <a href="#sir-tables" class="toc-link">SIR Tables (sn_si)</a>
+                        <a href="#vr-tables" class="toc-link">VR Tables (sn_vul)</a>
+                        <a href="#ti-tables" class="toc-link">TI Tables (sn_ti)</a>
+                        <a href="#erd" class="toc-link">Relationship Diagram</a>
+                        <a href="#exploring" class="toc-link">Exploring the Schema</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb"><a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/secops">SecOps</a><span class="breadcrumb-sep">›</span><span>Data Model & Key Tables</span></div>
+                    <h1 class="content-title">Data Model & <span class="gradient-text">Key Tables</span></h1>
+                    <p class="content-subtitle">
+                        SecOps uses three main table families — <code>sn_si</code> for security incidents, 
+                        <code>sn_vul</code> for vulnerabilities, and <code>sn_ti</code> for threat intelligence. 
+                        All heavily leverage the CMDB and extend the platform's <code>task</code> table.
+                    </p>
+                </div>
+
+                <section class="content-section" id="task-inheritance">
+                    <h2>Task Table Inheritance</h2>
+                    <p>
+                        A critical architectural concept: both <code>sn_si_incident</code> and many VR tables 
+                        (like <code>sn_vul_vulnerability</code>) <strong>extend the platform <code>task</code> table</strong>. 
+                        This means they inherit:
+                    </p>
+                    <ul>
+                        <li><strong>Assignment fields:</strong> assigned_to, assignment_group</li>
+                        <li><strong>State management:</strong> state, approval</li>
+                        <li><strong>SLA engine:</strong> Built-in SLA tracking and breach management</li>
+                        <li><strong>Activity stream:</strong> Work notes, comments, journal fields</li>
+                        <li><strong>Workflow engine:</strong> Flow Designer and legacy workflows</li>
+                    </ul>
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Why This Matters</div>
+                        <p>
+                            Because SecOps records are tasks, they automatically work with existing ServiceNow 
+                            capabilities — approvals, SLAs, notifications, reporting, and Performance Analytics. 
+                            You don't need to build these from scratch.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="sir-tables">
+                    <h2>Security Incident Response Tables (sn_si)</h2>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Purpose</th>
+                                    <th>Key Fields</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_si_incident</code></td>
+                                    <td>Core security incident record (extends <code>task</code>)</td>
+                                    <td>category, subcategory, priority, severity, business_criticality, affected_ci</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_si_task</code></td>
+                                    <td>Sub-tasks for incident response activities</td>
+                                    <td>parent (→ sn_si_incident), type, state</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_si_affected_ci</code></td>
+                                    <td>Many-to-many: incidents ↔ affected CIs</td>
+                                    <td>incident, ci_item</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_si_write_up</code></td>
+                                    <td>Post-incident review documentation</td>
+                                    <td>incident, summary, lessons_learned</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-section" id="vr-tables">
+                    <h2>Vulnerability Response Tables (sn_vul)</h2>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Purpose</th>
+                                    <th>Key Fields</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_vul_entry</code></td>
+                                    <td>Vulnerability definitions (CVEs from NVD)</td>
+                                    <td>id (CVE ID), severity, cvss_score, description</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_vul_vulnerable_item</code></td>
+                                    <td>A specific vulnerability on a specific CI (the core VR record)</td>
+                                    <td>vulnerability (→ entry), cmdb_ci, state, risk_score</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_vul_vulnerability</code></td>
+                                    <td>Remediation task — groups multiple VIs for assignment</td>
+                                    <td>assigned_to, assignment_group, state, priority</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_vul_detection</code></td>
+                                    <td>Raw detection data from scanners per vulnerable item</td>
+                                    <td>vulnerable_item, source, detection_date, status</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_vul_integration_run</code></td>
+                                    <td>Tracks scanner import execution status</td>
+                                    <td>source, state, start_time, end_time, items_processed</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_vul_integration_stats</code></td>
+                                    <td>Metrics from each integration run</td>
+                                    <td>run, created_count, updated_count, error_count</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Key Distinction</div>
+                        <p>
+                            <code>sn_vul_entry</code> = the vulnerability itself (e.g., CVE-2024-1234).<br>
+                            <code>sn_vul_vulnerable_item</code> = that vulnerability on a specific CI.<br>
+                            <code>sn_vul_vulnerability</code> = the remediation task grouping multiple items.<br>
+                            One CVE can produce thousands of Vulnerable Items across your infrastructure.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="ti-tables">
+                    <h2>Threat Intelligence Tables (sn_ti)</h2>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Purpose</th>
+                                    <th>Key Fields</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_ti_observable</code></td>
+                                    <td>Indicators of Compromise (IoCs) — IPs, domains, hashes, URLs</td>
+                                    <td>type, value, state, enrichment_status</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_ti_m2m_observable_sn_si_incident</code></td>
+                                    <td>Links observables to security incidents</td>
+                                    <td>observable, incident</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_ti_stix2_attack_pattern</code></td>
+                                    <td>MITRE ATT&CK techniques and patterns</td>
+                                    <td>name, mitre_id, description, tactic</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_ti_indicator</code></td>
+                                    <td>Threat intelligence indicators from feeds</td>
+                                    <td>type, pattern, valid_from, valid_until, source</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-section" id="erd">
+                    <h2>Core Relationship Diagram</h2>
+                    <p>How the primary SecOps tables connect to each other and the CMDB:</p>
+                    <div class="diagram-block">
+                        <div class="diagram-title">SecOps Data Model Relationships</div>
+                        <div class="erd-container">
+                            <div class="erd-grid">
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(16, 185, 129, 0.1);">sn_si_incident</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">number, state, priority</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> affected_ci → cmdb_ci</div>
+                                        <div class="erd-field">category, subcategory</div>
+                                        <div class="erd-field"><span class="erd-field-ref">EXT</span> extends task</div>
+                                    </div>
+                                </div>
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(16, 185, 129, 0.1);">sn_ti_observable</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">type (IP, hash, URL)</div>
+                                        <div class="erd-field">value</div>
+                                        <div class="erd-field">state, enrichment_status</div>
+                                        <div class="erd-field"><span class="erd-field-ref">M2M</span> → sn_si_incident</div>
+                                    </div>
+                                </div>
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(16, 185, 129, 0.1);">sn_vul_entry</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">id (CVE-YYYY-NNNN)</div>
+                                        <div class="erd-field">severity, cvss_score</div>
+                                        <div class="erd-field">description</div>
+                                    </div>
+                                </div>
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(16, 185, 129, 0.1);">sn_vul_vulnerable_item</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> vulnerability → entry</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> cmdb_ci</div>
+                                        <div class="erd-field">state, risk_score</div>
+                                    </div>
+                                </div>
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(16, 185, 129, 0.1);">sn_vul_vulnerability</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">assigned_to, group</div>
+                                        <div class="erd-field">state, priority</div>
+                                        <div class="erd-field"><span class="erd-field-ref">EXT</span> extends task</div>
+                                    </div>
+                                </div>
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header" style="background: rgba(100, 116, 139, 0.1);">cmdb_ci</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name, ip_address</div>
+                                        <div class="erd-field">busines_criticality</div>
+                                        <div class="erd-field">owned_by, managed_by</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="exploring">
+                    <h2>Exploring the Schema</h2>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Background Script — List All SecOps Tables</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Find all Security Incident Response tables
+var gr = new GlideRecord('sys_db_object');
+gr.addQuery('name', 'STARTSWITH', 'sn_si');
+gr.orderBy('name');
+gr.query();
+gs.info('=== SIR Tables ===');
+while (gr.next()) {
+    gs.info(gr.name + ' — ' + gr.label);
+}
+
+// Find all Vulnerability Response tables  
+gr.initialize();
+gr.addQuery('name', 'STARTSWITH', 'sn_vul');
+gr.orderBy('name');
+gr.query();
+gs.info('=== VR Tables ===');
+while (gr.next()) {
+    gs.info(gr.name + ' — ' + gr.label);
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/secops/overview" class="page-nav-link"><span class="page-nav-label">← Previous</span><span class="page-nav-title">Overview & Architecture</span></a>
+                    <a href="/secops/sir-lifecycle" class="page-nav-link page-nav-link--next"><span class="page-nav-label">Next →</span><span class="page-nav-title">Security Incident Response</span></a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,0 +1,74 @@
+<%- include('../../partials/head', { title: 'Developer Patterns — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#sgc" class="toc-link">Service Graph Connectors</a><a href="#custom-metrics" class="toc-link">Custom License Metrics</a><a href="#flow" class="toc-link">Flow Designer</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Developer Patterns</span>
+                    </div>
+                    <h1 class="content-title">Developer <span class="gradient-text">Patterns</span></h1>
+                    <p class="content-subtitle">
+                        How developers extend SAM using integrations, custom metric scripts, and automation workflows.
+                    </p>
+                </div>
+
+                <section class="content-section" id="sgc">
+                    <h2>Service Graph Connectors (Data Ingestion)</h2>
+                    <p>
+                        SAM is useless without data. Developers frequently configure <strong>Service Graph Connectors (SGC)</strong> to ingest installation data from third-party sources.
+                    </p>
+                    <p>
+                        Unlike legacy Transform Maps, SGCs use the robust Identification and Reconciliation Engine (IRE). This ensures that a server imported from AWS and the same server imported from SCCM merge into a single CI, rather than creating duplicates which would ruin SAM counts.
+                    </p>
+                </section>
+
+                <section class="content-section" id="custom-metrics">
+                    <h2>Scripting Custom License Metrics</h2>
+                    <p>
+                        While ServiceNow provides OOTB metrics (Per User, Per Core), enterprise contracts often have highly bespoke licensing terms (e.g., "Per Terabyte of Storage Managed"). 
+                    </p>
+                    <p>
+                        Developers can write Custom License Metric scripts using server-side JavaScript. This script runs during the Reconciliation engine execution to dynamically calculate the rights required based on custom logic querying the CMDB.
+                    </p>
+                </section>
+
+                <section class="content-section" id="flow">
+                    <h2>Automating Reclamation via Flow Designer</h2>
+                    <p>
+                        To close the loop on Reclamation, developers build Flow Designer actions that reach out to client management tools. 
+                    </p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">JavaScript</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>// Example Flow Designer conceptual logic for Software Removal
+if (reclamationTask.state == 'approved_for_removal') {
+    var sccmAction = new sn_sccm.ClientAction();
+    sccmAction.triggerUninstall(
+        reclamationTask.ci.mac_address, 
+        reclamationTask.software_model.package_id
+    );
+    reclamationTask.state = 'work_in_progress';
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

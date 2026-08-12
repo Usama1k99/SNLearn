@@ -1,0 +1,141 @@
+<%- include('../../partials/head', { title: 'SecOps — Security Operations | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'secops' }) %>
+
+<main class="irm-hub">
+        <div class="container">
+            <div class="irm-hub-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>SecOps</span>
+                </div>
+                <div class="irm-title-row">
+                    <div class="irm-icon-badge">
+                        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                            <path d="M20 4C20 4 32 8 32 18C32 28 20 36 20 36C20 36 8 28 8 18C8 8 20 4 20 4Z" stroke="url(#sec-g)" stroke-width="2"/>
+                            <path d="M17 20L19 22L23 18" stroke="url(#sec-g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="sec-g" x1="8" y1="4" x2="32" y2="36">
+                                    <stop stop-color="#10b981"/><stop offset="1" stop-color="#34d399"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="irm-hub-title">
+                            Security<br>
+                            <span class="gradient-text">Operations</span>
+                        </h1>
+                    </div>
+                </div>
+                <p class="irm-hub-subtitle">
+                    ServiceNow SecOps is a SOAR (Security Orchestration, Automation, and Response) platform 
+                    that bridges IT security and IT operations. It ingests data from SIEM, scanners, and 
+                    threat feeds, enriches it with CMDB business context, and orchestrates automated response.
+                </p>
+            </div>
+
+            <div class="pages-grid">
+                <a href="/secops/overview" class="module-card-horizontal page-card">
+                    <span class="page-card-number">01</span>
+                    <h3 class="page-card-title">Overview & Architecture</h3>
+                    <p class="page-card-desc">
+                        Understand what SecOps is, its SOAR capabilities, how it sits on the Now Platform, 
+                        and the relationship between SIR, VR, and Threat Intelligence.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">SOAR</span>
+                        <span class="topic-tag">Architecture</span>
+                        <span class="topic-tag">Core Modules</span>
+                    </div>
+                </a>
+
+                <a href="/secops/data-model" class="module-card-horizontal page-card">
+                    <span class="page-card-number">02</span>
+                    <h3 class="page-card-title">Data Model & Key Tables</h3>
+                    <p class="page-card-desc">
+                        Deep-dive into sn_si, sn_vul, and sn_ti table families. Understand how 
+                        security incidents, vulnerabilities, and observables are structured.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">sn_si_incident</span>
+                        <span class="topic-tag">sn_vul tables</span>
+                        <span class="topic-tag">CMDB Links</span>
+                    </div>
+                </a>
+
+                <a href="/secops/sir-lifecycle" class="module-card-horizontal page-card">
+                    <span class="page-card-number">03</span>
+                    <h3 class="page-card-title">Security Incident Response</h3>
+                    <p class="page-card-desc">
+                        Walk through the SIR lifecycle — NIST/SANS state models, process definitions, 
+                        playbooks, and the SIR Workspace.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">NIST States</span>
+                        <span class="topic-tag">Playbooks</span>
+                        <span class="topic-tag">SIR Workspace</span>
+                    </div>
+                </a>
+
+                <a href="/secops/vulnerability-response" class="module-card-horizontal page-card">
+                    <span class="page-card-number">04</span>
+                    <h3 class="page-card-title">Vulnerability Response</h3>
+                    <p class="page-card-desc">
+                        Learn the VR lifecycle — scanner integration, vulnerable items, remediation 
+                        grouping, assignment rules, and risk scoring.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Scanner Integration</span>
+                        <span class="topic-tag">VIT Lifecycle</span>
+                        <span class="topic-tag">Remediation</span>
+                    </div>
+                </a>
+
+                <a href="/secops/threat-intelligence" class="module-card-horizontal page-card">
+                    <span class="page-card-number">05</span>
+                    <h3 class="page-card-title">Threat Intelligence & MITRE</h3>
+                    <p class="page-card-desc">
+                        Understand TISC, observable enrichment, IoC management, MITRE ATT&CK mapping, 
+                        and threat feed integration.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">TISC</span>
+                        <span class="topic-tag">MITRE ATT&CK</span>
+                        <span class="topic-tag">Observables</span>
+                    </div>
+                </a>
+
+                <a href="/secops/developer-patterns" class="module-card-horizontal page-card">
+                    <span class="page-card-number">06</span>
+                    <h3 class="page-card-title">Developer Patterns & Integrations</h3>
+                    <p class="page-card-desc">
+                        Practical developer guidance — REST APIs, Flow Designer playbooks, SIEM/scanner 
+                        integrations, orchestration patterns, and best practices.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">REST API</span>
+                        <span class="topic-tag">Integrations</span>
+                        <span class="topic-tag">Flow Designer</span>
+                    </div>
+                </a>
+
+                <a href="/secops/simulator" class="module-card-horizontal page-card">
+                    <span class="page-card-number">07</span>
+                    <h3 class="page-card-title">Process Simulator</h3>
+                    <p class="page-card-desc">
+                        Interactive record explorer — browse realistic sample data from key SecOps tables, 
+                        see choice fields as dropdowns, reference info tooltips, and learn how the 
+                        end-to-end process works in practice.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Interactive</span>
+                        <span class="topic-tag">Sample Data</span>
+                        <span class="topic-tag">Process Flow</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

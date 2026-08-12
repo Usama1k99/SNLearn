@@ -1,0 +1,294 @@
+<%- include('../../partials/head', { title: 'Overview & Architecture — SecOps | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'secops' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'secops', moduleLabel: 'SecOps', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#what-is-secops" class="toc-link">What is SecOps?</a>
+                        <a href="#soar" class="toc-link">SOAR Capabilities</a>
+                        <a href="#architecture" class="toc-link">Architecture Layers</a>
+                        <a href="#core-modules" class="toc-link">Core Modules</a>
+                        <a href="#cmdb-context" class="toc-link">CMDB Business Context</a>
+                        <a href="#lifecycle-diagram" class="toc-link">End-to-End Lifecycle</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/secops">SecOps</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Overview & Architecture</span>
+                    </div>
+                    <h1 class="content-title">Overview & <span class="gradient-text">Architecture</span></h1>
+                    <p class="content-subtitle">
+                        Understand what SecOps is, how it functions as a SOAR platform, and how its 
+                        layered architecture bridges security tools with IT operations on the Now Platform.
+                    </p>
+                </div>
+
+                <section class="content-section" id="what-is-secops">
+                    <h2>What is SecOps?</h2>
+                    <p>
+                        <strong>ServiceNow Security Operations (SecOps)</strong> is a platform that bridges the gap 
+                        between IT security teams and IT operations by orchestrating and automating incident and 
+                        vulnerability management workflows.
+                    </p>
+                    <p>
+                        SecOps does <strong>not replace</strong> your existing security tools (SIEM, vulnerability 
+                        scanners, EDR, firewalls). Instead, it acts as a central <strong>orchestration layer</strong> 
+                        that ingests data from these disparate tools, enriches it with business context from the 
+                        CMDB, and triggers automated, prioritized workflows.
+                    </p>
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Key Mental Model</div>
+                        <p>
+                            Think of SecOps as the "air traffic control" for your security ecosystem. Your SIEM 
+                            detects threats, your scanners find vulnerabilities, your EDR monitors endpoints — 
+                            SecOps coordinates the response across all of them and connects it to the business 
+                            context of what's actually at risk.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="soar">
+                    <h2>SOAR Capabilities</h2>
+                    <p>
+                        SecOps functions as a full <strong>SOAR (Security Orchestration, Automation, and Response)</strong> 
+                        platform with three pillars:
+                    </p>
+
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="tab-orchestration">Orchestration</button>
+                            <button class="tab-btn" data-tab="tab-automation">Automation</button>
+                            <button class="tab-btn" data-tab="tab-response">Response</button>
+                        </div>
+                        <div class="tab-panel active" id="tab-orchestration">
+                            <h3>Security Orchestration</h3>
+                            <p>
+                                Connects your entire security ecosystem into a single pane of glass. SIEM alerts, 
+                                vulnerability scan results, EDR detections, and threat intelligence feeds all flow 
+                                into SecOps, correlated against your CMDB.
+                            </p>
+                            <ul>
+                                <li><strong>Pre-built connectors</strong> for Splunk, QRadar, CrowdStrike, Qualys, Tenable, and 50+ tools</li>
+                                <li><strong>IntegrationHub</strong> for custom REST-based integrations</li>
+                                <li><strong>Bidirectional sync</strong> — actions taken in SecOps can be pushed back to source tools</li>
+                            </ul>
+                        </div>
+                        <div class="tab-panel" id="tab-automation">
+                            <h3>Security Automation</h3>
+                            <p>
+                                Replaces manual, repetitive tasks with automated playbooks. This reduces Mean Time 
+                                to Respond (MTTR) and frees analysts for higher-value work.
+                            </p>
+                            <ul>
+                                <li><strong>Alert triage:</strong> Auto-prioritize based on CMDB business criticality</li>
+                                <li><strong>Data enrichment:</strong> Auto-query VirusTotal, WHOIS, passive DNS for observables</li>
+                                <li><strong>Containment actions:</strong> Auto-isolate hosts, block IPs, disable accounts</li>
+                                <li><strong>Notification routing:</strong> Auto-notify stakeholders based on affected services</li>
+                            </ul>
+                        </div>
+                        <div class="tab-panel" id="tab-response">
+                            <h3>Security Response</h3>
+                            <p>
+                                Structured, auditable response workflows with full accountability. Every action 
+                                is logged, every decision is traceable, and every response follows organizational policy.
+                            </p>
+                            <ul>
+                                <li><strong>Playbook-driven:</strong> Guided task sequences for different incident types</li>
+                                <li><strong>Multi-team collaboration:</strong> Security, IT, legal, and PR working in one record</li>
+                                <li><strong>SLA tracking:</strong> Built-in SLA management for response time commitments</li>
+                                <li><strong>Post-incident review:</strong> Structured PIR with knowledge article generation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="architecture">
+                    <h2>Architecture Layers</h2>
+                    <p>
+                        SecOps architecture mirrors the Now Platform's layered approach, with security-specific 
+                        modules built on top of the shared platform foundation.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">SecOps Architecture Stack</div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                            <div class="flow-step" style="width: 90%; max-width: 500px; background: rgba(16, 185, 129, 0.12); border-color: #10b981;">
+                                <span class="flow-step-label">Analyst Experience</span>
+                                <span class="flow-step-desc" style="max-width: 400px;">SIR Workspace · VR Dashboard · Threat Intel Center · Security Posture</span>
+                            </div>
+                            <span class="flow-arrow">↕</span>
+                            <div class="flow-step" style="width: 90%; max-width: 500px; background: rgba(52, 211, 153, 0.08); border-color: #34d399;">
+                                <span class="flow-step-label">Security Applications</span>
+                                <span class="flow-step-desc" style="max-width: 400px;">Security Incident Response · Vulnerability Response · Threat Intelligence</span>
+                            </div>
+                            <span class="flow-arrow">↕</span>
+                            <div class="flow-step" style="width: 90%; max-width: 500px;">
+                                <span class="flow-step-label">Orchestration & Integration</span>
+                                <span class="flow-step-desc" style="max-width: 400px;">IntegrationHub · Flow Designer · Playbooks · REST APIs · SIEM/Scanner Connectors</span>
+                            </div>
+                            <span class="flow-arrow">↕</span>
+                            <div class="flow-step" style="width: 90%; max-width: 500px; background: rgba(100, 116, 139, 0.08);">
+                                <span class="flow-step-label">Now Platform Foundation</span>
+                                <span class="flow-step-desc" style="max-width: 400px;">CMDB · Workflow Engine · AI/ML · Task Management · Reporting · ACLs</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="core-modules">
+                    <h2>Core Modules</h2>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Purpose</th>
+                                    <th>Key Tables</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Security Incident Response (SIR)</strong></td>
+                                    <td>Manages the full lifecycle of security incidents from detection to post-incident review</td>
+                                    <td><code>sn_si_incident</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Vulnerability Response (VR)</strong></td>
+                                    <td>Identifies, prioritizes, and remediates vulnerabilities across infrastructure</td>
+                                    <td><code>sn_vul_vulnerable_item</code>, <code>sn_vul_entry</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Threat Intelligence (TI)</strong></td>
+                                    <td>Aggregates threat data, manages IoCs, maps to MITRE ATT&CK framework</td>
+                                    <td><code>sn_ti_observable</code>, <code>sn_ti_stix2_*</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Configuration Compliance</strong></td>
+                                    <td>Monitors system configurations against security baselines and benchmarks</td>
+                                    <td><code>sn_ccm_*</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-section" id="cmdb-context">
+                    <h2>CMDB Business Context</h2>
+                    <p>
+                        The secret weapon of SecOps is <strong>CMDB integration</strong>. When a vulnerability 
+                        scanner reports a finding or a SIEM generates an alert, SecOps doesn't just show you 
+                        the technical details — it shows you the <em>business impact</em>.
+                    </p>
+                    <ul>
+                        <li><strong>Asset ownership:</strong> Which team owns the affected server?</li>
+                        <li><strong>Service mapping:</strong> Which business services depend on this CI?</li>
+                        <li><strong>Business criticality:</strong> Is this a Tier 1 production system or a dev sandbox?</li>
+                        <li><strong>Change history:</strong> Were there recent changes that could be related?</li>
+                    </ul>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Developer Tip</div>
+                        <p>
+                            The quality of your CMDB directly impacts the value of SecOps. If your CMDB has 
+                            incomplete or outdated CI records, SecOps can't properly prioritize incidents or 
+                            route remediation tasks. Invest in CMDB hygiene before rolling out SecOps.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Lifecycle Diagram -->
+                <section class="content-section" id="lifecycle-diagram">
+                    <h2>End-to-End Lifecycle Diagram</h2>
+                    <p>
+                        This flowchart illustrates the complete SecOps lifecycle — from raw event detection 
+                        and vulnerability scanning, through intelligence enrichment, prioritized response, and 
+                        post-incident review.
+                    </p>
+                    <div class="mermaid" style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; border: 1px solid var(--border-default); overflow-x: auto;">
+                        graph TD
+                            classDef ingest fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                            classDef enrich fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                            classDef sir fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+                            classDef vr fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                            classDef auto fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                            
+                            subgraph "1. Detection & Ingestion"
+                            A[SIEM / EDR<br/>Threat Alerts]:::ingest --> B[Security Incident<br/>Creation]:::sir
+                            C[Vulnerability Scanner<br/>Qualys, Tenable]:::ingest --> D[Vulnerable Items<br/>Creation]:::vr
+                            end
+                            
+                            subgraph "2. Context & Enrichment"
+                            B --> E{CMDB Lookup<br/>Business Context}:::enrich
+                            D --> E
+                            
+                            B --> F[Threat Intel Lookups<br/>VirusTotal, CrowdStrike]:::enrich
+                            F --> G[Extract Observables<br/>IPs, Domains, Hashes]:::enrich
+                            end
+                            
+                            subgraph "3. Prioritization & Orchestration"
+                            E --> H[Risk Scoring &<br/>Prioritization]:::auto
+                            G --> H
+                            
+                            H --> I{Workflow Type}:::auto
+                            I -->|Active Threat| J[SIR Playbooks<br/>Flow Designer]:::sir
+                            I -->|Vulnerability| K[VR Grouping Rules<br/>Remediation Tasks]:::vr
+                            end
+                            
+                            subgraph "4. Response & Remediation"
+                            J --> L[Containment<br/>Block IPs, Isolate Host]:::sir
+                            J --> M[Eradication<br/>Remove Malware]:::sir
+                            
+                            K --> N[Patching / Configuration<br/>IT Operations]:::vr
+                            N --> O[Rescan Trigger<br/>Verify Fix]:::vr
+                            O -->|Passed| P((Closed)):::vr
+                            end
+                            
+                            subgraph "5. Post-Incident"
+                            L --> Q[Recovery<br/>Restore Services]:::sir
+                            M --> Q
+                            Q --> R[Post-Incident Review<br/>Knowledge Base]:::sir
+                            R --> P
+                            end
+
+                            click A "/secops/developer-patterns#siem-integration"
+                            click B "/secops/sir-lifecycle#sir-overview"
+                            click C "/secops/vulnerability-response#scanner-integration"
+                            click D "/secops/vulnerability-response#vi-lifecycle"
+                            click E "/secops/overview#cmdb-context"
+                            click F "/secops/threat-intelligence#enrichment"
+                            click G "/secops/threat-intelligence#observables"
+                            click H "/secops/vulnerability-response#risk-scoring"
+                            click I "/secops/sir-lifecycle#process-defs"
+                            click J "/secops/sir-lifecycle#playbooks"
+                            click K "/secops/vulnerability-response#grouping"
+                            click L "/secops/sir-lifecycle#lifecycle"
+                            click M "/secops/sir-lifecycle#lifecycle"
+                            click N "/secops/vulnerability-response#vi-lifecycle"
+                            click O "/secops/vulnerability-response#vi-lifecycle"
+                            click Q "/secops/sir-lifecycle#lifecycle"
+                            click R "/secops/sir-lifecycle#pir"
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <div></div>
+                    <a href="/secops/data-model" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Data Model & Key Tables</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

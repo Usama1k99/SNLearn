@@ -1,0 +1,151 @@
+<%- include('../../partials/head', { title: 'Overview & Architecture — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#intro" class="toc-link">Introduction</a><a href="#closed-loop" class="toc-link">The Closed-Loop Engine</a><a href="#product-lifecycle" class="toc-link">Product Lifecycle</a><a href="#business-value" class="toc-link">Business Value</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Overview & Architecture</span>
+                    </div>
+                    <h1 class="content-title">SAM <span class="gradient-text">Architecture</span></h1>
+                    <p class="content-subtitle">
+                        ServiceNow Software Asset Management (SAM) is a continuous, closed-loop engine designed to minimize audit risk and optimize software spending by transforming raw discovery data into actionable intelligence.
+                    </p>
+                </div>
+
+                <section class="content-section" id="intro">
+                    <h2>What is Software Asset Management?</h2>
+                    <p>
+                        Unlike basic inventory tools that simply list installed software, ServiceNow SAM goes much deeper. It cross-references the software installed across your entire infrastructure (on-premise, cloud, and SaaS) with your actual financial purchasing records (entitlements). 
+                    </p>
+                    <p>
+                        This allows IT teams to instantly answer critical questions: <strong>"Are we legally compliant?"</strong> and <strong>"Are we paying for software we don't use?"</strong>
+                    </p>
+                </section>
+
+                <section class="content-section" id="closed-loop">
+                    <h2>The SAM Closed-Loop Engine</h2>
+                    <p>
+                        The architecture of SAM relies on a four-stage cyclic process. Without any one of these stages, the process breaks down.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">The SAM Lifecycle</div>
+                        <div class="mermaid">
+                        graph TD
+                            n1["1. Discovery & Inventory"] --> n2["2. Normalization"]
+                            n2 --> n3["3. Reconciliation (ELP)"]
+                            n3 --> n4["4. Remediation & Reclamation"]
+                            n4 --> n1
+
+                            click n1 "/sam/normalization#content-library" "Discovery & Inventory"
+                            click n2 "/sam/normalization#status" "Normalization Statuses"
+                            click n3 "/sam/reconciliation#elp" "Effective License Position"
+                            click n4 "/sam/remediation#remediation" "Remediation & Reclamation"
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">1. Discovery & Inventory</div>
+                        <p>Gathering accurate data via ServiceNow Discovery, SCCM, Intune, or SaaS integrations. This pulls raw installation records into the <code>cmdb_sam_sw_install</code> table.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">2. Normalization</div>
+                        <p>Standardizing disparate raw software data. "Microsoft Office 365" and "MS Office 365" are mapped to a canonical Publisher and Product using the global Content Library.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">3. Reconciliation</div>
+                        <p>Comparing normalized installations against purchased Entitlements (<code>alm_license</code>). This generates the Effective License Position (ELP), showing compliance gaps or surpluses.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">4. Remediation</div>
+                        <p>Taking action: Buying missing licenses, or automatically uninstalling unused software (Reclamation) to harvest licenses and save money.</p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="product-lifecycle">
+                    <h2>Software Product Lifecycle</h2>
+                    <p>
+                        Beyond managing your own license compliance, SAM also tracks the <strong>publisher's support lifecycle</strong> for each software product. This helps organizations identify risk from running software that is no longer receiving security updates.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Publisher Support Stages</div>
+                        <div class="mermaid">
+                        graph LR
+                            GA["General Availability<br/>Fully Supported"] --> EOS["End of Support<br/>No New Features"]
+                            EOS --> EOES["End of Extended Support<br/>Critical Fixes Only"]
+                            EOES --> EOL["End of Life<br/>No Support"]
+
+                            classDef active fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                            classDef warning fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                            classDef danger fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+
+                            class GA active
+                            class EOS,EOES warning
+                            class EOL danger
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="info-card">
+                            <div class="info-card-title">General Availability (GA)</div>
+                            <p>The software is actively developed and fully supported by the publisher. New features, bug fixes, and security patches are regularly released.</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">End of Support (EOS)</div>
+                            <p>The publisher stops releasing new features. Only critical bug fixes and security patches may be provided. Organizations should begin planning upgrades.</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">End of Extended Support (EOES)</div>
+                            <p>Support is limited to critical security and reliability issues only. Often requires a paid extended support agreement. Upgrade urgency increases.</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">End of Life (EOL)</div>
+                            <p>All support has ceased — no security patches, no bug fixes. Running EOL software is a <strong>major security and compliance risk</strong>. SAM flags these for immediate remediation.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Why This Matters</div>
+                        <p>
+                            The <strong>Lifecycle Management Dashboard</strong> in the SAM workspace provides visibility into which products are approaching or have passed EOL. This data feeds into risk assessments and helps prioritize software upgrade projects — a critical input for audit preparedness.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="business-value">
+                    <h2>The Two Pillars of Business Value</h2>
+                    <div class="side-by-side">
+                        <div class="card-basic">
+                            <h3>Minimizing Audit Risk</h3>
+                            <p>Software publishers (Microsoft, Oracle, IBM) regularly audit organizations. Failing an audit due to being under-licensed results in massive "true-up" fees and penalties. SAM provides real-time visibility to catch these gaps before an auditor does.</p>
+                        </div>
+                        <div class="card-basic">
+                            <h3>Optimizing Spend</h3>
+                            <p>Organizations often buy software and forget about it. By utilizing Reclamation Rules, SAM identifies users who haven't opened software in 90 days and automatically revokes their access, saving millions in annual renewal costs.</p>
+                        </div>
+                    </div>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,0 +1,420 @@
+<%- include('../../partials/head', { title: 'Risk Management Lifecycle — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#risk-states" class="toc-link">Risk Lifecycle States</a>
+                        <a href="#ara" class="toc-link">Advanced Risk Assessment</a>
+                        <a href="#ram" class="toc-link">Risk Assessment Methodology</a>
+                        <a href="#scoring" class="toc-link">Scoring & Rating</a>
+                        <a href="#risk-response" class="toc-link">Risk Response</a>
+                        <a href="#risk-appetite" class="toc-link">Risk Appetite</a>
+                        <a href="#rcsa" class="toc-link">RCSA Projects</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Risk Management Lifecycle</span>
+                    </div>
+                    <h1 class="content-title">Risk Management <span class="gradient-text">Lifecycle</span></h1>
+                    <p class="content-subtitle">
+                        Every risk in IRM follows a structured lifecycle. This page walks through each state, 
+                        how assessments work, scoring methodologies, and response workflows.
+                    </p>
+                </div>
+
+                <!-- Risk States -->
+                <section class="content-section" id="risk-states">
+                    <h2>Risk Lifecycle States</h2>
+                    <p>
+                        A risk record in the Advanced Risk application goes through a defined state model. 
+                        Each transition can be controlled by business rules, approvals, and conditions.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Risk State Flow</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-num">01</span>
+                                <span class="flow-step-label">Draft</span>
+                                <span class="flow-step-desc">Initial creation in register</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">02</span>
+                                <span class="flow-step-label">Assess</span>
+                                <span class="flow-step-desc">RAM methodology applied</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">03</span>
+                                <span class="flow-step-label">Respond</span>
+                                <span class="flow-step-desc">Treatment strategy selected</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">04</span>
+                                <span class="flow-step-label">Monitor</span>
+                                <span class="flow-step-desc">Continuous tracking via indicators</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">05</span>
+                                <span class="flow-step-label">Retired</span>
+                                <span class="flow-step-desc">Risk no longer applicable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>State Details</h3>
+                    <ul>
+                        <li>
+                            <strong>Draft:</strong> The risk record is created in the risk register. Key fields are 
+                            populated — Name, Description, Entity (Profile), Owner, and Risk Category. The risk exists 
+                            but hasn't been formally assessed yet.
+                        </li>
+                        <li>
+                            <strong>Assess:</strong> The Risk Assessment Methodology (RAM) is applied to evaluate the risk. 
+                            Assessment factors (both manual and automated) are evaluated to determine inherent risk scores. 
+                            This is where the ARA framework comes into play.
+                        </li>
+                        <li>
+                            <strong>Respond:</strong> Triggered once assessment is complete, especially when residual risk 
+                            exceeds the defined risk appetite. The risk owner selects a response strategy and creates 
+                            treatment tasks.
+                        </li>
+                        <li>
+                            <strong>Monitor:</strong> The risk is actively monitored through indicators and periodic 
+                            reassessments. Changes in control effectiveness or new threat information can trigger 
+                            re-assessment.
+                        </li>
+                        <li>
+                            <strong>Retired:</strong> The risk is no longer relevant — perhaps the asset was decommissioned, 
+                            the threat was eliminated, or the risk was fully transferred.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- ARA -->
+                <section class="content-section" id="ara">
+                    <h2>Advanced Risk Assessment (ARA)</h2>
+                    <p>
+                        <strong>Advanced Risk Assessment</strong> is the modern assessment framework in IRM, replacing 
+                        the legacy "Classic" assessment approach. ARA provides much more flexibility and configurability 
+                        for defining how risks are assessed.
+                    </p>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Migration Note</div>
+                        <p>
+                            ARA must be enabled by setting the "Migrate to Advanced Risk Assessments" system property. 
+                            Once enabled, the system uses the new RAM-based assessment engine. This is a one-way migration 
+                            — ensure you understand the implications before enabling in production.
+                        </p>
+                    </div>
+
+                    <h3>ARA Assessment Types</h3>
+                    <p>ARA supports multiple assessment types that can be run independently or in sequence:</p>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Assessment Type</th>
+                                    <th>What It Measures</th>
+                                    <th>When to Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Inherent</strong></td>
+                                    <td>Risk level without any controls in place</td>
+                                    <td>Initial risk identification, before controls are applied</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Control Effectiveness</strong></td>
+                                    <td>How well existing controls mitigate the risk</td>
+                                    <td>After controls are implemented, during ongoing monitoring</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Residual</strong></td>
+                                    <td>Risk level after controls are applied</td>
+                                    <td>To determine if remaining risk is acceptable</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Target</strong></td>
+                                    <td>Desired risk level after treatment plans</td>
+                                    <td>When planning additional risk responses</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- RAM -->
+                <section class="content-section" id="ram">
+                    <h2>Risk Assessment Methodology (RAM)</h2>
+                    <p>
+                        The <strong>RAM</strong> is the configurable blueprint that defines <em>how</em> risks are 
+                        assessed across your organization. Think of it as a "recipe" for risk assessment — it specifies 
+                        what questions to ask, how to score answers, and how to aggregate results.
+                    </p>
+
+                    <h3>RAM Components</h3>
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Assessment Context</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Defines <strong>what</strong> is being assessed — the scope of the assessment. 
+                                        This determines which entities, risk statements, or categories are included. 
+                                        The context can be set to target specific entity types, risk categories, or 
+                                        individual risk records.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Factors</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Factors are the individual questions or data points used for scoring. They come 
+                                        in two types:
+                                    </p>
+                                    <p>
+                                        <strong>Manual Factors:</strong> Judgment-based questions answered by risk owners 
+                                        or assessors (e.g., "How likely is this risk to materialize in the next 12 months?").
+                                    </p>
+                                    <p>
+                                        <strong>Automated Factors:</strong> System-derived data pulled from other ServiceNow 
+                                        records (e.g., number of unpatched vulnerabilities, incident frequency). These enable 
+                                        continuous, data-driven risk assessment without human intervention.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Scoring & Rating Criteria</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Configures how factor responses are converted to numerical scores and then mapped 
+                                        to qualitative ratings (Low, Medium, High, Critical). You define:
+                                    </p>
+                                    <p>
+                                        • <strong>Score ranges:</strong> What numerical range maps to each rating level<br>
+                                        • <strong>Factor weights:</strong> How much each factor contributes to the overall score<br>
+                                        • <strong>Aggregation method:</strong> How multiple factor scores combine (average, weighted average, max)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Roll-up Preferences</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Determines how individual risk scores aggregate up through entity or risk hierarchies. 
+                                        For example, if an entity has 5 associated risks, the roll-up preference defines how 
+                                        those 5 scores combine to create an entity-level risk score. Options include maximum 
+                                        value, average, weighted sum, or custom formulas.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Scoring -->
+                <section class="content-section" id="scoring">
+                    <h2>Scoring & Rating</h2>
+                    <p>
+                        Risk scoring in IRM follows a structured process. Understanding the flow from factor 
+                        responses to final risk ratings is essential for configuration and troubleshooting.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Scoring Flow</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-label">Factors</span>
+                                <span class="flow-step-desc">Individual questions / data points</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Factor Scores</span>
+                                <span class="flow-step-desc">Numeric values per factor</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Weighted Aggregate</span>
+                                <span class="flow-step-desc">Combined using weights & method</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Risk Rating</span>
+                                <span class="flow-step-desc">Low / Medium / High / Critical</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Developer Tip</div>
+                        <p>
+                            The formula <strong>Residual Risk = Inherent Risk × (1 - Control Effectiveness)</strong> is 
+                            a common starting point, but in ARA, this relationship is fully configurable through the RAM. 
+                            You can define custom formulas that factor in additional dimensions like velocity, 
+                            detectability, or operational impact.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Risk Response -->
+                <section class="content-section" id="risk-response">
+                    <h2>Risk Response</h2>
+                    <p>
+                        When a risk assessment is complete and the residual risk exceeds acceptable levels, 
+                        the risk moves to the <strong>Respond</strong> state. The risk owner must select a 
+                        treatment strategy:
+                    </p>
+
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="tab-mitigate">Mitigate</button>
+                            <button class="tab-btn" data-tab="tab-avoid">Avoid</button>
+                            <button class="tab-btn" data-tab="tab-transfer">Transfer</button>
+                            <button class="tab-btn" data-tab="tab-accept">Accept</button>
+                        </div>
+
+                        <div class="tab-panel active" id="tab-mitigate">
+                            <h3>Mitigate</h3>
+                            <p>
+                                Implement additional controls or strengthen existing ones to reduce the risk to 
+                                acceptable levels. This is the most common response strategy. Mitigation tasks 
+                                are created and assigned to control owners, and the risk is reassessed after 
+                                implementation.
+                            </p>
+                            <p><strong>Example:</strong> Adding multi-factor authentication to reduce unauthorized access risk.</p>
+                        </div>
+
+                        <div class="tab-panel" id="tab-avoid">
+                            <h3>Avoid</h3>
+                            <p>
+                                Eliminate the activity or condition that gives rise to the risk. This is 
+                                appropriate when the risk outweighs the benefit of the activity entirely.
+                            </p>
+                            <p><strong>Example:</strong> Discontinuing use of an end-of-life application that poses security risks.</p>
+                        </div>
+
+                        <div class="tab-panel" id="tab-transfer">
+                            <h3>Transfer</h3>
+                            <p>
+                                Shift the risk to a third party, typically through insurance, contracts, or 
+                                outsourcing. The risk still exists but the financial or operational impact 
+                                is borne by another entity.
+                            </p>
+                            <p><strong>Example:</strong> Purchasing cyber insurance for data breach liability.</p>
+                        </div>
+
+                        <div class="tab-panel" id="tab-accept">
+                            <h3>Accept</h3>
+                            <p>
+                                Acknowledge the risk and take no additional action. This is appropriate when 
+                                the cost of treatment exceeds the potential impact, or when the risk is within 
+                                the organization's risk appetite. Typically requires formal approval.
+                            </p>
+                            <p><strong>Example:</strong> Accepting a low-probability operational risk for a non-critical system.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Approval Workflows</div>
+                        <p>
+                            Risk responses can be configured with multi-level approval workflows using the 
+                            <strong>GRC Approval Configurator</strong>. You can set responses to trigger 
+                            automatically based on risk appetite status or require manual approval from 
+                            designated authorities.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Risk Appetite -->
+                <section class="content-section" id="risk-appetite">
+                    <h2>Risk Appetite</h2>
+                    <p>
+                        <strong>Risk Appetite</strong> defines the level of risk an organization is willing to 
+                        accept. In IRM, risk appetite is configured as thresholds that automatically trigger 
+                        actions when exceeded:
+                    </p>
+                    <ul>
+                        <li><strong>Within Appetite:</strong> Risk is acceptable — no response required</li>
+                        <li><strong>Approaching Limit:</strong> Warning zone — review recommended</li>
+                        <li><strong>Over Appetite:</strong> Risk exceeds tolerance — response required, approval workflows triggered</li>
+                    </ul>
+                    <p>
+                        Risk appetite can be set at different levels — organizational, entity type, or individual 
+                        entity. This hierarchical approach lets you apply stricter thresholds to critical systems 
+                        while allowing more tolerance for lower-impact areas.
+                    </p>
+                </section>
+
+                <!-- RCSA -->
+                <section class="content-section" id="rcsa">
+                    <h2>RCSA Projects</h2>
+                    <p>
+                        <strong>Risk & Control Self-Assessment (RCSA)</strong> is a structured process where 
+                        business units assess their own risks and controls. In IRM, RCSA is managed through 
+                        <strong>Risk Assessment Projects</strong> in the Risk Workspace.
+                    </p>
+                    <p>
+                        RCSA Projects allow simultaneous assessment of multiple risks and controls across 
+                        multiple entities. This is particularly useful for:
+                    </p>
+                    <ul>
+                        <li>Annual or quarterly risk assessments across departments</li>
+                        <li>Post-incident reassessment of affected areas</li>
+                        <li>New regulation impact assessment across the organization</li>
+                        <li>Merger & acquisition risk evaluation</li>
+                    </ul>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/data-model" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Entity Framework & Data Model</span>
+                    </a>
+                    <a href="/irm/policy-compliance" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Policy & Compliance Management</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

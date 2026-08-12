@@ -1,0 +1,73 @@
+<%- include('../../partials/head', { title: 'Reclamation & Remediation — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#remediation" class="toc-link">Remediation Workflows</a><a href="#reclamation" class="toc-link">Software Reclamation Rules</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Remediation</span>
+                    </div>
+                    <h1 class="content-title">Reclamation & <span class="gradient-text">Remediation</span></h1>
+                    <p class="content-subtitle">
+                        Closing the loop. Once the ELP highlights a compliance or financial issue, SAM provides automated workflows to fix it.
+                    </p>
+                </div>
+
+                <section class="content-section" id="remediation">
+                    <h2>Remediation Options for Non-Compliance</h2>
+                    <p>
+                        When Reconciliation results in a non-compliant status (you are using more than you own), the system generates actionable <strong>Remediation Options</strong>:
+                    </p>
+                    <ul>
+                        <li><strong>Purchase Rights:</strong> Automatically generates a Purchase Order request to buy the shortfall amount of licenses.</li>
+                        <li><strong>Create Allocations:</strong> If you have unused pool licenses, you can assign them to the rogue installations to make them compliant.</li>
+                        <li><strong>Remove Unallocated:</strong> Trigger a workflow to immediately uninstall the software from machines that shouldn't have it.</li>
+                    </ul>
+                </section>
+
+                <section class="content-section" id="reclamation">
+                    <h2>Software Reclamation Rules</h2>
+                    <p>
+                        Reclamation is how organizations save millions of dollars. It focuses on harvesting unused software. 
+                    </p>
+                    <p>
+                        A <strong>Reclamation Rule</strong> (<code>samp_sw_reclamation_rule</code>) defines conditions. For example: <em>"If Microsoft Visio has not been launched in 90 days, target it for removal."</em>
+                    </p>
+                    <div class="diagram-block">
+                        <div class="diagram-title">The Reclamation Workflow</div>
+                        <div class="mermaid">
+                        sequenceDiagram
+                            participant SAM as SAM Engine
+                            participant User as Employee
+                            participant Client as SCCM / Jamf
+                            SAM->>SAM: Identifies usage < 90 days
+                            SAM->>User: Sends email: "Do you still need Visio?"
+                            User-->>SAM: Ignores or replies "No"
+                            SAM->>Client: Triggers uninstall workflow
+                            Client-->>SAM: Confirms software removed
+                            SAM->>SAM: License returned to pool
+                        </div>
+                    </div>
+                    <p>
+                        By integrating with SCCM, Jamf, or Intune (via Flow Designer or Service Graph Connectors), this entire process can be fully automated—zero touch from IT.
+                    </p>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

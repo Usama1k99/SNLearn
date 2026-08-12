@@ -1,0 +1,356 @@
+<%- include('../../partials/head', { title: 'Policy & Compliance Management — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#hierarchy" class="toc-link">Compliance Hierarchy</a>
+                        <a href="#authority-docs" class="toc-link">Authority Documents</a>
+                        <a href="#policies" class="toc-link">Policies</a>
+                        <a href="#controls" class="toc-link">Controls</a>
+                        <a href="#indicators" class="toc-link">Indicators</a>
+                        <a href="#issues" class="toc-link">Issues & Remediation</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Policy & Compliance Management</span>
+                    </div>
+                    <h1 class="content-title">Policy & <span class="gradient-text">Compliance</span> Management</h1>
+                    <p class="content-subtitle">
+                        How IRM manages the full lifecycle of policies, maps them to external regulations, 
+                        and continuously monitors compliance through automated controls and indicators.
+                    </p>
+                </div>
+
+                <!-- Hierarchy -->
+                <section class="content-section" id="hierarchy">
+                    <h2>Compliance Hierarchy</h2>
+                    <p>
+                        Policy & Compliance Management follows a clear hierarchy from external regulations 
+                        down to specific, testable controls. Understanding this hierarchy is the key to 
+                        understanding how compliance works in IRM.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Compliance Hierarchy Flow</div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                            <div class="flow-step" style="width: 80%; max-width: 450px; background: rgba(99, 102, 241, 0.12); border-color: var(--accent-primary);">
+                                <span class="flow-step-label">Authority Documents</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">External regulations & standards (NIST, ISO 27001, SOX, GDPR)</span>
+                            </div>
+                            <span class="flow-arrow">↓</span>
+                            <div class="flow-step" style="width: 80%; max-width: 450px; background: rgba(139, 92, 246, 0.08); border-color: var(--accent-secondary);">
+                                <span class="flow-step-label">Citations</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">Specific requirements/clauses within authority documents</span>
+                            </div>
+                            <span class="flow-arrow">↓</span>
+                            <div class="flow-step" style="width: 80%; max-width: 450px;">
+                                <span class="flow-step-label">Policies</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">Internal organizational policies derived from regulations</span>
+                            </div>
+                            <span class="flow-arrow">↓</span>
+                            <div class="flow-step" style="width: 80%; max-width: 450px;">
+                                <span class="flow-step-label">Control Objectives</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">Policy statements that define what must be achieved</span>
+                            </div>
+                            <span class="flow-arrow">↓</span>
+                            <div class="flow-step" style="width: 80%; max-width: 450px; background: rgba(34, 197, 94, 0.08); border-color: var(--success);">
+                                <span class="flow-step-label">Controls</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">Specific implementations assigned to entities</span>
+                            </div>
+                            <span class="flow-arrow">↓</span>
+                            <div class="flow-step" style="width: 80%; max-width: 450px; background: rgba(59, 130, 246, 0.08); border-color: var(--info);">
+                                <span class="flow-step-label">Indicators</span>
+                                <span class="flow-step-desc" style="max-width: 350px;">Automated/manual tests that verify control effectiveness</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Authority Documents -->
+                <section class="content-section" id="authority-docs">
+                    <h2>Authority Documents</h2>
+                    <p>
+                        Authority Documents represent <strong>external regulations, standards, and frameworks</strong> 
+                        that your organization must comply with. These are the starting point of the compliance hierarchy.
+                    </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Key Fields</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_compliance_authority_document</code></td>
+                                    <td>name, description, version, state, owner</td>
+                                    <td>Extends <code>sn_grc_document</code>. Contains metadata about the regulation.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_compliance_citation</code></td>
+                                    <td>name, authority_document, reference, description</td>
+                                    <td>Specific sections/clauses within an authority document.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        Common authority documents include NIST Cybersecurity Framework, ISO 27001, SOC 2, 
+                        PCI-DSS, GDPR, HIPAA, and SOX. ServiceNow provides pre-built content packs for many 
+                        of these frameworks that include the authority document, citations, and suggested 
+                        control mappings.
+                    </p>
+                </section>
+
+                <!-- Policies -->
+                <section class="content-section" id="policies">
+                    <h2>Policies</h2>
+                    <p>
+                        Policies are <strong>internal organizational documents</strong> that translate external 
+                        regulatory requirements into actionable organizational rules. They bridge the gap between 
+                        "what the law requires" and "what we do."
+                    </p>
+                    <p>
+                        Policies go through their own lifecycle:
+                    </p>
+                    <ul>
+                        <li><strong>Draft:</strong> Policy is being written or updated</li>
+                        <li><strong>Review:</strong> Policy is undergoing review by stakeholders</li>
+                        <li><strong>Published:</strong> Policy is active and enforceable</li>
+                        <li><strong>Retired:</strong> Policy is no longer applicable</li>
+                    </ul>
+                    <p>
+                        Each policy can be linked to one or more authority documents, establishing the regulatory 
+                        basis for internal rules. Policies then contain <strong>Control Objectives (Policy Statements)</strong> 
+                        that define specific, measurable requirements.
+                    </p>
+                </section>
+
+                <!-- Controls -->
+                <section class="content-section" id="controls">
+                    <h2>Controls</h2>
+                    <p>
+                        Controls are the <strong>specific implementations</strong> of control objectives, assigned 
+                        to specific entities. A single control objective can generate many controls — one for each 
+                        entity that the objective applies to.
+                    </p>
+
+                    <h3>How Controls Are Generated</h3>
+                    <p>
+                        Controls can be created through the <strong>Content Reference</strong> mechanism. When you 
+                        associate a Content Reference with both a control objective and an entity type, IRM 
+                        automatically generates control records for each matching entity. This is called 
+                        <strong>control scoping</strong>.
+                    </p>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Key Concept</div>
+                        <p>
+                            The relationship is: <strong>Control Objective</strong> (what must be achieved) → 
+                            <strong>Control</strong> (specific implementation for a specific entity). One objective 
+                            can produce hundreds of controls across your entity landscape.
+                        </p>
+                    </div>
+
+                    <h3>Control States</h3>
+                    <ul>
+                        <li><strong>Draft:</strong> Control created but not yet active</li>
+                        <li><strong>Review:</strong> Under review by control owner</li>
+                        <li><strong>Attest:</strong> Owner attesting to control effectiveness</li>
+                        <li><strong>Monitor:</strong> Active and being continuously monitored via indicators</li>
+                        <li><strong>Not Applicable:</strong> Control doesn't apply to the entity</li>
+                    </ul>
+                </section>
+
+                <!-- Indicators -->
+                <section class="content-section" id="indicators">
+                    <h2>Indicators</h2>
+                    <p>
+                        <strong>Indicators</strong> are the automated or manual tests that verify whether a control 
+                        is actually working. They produce <strong>Pass/Fail results</strong> that determine the 
+                        control's compliance status.
+                    </p>
+
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="tab-manual">Manual Indicators</button>
+                            <button class="tab-btn" data-tab="tab-automated">Automated Indicators</button>
+                            <button class="tab-btn" data-tab="tab-scripted">Scripted Indicators</button>
+                        </div>
+
+                        <div class="tab-panel active" id="tab-manual">
+                            <h3>Manual Indicators</h3>
+                            <p>
+                                Manual indicators generate <strong>attestation tasks</strong> that are assigned to 
+                                control owners or designated assessors on a scheduled basis. The assignee manually 
+                                verifies the control and records the result.
+                            </p>
+                            <p><strong>Use when:</strong> The control requires human judgment to verify (e.g., "Are security 
+                            awareness training records current?" or "Has the disaster recovery plan been tested this quarter?").</p>
+                        </div>
+
+                        <div class="tab-panel" id="tab-automated">
+                            <h3>Automated Indicators</h3>
+                            <p>
+                                Automated indicators use <strong>declarative conditions</strong> or <strong>metric definitions</strong> 
+                                to query ServiceNow data and determine Pass/Fail without human intervention. They run 
+                                on a configurable schedule.
+                            </p>
+                            <p><strong>Use when:</strong> The control can be verified by querying system data (e.g., "Are all 
+                            critical servers patched within 30 days?" — query the CMDB and patch management data).</p>
+                        </div>
+
+                        <div class="tab-panel" id="tab-scripted">
+                            <h3>Scripted Indicators</h3>
+                            <p>
+                                Scripted indicators use <strong>server-side JavaScript</strong> to implement complex 
+                                verification logic. They're the most flexible option but require development effort.
+                            </p>
+
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Example — Scripted Indicator</span>
+                                    <button class="code-copy">Copy</button>
+                                </div>
+                                <div class="code-body">
+<pre><code>// Scripted Indicator: Check if all servers have 
+// had a vulnerability scan in the last 30 days
+(function(control, indicator) {
+    var entity = control.profile;
+    var ci = entity.applies_to;
+    
+    if (!ci) {
+        return 'not_applicable';
+    }
+    
+    var thirtyDaysAgo = gs.daysAgoStart(30);
+    var gr = new GlideRecord('sn_vul_vulnerability');
+    gr.addQuery('cmdb_ci', ci);
+    gr.addQuery('last_scan_date', '>=', thirtyDaysAgo);
+    gr.query();
+    
+    if (gr.hasNext()) {
+        return 'pass'; // Scan found within 30 days
+    } else {
+        return 'fail'; // No recent scan
+    }
+})(control, indicator);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Indicator Tables</h3>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_grc_indicator_template</code></td>
+                                    <td>Reusable templates that define indicator logic and configuration</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_grc_indicator</code></td>
+                                    <td>Individual indicator instances linked to specific controls/entities</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_grc_indicator_result</code></td>
+                                    <td>Individual Pass/Fail results from each indicator run</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_grc_indicator_supporting_data</code></td>
+                                    <td>Evidence/data collected during indicator execution</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Issues -->
+                <section class="content-section" id="issues">
+                    <h2>Issues & Remediation</h2>
+                    <p>
+                        When an indicator fails or a compliance gap is identified, an <strong>Issue</strong> is 
+                        created in the <code>sn_grc_issue</code> table. Issues track the remediation process 
+                        from identification through resolution.
+                    </p>
+
+                    <h3>Issue Lifecycle</h3>
+                    <div class="diagram-block">
+                        <div class="diagram-title">Issue Resolution Flow</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-label">New</span>
+                                <span class="flow-step-desc">Issue identified from failed indicator</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Analyze</span>
+                                <span class="flow-step-desc">Root cause analysis and impact assessment</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Respond</span>
+                                <span class="flow-step-desc">Remediation plan created and assigned</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Resolve</span>
+                                <span class="flow-step-desc">Fix verified and issue closed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>
+                        Issues can also be linked to <strong>Risk records</strong> — a persistent compliance gap 
+                        may indicate an emerging risk that needs to be formally assessed and treated through the 
+                        risk management lifecycle.
+                    </p>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Cross-Module Integration</div>
+                        <p>
+                            This is where IRM's integrated nature shines. A failed compliance indicator can 
+                            automatically generate an issue, which can escalate to a risk, which triggers 
+                            a risk response workflow — all without manual handoffs between teams.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/risk-lifecycle" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Risk Management Lifecycle</span>
+                    </a>
+                    <a href="/irm/audit-regulatory" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Audit & Regulatory Change</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,0 +1,24 @@
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <% if (typeof activeTab !== 'undefined' && activeTab !== 'home') { %>
+            <div class="scroll-progress-bar"></div>
+        <% } %>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                </div>
+                <span class="logo-text">SN<span class="logo-accent">Learn</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'home' ? 'active' : '' %>">Home</a>
+                <a href="/irm" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'irm' ? 'active' : '' %>">IRM</a>
+                <a href="/secops" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'secops' ? 'active' : '' %>">SecOps</a>
+                <a href="/sam" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'sam' ? 'active' : '' %>">SAM</a>
+                <a href="/ham" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'ham' ? 'active' : '' %>">HAM</a>
+            </div>
+        </div>
+    </nav>

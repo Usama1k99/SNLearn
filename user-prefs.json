@@ -1,0 +1,36 @@
+{
+  "session_lsfsroe": {
+    "cursorType": "default",
+    "sparkleTrail": false,
+    "cursorSize": 1,
+    "cursorChaseSpeed": 0.55,
+    "theme": "emerald"
+  },
+  "session_5kp9guy": {
+    "cursorType": "default",
+    "sparkleTrail": false,
+    "cursorSize": 1,
+    "cursorChaseSpeed": 0.26
+  },
+  "session_86sct8k": {
+    "cursorType": "default",
+    "sparkleTrail": false,
+    "cursorSize": 1,
+    "cursorChaseSpeed": 0.93,
+    "theme": "sapphire"
+  },
+  "session_9h45cmr": {
+    "theme": "amber",
+    "cursorType": "droplet",
+    "sparkleTrail": true,
+    "cursorSize": 1.3,
+    "cursorChaseSpeed": 0.72,
+    "starfieldEnabled": true,
+    "starfieldParticleCount": 250,
+    "starfieldGravityStrength": 0.1,
+    "starfieldRampDuration": 8,
+    "cursorBloomEnabled": true,
+    "cursorEncompassDelay": 0.15,
+    "invertColors": false
+  }
+}

@@ -1,0 +1,413 @@
+<%- include('../../partials/head', { title: 'Audit & Regulatory Change — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#audit-overview" class="toc-link">Audit Management Overview</a>
+                        <a href="#audit-lifecycle" class="toc-link">Audit Lifecycle</a>
+                        <a href="#audit-workspace" class="toc-link">Audit Workspace</a>
+                        <a href="#evidence" class="toc-link">Evidence Collection</a>
+                        <a href="#rcm-overview" class="toc-link">Regulatory Change Management</a>
+                        <a href="#rcm-workflow" class="toc-link">RCM Workflow</a>
+                        <a href="#rcm-ai" class="toc-link">AI in RCM</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Audit & Regulatory Change</span>
+                    </div>
+                    <h1 class="content-title">Audit & <span class="gradient-text">Regulatory Change</span></h1>
+                    <p class="content-subtitle">
+                        Two critical IRM modules that help organizations stay ahead of compliance — Audit Management 
+                        for internal assurance, and Regulatory Change Management for tracking the evolving regulatory landscape.
+                    </p>
+                </div>
+
+                <!-- Audit Overview -->
+                <section class="content-section" id="audit-overview">
+                    <h2>Audit Management Overview</h2>
+                    <p>
+                        The <strong>Audit Management</strong> module automates the entire internal audit process — 
+                        from annual planning through fieldwork to final reporting. It integrates with Policy & Compliance 
+                        to leverage existing control data and with Risk Management to ensure audits are risk-driven.
+                    </p>
+
+                    <h3>Key Capabilities</h3>
+                    <ul>
+                        <li><strong>Risk-Based Audit Planning:</strong> Prioritize audit engagements based on risk scores from the IRM risk register</li>
+                        <li><strong>Resource Management:</strong> Track auditor availability, skills, and workload allocation</li>
+                        <li><strong>Test Plans & Templates:</strong> Create reusable test procedures that align with your audit methodology</li>
+                        <li><strong>Automated Evidence Requests:</strong> Send targeted evidence requests to control owners with built-in follow-ups</li>
+                        <li><strong>Real-Time Dashboards:</strong> Track audit project status, findings, and resource utilization</li>
+                        <li><strong>Integration with Compliance:</strong> Leverage existing control assessments to reduce duplicated testing</li>
+                    </ul>
+                </section>
+
+                <!-- Audit Lifecycle -->
+                <section class="content-section" id="audit-lifecycle">
+                    <h2>Audit Lifecycle</h2>
+                    <p>
+                        An audit engagement follows a structured lifecycle that mirrors standard internal audit methodology:
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Audit Engagement Lifecycle</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-num">01</span>
+                                <span class="flow-step-label">Planning</span>
+                                <span class="flow-step-desc">Define scope, objectives, resources</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">02</span>
+                                <span class="flow-step-label">Fieldwork</span>
+                                <span class="flow-step-desc">Execute tests, collect evidence</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">03</span>
+                                <span class="flow-step-label">Reporting</span>
+                                <span class="flow-step-desc">Document findings & recommendations</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">04</span>
+                                <span class="flow-step-label">Follow-Up</span>
+                                <span class="flow-step-desc">Track remediation & validate fixes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Phase 1: Planning</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        The planning phase establishes the audit universe and creates the annual audit plan. 
+                                        Key activities include:
+                                    </p>
+                                    <p>
+                                        • Define audit objectives and scope<br>
+                                        • Identify in-scope entities, controls, and risk areas<br>
+                                        • Allocate audit resources (team members, hours)<br>
+                                        • Create the audit engagement record and timeline<br>
+                                        • Develop test plans using templates or custom test procedures
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Phase 2: Fieldwork</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Fieldwork is where the actual testing happens. Auditors execute test procedures, 
+                                        collect evidence, and document their observations. Key activities include:
+                                    </p>
+                                    <p>
+                                        • Execute control tests against defined test procedures<br>
+                                        • Send and track evidence requests to control owners<br>
+                                        • Review evidence and document working papers<br>
+                                        • Record test results (Effective, Ineffective, Not Tested)<br>
+                                        • Document preliminary findings
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Phase 3: Reporting</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Findings are formalized, rated by severity, and compiled into audit reports:
+                                    </p>
+                                    <p>
+                                        • Create formal audit findings with severity ratings<br>
+                                        • Develop recommendations and management responses<br>
+                                        • Generate audit report with executive summary<br>
+                                        • Obtain management acknowledgment and agreement on remediation timelines<br>
+                                        • Distribute report to stakeholders
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Phase 4: Follow-Up</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        After the audit report is issued, remediation activities are tracked:
+                                    </p>
+                                    <p>
+                                        • Track remediation task progress against agreed timelines<br>
+                                        • Send escalation notifications for overdue items<br>
+                                        • Validate remediation effectiveness through re-testing<br>
+                                        • Close findings when remediation is verified<br>
+                                        • Generate follow-up reports for audit committee
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Audit Workspace -->
+                <section class="content-section" id="audit-workspace">
+                    <h2>Audit Workspace</h2>
+                    <p>
+                        The <strong>Audit Workspace</strong> is a persona-based interface that provides different 
+                        views depending on the user's role:
+                    </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Persona</th>
+                                    <th>View Focus</th>
+                                    <th>Key Widgets</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Chief Audit Executive</strong></td>
+                                    <td>Strategic overview, resource utilization, audit universe</td>
+                                    <td>Annual plan progress, finding trends, risk coverage heatmap</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Audit Manager</strong></td>
+                                    <td>Project management, team allocation, engagement status</td>
+                                    <td>Active engagements, resource calendar, overdue findings</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Auditor</strong></td>
+                                    <td>Daily work, assigned tests, evidence review</td>
+                                    <td>My tasks, evidence requests, test results, working papers</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Auditee (Business Owner)</strong></td>
+                                    <td>Requests requiring attention, finding remediation</td>
+                                    <td>Open evidence requests, assigned remediations, upcoming audits</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Evidence -->
+                <section class="content-section" id="evidence">
+                    <h2>Evidence Collection</h2>
+                    <p>
+                        Evidence collection in IRM is partially automated. The system can:
+                    </p>
+                    <ul>
+                        <li><strong>Auto-generate evidence requests</strong> when test procedures are initiated</li>
+                        <li><strong>Send reminder notifications</strong> for pending evidence requests</li>
+                        <li><strong>Escalate</strong> overdue requests to managers</li>
+                        <li><strong>Link evidence</strong> to specific controls, tests, and findings for full traceability</li>
+                        <li><strong>Attach files</strong> including screenshots, documents, and system exports</li>
+                    </ul>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Developer Tip</div>
+                        <p>
+                            Use <strong>Flow Designer</strong> to customize evidence request workflows. Common 
+                            customizations include auto-attaching supporting data from indicator results, routing 
+                            requests based on control owner department, and adding approval steps before evidence 
+                            is accepted.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- RCM Overview -->
+                <section class="content-section" id="rcm-overview">
+                    <h2>Regulatory Change Management (RCM)</h2>
+                    <p>
+                        <strong>Regulatory Change Management</strong> is designed for organizations operating in 
+                        heavily regulated industries (financial services, healthcare, energy) where the regulatory 
+                        landscape is constantly evolving.
+                    </p>
+                    <p>
+                        RCM helps answer critical questions:
+                    </p>
+                    <ul>
+                        <li>What new regulations are coming that affect us?</li>
+                        <li>Which of our policies and controls need to be updated?</li>
+                        <li>What's the gap between our current compliance state and the new requirements?</li>
+                        <li>Who needs to be involved in implementing changes?</li>
+                    </ul>
+                </section>
+
+                <!-- RCM Workflow -->
+                <section class="content-section" id="rcm-workflow">
+                    <h2>RCM Workflow</h2>
+                    <p>
+                        The regulatory change management process follows a structured workflow:
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Regulatory Change Workflow</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-num">01</span>
+                                <span class="flow-step-label">Ingest</span>
+                                <span class="flow-step-desc">Receive regulatory alerts from intelligence sources</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">02</span>
+                                <span class="flow-step-label">Triage</span>
+                                <span class="flow-step-desc">Categorize and determine relevance</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">03</span>
+                                <span class="flow-step-label">Assess</span>
+                                <span class="flow-step-desc">Evaluate impact on policies, controls, entities</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">04</span>
+                                <span class="flow-step-label">Implement</span>
+                                <span class="flow-step-desc">Update policies, controls, processes</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-num">05</span>
+                                <span class="flow-step-label">Verify</span>
+                                <span class="flow-step-desc">Confirm compliance with new requirements</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Key RCM Concepts</h3>
+                    <ul>
+                        <li>
+                            <strong>Regulatory Alerts:</strong> Incoming notifications from regulatory intelligence 
+                            providers (e.g., Thomson Reuters, Wolters Kluwer). These are ingested and centralized 
+                            in the platform.
+                        </li>
+                        <li>
+                            <strong>Taxonomy Mapping:</strong> Different regulatory providers use different classification 
+                            systems. RCM allows you to map multiple provider taxonomies to your single internal taxonomy, 
+                            enabling consistent processing regardless of source.
+                        </li>
+                        <li>
+                            <strong>Impact Assessment Playbooks:</strong> Guided questionnaires configured by compliance 
+                            teams to systematically evaluate how a regulatory change affects different business areas.
+                        </li>
+                        <li>
+                            <strong>Change Campaigns:</strong> When a regulatory change requires updates across multiple 
+                            policies, controls, or processes, a campaign coordinates all the tasks, approvals, and 
+                            verifications needed.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- AI in RCM -->
+                <section class="content-section" id="rcm-ai">
+                    <h2>AI & Machine Learning in RCM</h2>
+                    <p>
+                        ServiceNow leverages AI/ML capabilities to reduce the manual burden of regulatory 
+                        change management:
+                    </p>
+
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">AI Compliance Mapping</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        ML models can automatically suggest mappings between new regulatory requirements 
+                                        and existing internal citations, policies, and controls. This dramatically reduces 
+                                        the time compliance teams spend manually analyzing new regulations.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Predictive Insights</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Based on historical patterns, AI can predict which areas of the organization 
+                                        are most likely to be impacted by certain types of regulatory changes, helping 
+                                        compliance teams proactively prepare rather than reactively scramble.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Automated Categorization</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Incoming regulatory alerts can be automatically categorized by topic, jurisdiction, 
+                                        and urgency using NLP (Natural Language Processing) models. This speeds up the 
+                                        triage process and ensures critical changes aren't lost in the noise.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Note</div>
+                        <p>
+                            Advanced AI features in RCM may require specific premium plugins and licensing. 
+                            Check your ServiceNow licensing agreement to understand which AI capabilities 
+                            are available in your instance.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/policy-compliance" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Policy & Compliance Management</span>
+                    </a>
+                    <a href="/irm/developer-patterns" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Developer Patterns & APIs</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

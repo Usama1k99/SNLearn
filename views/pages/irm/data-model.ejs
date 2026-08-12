@@ -1,0 +1,434 @@
+<%- include('../../partials/head', { title: 'Entity Framework & Data Model — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#entity-framework" class="toc-link">Entity Framework</a>
+                        <a href="#core-tables" class="toc-link">Core GRC Tables</a>
+                        <a href="#m2m-relationships" class="toc-link">M2M Relationships</a>
+                        <a href="#erd" class="toc-link">Entity Relationship Diagram</a>
+                        <a href="#cmdb-integration" class="toc-link">CMDB Integration</a>
+                        <a href="#exploring-schema" class="toc-link">Exploring the Schema</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Entity Framework & Data Model</span>
+                    </div>
+                    <h1 class="content-title">Entity Framework & <span class="gradient-text">Data Model</span></h1>
+                    <p class="content-subtitle">
+                        The data model is the heart of IRM. Understanding entities, their types, and how 
+                        they connect to risks, controls, and policies through M2M relationships is essential 
+                        for any IRM developer.
+                    </p>
+                </div>
+
+                <!-- Entity Framework -->
+                <section class="content-section" id="entity-framework">
+                    <h2>Entity Framework</h2>
+                    <p>
+                        The <strong>Entity Framework</strong> is the foundation of IRM. An "entity" represents any object 
+                        in your organization that needs to be monitored for risk and compliance — this could be a server, 
+                        a department, a business process, an application, or a vendor.
+                    </p>
+                    <p>
+                        Entities are formally called <strong>Profiles</strong> in the data model (stored in the 
+                        <code>sn_grc_profile</code> table). They are organized using:
+                    </p>
+
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Entity Types (sn_grc_profile_type)</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Entity Types group entities with common characteristics. For example, you might have 
+                                        an Entity Type called "Critical Windows Servers" that dynamically includes all Windows 
+                                        servers tagged as critical in the CMDB.
+                                    </p>
+                                    <p>
+                                        Entity Types can use <strong>filters</strong> to automatically pull in CMDB records. 
+                                        When a new CI matches the filter criteria, a corresponding entity is automatically created. 
+                                        This is how IRM scales — you don't manually create entities for every asset.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Entity Classes (sn_grc_profile_class)</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Entity Classes provide an additional layer of categorization and hierarchy management. 
+                                        They help organize Entity Types into meaningful tiers for reporting and risk aggregation. 
+                                        For example, classes like "Tier 1 — Mission Critical" and "Tier 2 — Business Important" 
+                                        let you prioritize monitoring.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Content References (sn_grc_content_reference)</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p>
+                                        Content References are virtual objects that map requirements across different compliance 
+                                        frameworks. They act as the "glue" between authority documents, controls, and entities. 
+                                        When a content reference is associated with both a control and an entity, the system 
+                                        generates the necessary compliance records for that combination.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Architecture Insight</div>
+                        <p>
+                            The relationship is: <strong>Entity Types</strong> define <em>what</em> gets monitored, 
+                            <strong>Entity Classes</strong> define <em>how important</em> it is, and 
+                            <strong>Content References</strong> define <em>what requirements</em> apply to it.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Core Tables -->
+                <section class="content-section" id="core-tables">
+                    <h2>Core GRC / IRM Tables</h2>
+                    <p>
+                        Below are the primary tables you'll work with as an IRM developer. All are in the 
+                        <code>sn_grc</code> or <code>sn_compliance</code> application scope.
+                    </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Concept</th>
+                                    <th>Table Name</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Entity (Profile)</strong></td>
+                                    <td><code>sn_grc_profile</code></td>
+                                    <td>Objects being monitored for risk/compliance (servers, depts, processes)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Entity Type</strong></td>
+                                    <td><code>sn_grc_profile_type</code></td>
+                                    <td>Groups entities by common characteristics with dynamic filters</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Entity Class</strong></td>
+                                    <td><code>sn_grc_profile_class</code></td>
+                                    <td>Categorization tiers for entity prioritization</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk</strong></td>
+                                    <td><code>sn_risk_risk</code></td>
+                                    <td>Individual risk records with lifecycle state management</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk Framework</strong></td>
+                                    <td><code>sn_risk_framework</code></td>
+                                    <td>Risk categories/frameworks for organizing the risk register</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Authority Document</strong></td>
+                                    <td><code>sn_compliance_authority_document</code></td>
+                                    <td>External regulations and standards (NIST, ISO, GDPR)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Policy</strong></td>
+                                    <td><code>sn_compliance_policy</code></td>
+                                    <td>Internal organizational policies</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Control</strong></td>
+                                    <td><code>sn_compliance_control</code></td>
+                                    <td>Specific implementations of policy/control objectives</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Control Objective</strong></td>
+                                    <td><code>sn_compliance_policy_stmt</code></td>
+                                    <td>Policy statements / control objectives linking policy → controls</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Indicator</strong></td>
+                                    <td><code>sn_grc_indicator</code></td>
+                                    <td>Configuration of automated/manual control monitoring tests</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Indicator Result</strong></td>
+                                    <td><code>sn_grc_indicator_result</code></td>
+                                    <td>Actual Pass/Fail results from indicator runs</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Issue</strong></td>
+                                    <td><code>sn_grc_issue</code></td>
+                                    <td>Compliance gaps or failed controls that need remediation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Citation</strong></td>
+                                    <td><code>sn_compliance_citation</code></td>
+                                    <td>References within authority documents or policies</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Content Reference</strong></td>
+                                    <td><code>sn_grc_content_reference</code></td>
+                                    <td>Virtual mapping objects for cross-framework requirements</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- M2M Relationships -->
+                <section class="content-section" id="m2m-relationships">
+                    <h2>M2M (Many-to-Many) Relationships</h2>
+                    <p>
+                        IRM is a highly relational application. Most core objects are connected through 
+                        <strong>Many-to-Many (M2M) join tables</strong>. Understanding these is crucial — 
+                        they determine how data flows between modules.
+                    </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>M2M Table</th>
+                                    <th>Links</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sn_grc_m2m_cont_ref_control</code></td>
+                                    <td>Content Reference ↔ Control</td>
+                                    <td>Maps framework requirements to specific controls</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_grc_m2m_cont_ref_profile</code></td>
+                                    <td>Content Reference ↔ Entity</td>
+                                    <td>Associates requirements with monitored entities</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_grc_m2m_cont_ref_auth_doc</code></td>
+                                    <td>Content Reference ↔ Authority Doc</td>
+                                    <td>Links requirements back to regulatory sources</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_compliance_m2m_citation_control</code></td>
+                                    <td>Citation ↔ Control</td>
+                                    <td>Maps specific regulation citations to controls</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sn_compliance_control_objective_item</code></td>
+                                    <td>Control Objective ↔ CMDB CI</td>
+                                    <td>Links policy objectives to infrastructure items</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Best Practice</div>
+                        <p>
+                            Avoid writing directly to M2M tables via scripts or integrations. Use the ServiceNow UI 
+                            or established APIs instead. The platform has built-in automation (triggers, business rules) 
+                            tied to these M2M records that won't fire if you bypass the standard mechanisms.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- ERD -->
+                <section class="content-section" id="erd">
+                    <h2>Entity Relationship Diagram</h2>
+                    <p>
+                        The diagram below shows how the primary IRM tables relate to each other. 
+                        Hover over each entity to highlight it.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">IRM Core Data Model</div>
+                        <div class="erd-container">
+                            <div class="erd-grid">
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_compliance_authority_document</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field">description</div>
+                                        <div class="erd-field">version</div>
+                                        <div class="erd-field">state</div>
+                                    </div>
+                                </div>
+
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_compliance_policy</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> authority_document</div>
+                                        <div class="erd-field">owner</div>
+                                        <div class="erd-field">state</div>
+                                    </div>
+                                </div>
+
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_compliance_control</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> profile (entity)</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> policy_statement</div>
+                                        <div class="erd-field">state</div>
+                                    </div>
+                                </div>
+
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_grc_profile</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> profile_type</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> profile_class</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> applies_to (cmdb_ci)</div>
+                                    </div>
+                                </div>
+
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_risk_risk</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> profile (entity)</div>
+                                        <div class="erd-field">state</div>
+                                        <div class="erd-field">inherent_risk, residual_risk</div>
+                                    </div>
+                                </div>
+
+                                <div class="erd-entity">
+                                    <div class="erd-entity-header">sn_grc_indicator</div>
+                                    <div class="erd-entity-fields">
+                                        <div class="erd-field"><span class="erd-field-key">PK</span> sys_id</div>
+                                        <div class="erd-field">name</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> control</div>
+                                        <div class="erd-field"><span class="erd-field-ref">FK</span> profile (entity)</div>
+                                        <div class="erd-field">type (manual/automated)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CMDB Integration -->
+                <section class="content-section" id="cmdb-integration">
+                    <h2>CMDB Integration</h2>
+                    <p>
+                        IRM doesn't duplicate IT asset data — it references the <strong>CMDB</strong> (Configuration 
+                        Management Database). The <code>applies_to</code> field on <code>sn_grc_profile</code> is a 
+                        reference to <code>cmdb_ci</code>, creating a direct link between risk management entities 
+                        and your IT infrastructure.
+                    </p>
+
+                    <h3>Common Service Data Model (CSDM)</h3>
+                    <p>
+                        ServiceNow strongly recommends aligning your entity model with the 
+                        <strong>CSDM (Common Service Data Model)</strong>. CSDM standardizes how services, 
+                        applications, and infrastructure are represented in the CMDB. When your entities 
+                        follow CSDM, risk data automatically aligns with your service architecture — making 
+                        it possible to answer questions like "What is the total risk exposure of Service X?"
+                    </p>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Developer Tip</div>
+                        <p>
+                            Use the Entity Type's <strong>Source table</strong> and <strong>Filter</strong> fields 
+                            to dynamically populate entities from the CMDB. Set the source table to a CMDB class 
+                            (e.g., <code>cmdb_ci_server</code>) and define filter conditions. IRM will automatically 
+                            create and maintain entity records for matching CIs.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Exploring Schema -->
+                <section class="content-section" id="exploring-schema">
+                    <h2>Exploring the Schema</h2>
+                    <p>
+                        As a developer, you should use the platform's native tools to explore the IRM schema in your instance:
+                    </p>
+                    <ul>
+                        <li>
+                            <strong>Schema Map:</strong> Navigate to <code>System Definition → Tables</code>, select any 
+                            IRM table (e.g., <code>sn_grc_profile</code>), and click <strong>"Show Schema Map"</strong> 
+                            in the Related Links. This visually displays all related tables, extensions, and references.
+                        </li>
+                        <li>
+                            <strong>Table Explorer:</strong> Filter the Tables module by the <code>sn_grc</code> prefix to 
+                            see all GRC/IRM tables. Check the <code>sn_compliance</code> and <code>sn_risk</code> 
+                            prefixes as well.
+                        </li>
+                        <li>
+                            <strong>Dictionary:</strong> Use <code>System Definition → Dictionary</code> to explore 
+                            individual field definitions, types, and reference targets.
+                        </li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Quick Query — List all IRM tables</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Background Script: Find all GRC/IRM tables
+var gr = new GlideRecord('sys_db_object');
+gr.addQuery('name', 'STARTSWITH', 'sn_grc');
+gr.orderBy('name');
+gr.query();
+while (gr.next()) {
+    gs.info(gr.name + ' — ' + gr.label);
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/overview" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Overview & Architecture</span>
+                    </a>
+                    <a href="/irm/risk-lifecycle" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Risk Management Lifecycle</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

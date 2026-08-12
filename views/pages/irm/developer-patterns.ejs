@@ -1,0 +1,593 @@
+<%- include('../../partials/head', { title: 'Developer Patterns & APIs — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#table-api" class="toc-link">Table API</a>
+                        <a href="#gliderecord" class="toc-link">GlideRecord Patterns</a>
+                        <a href="#scripted-indicators" class="toc-link">Scripted Indicators</a>
+                        <a href="#flow-designer" class="toc-link">Flow Designer</a>
+                        <a href="#business-rules" class="toc-link">Business Rules</a>
+                        <a href="#best-practices" class="toc-link">Best Practices</a>
+                        <a href="#common-pitfalls" class="toc-link">Common Pitfalls</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Developer Patterns & APIs</span>
+                    </div>
+                    <h1 class="content-title">Developer Patterns & <span class="gradient-text">APIs</span></h1>
+                    <p class="content-subtitle">
+                        Practical guidance for developers working with IRM — common API patterns, scripted 
+                        indicator recipes, Flow Designer configurations, and the pitfalls to avoid.
+                    </p>
+                </div>
+
+                <!-- Table API -->
+                <section class="content-section" id="table-api">
+                    <h2>Table API</h2>
+                    <p>
+                        There is no dedicated "IRM API" — you interact with IRM data using the standard 
+                        ServiceNow <strong>Table API</strong>. This means all CRUD operations follow the same 
+                        patterns you'd use for any ServiceNow table.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">REST — GET All High Risks</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>GET /api/now/table/sn_risk_risk
+    ?sysparm_query=residual_risk=high
+    &sysparm_fields=sys_id,name,state,profile.name,residual_risk
+    &sysparm_display_value=true
+    &sysparm_limit=50
+
+Headers:
+  Accept: application/json
+  Authorization: Basic {credentials}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">REST — Create a New Risk</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>POST /api/now/table/sn_risk_risk
+
+Headers:
+  Content-Type: application/json
+  Accept: application/json
+
+Body:
+{
+    "name": "Data breach risk for Customer Portal",
+    "description": "Risk of unauthorized access to customer PII",
+    "profile": "{entity_sys_id}",
+    "risk_owner": "{user_sys_id}",
+    "state": "draft"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">REST — Query Controls by Entity</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>GET /api/now/table/sn_compliance_control
+    ?sysparm_query=profile={entity_sys_id}
+    &sysparm_fields=sys_id,name,state,policy_statement.name
+    &sysparm_display_value=true</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GlideRecord -->
+                <section class="content-section" id="gliderecord">
+                    <h2>GlideRecord Patterns</h2>
+                    <p>
+                        For server-side scripting (Business Rules, Script Includes, Scheduled Jobs), 
+                        <strong>GlideRecord</strong> is the primary mechanism for querying and manipulating IRM data.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">GlideRecord — Find All Entities of a Specific Type</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Find all entities of type "Critical Windows Servers"
+var gr = new GlideRecord('sn_grc_profile');
+gr.addQuery('profile_type.name', 'Critical Windows Servers');
+gr.addActiveQuery();
+gr.query();
+
+while (gr.next()) {
+    gs.info('Entity: ' + gr.name + 
+            ' | CI: ' + gr.applies_to.getDisplayValue() +
+            ' | Class: ' + gr.profile_class.getDisplayValue());
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">GlideRecord — Get Failed Controls for an Entity</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Find all controls in "Monitor" state that have failed
+// indicators for a specific entity
+var entitySysId = '...'; // your entity sys_id
+
+var gr = new GlideRecord('sn_compliance_control');
+gr.addQuery('profile', entitySysId);
+gr.addQuery('state', 'monitor');
+gr.query();
+
+while (gr.next()) {
+    // Check if this control has any failed indicators
+    var ind = new GlideRecord('sn_grc_indicator');
+    ind.addQuery('item', gr.sys_id);
+    ind.addQuery('last_result', 'fail');
+    ind.query();
+    
+    if (ind.hasNext()) {
+        gs.info('FAILED CONTROL: ' + gr.name +
+                ' | Owner: ' + gr.owned_by.getDisplayValue());
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">GlideRecord — Create an Issue from Script</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Programmatically create a GRC Issue
+var issue = new GlideRecord('sn_grc_issue');
+issue.initialize();
+issue.name = 'Access control failure on ' + entityName;
+issue.description = 'Automated detection: MFA not enforced';
+issue.profile = entitySysId;  // Link to entity
+issue.item = controlSysId;    // Link to control
+issue.priority = '2';         // High
+issue.assigned_to = ownerSysId;
+issue.insert();
+
+gs.info('Created issue: ' + issue.number);</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Scripted Indicators -->
+                <section class="content-section" id="scripted-indicators">
+                    <h2>Scripted Indicators</h2>
+                    <p>
+                        Scripted indicators are one of the most common development tasks in IRM. They use 
+                        server-side JavaScript to query data across the platform and determine if a control 
+                        is passing or failing.
+                    </p>
+
+                    <h3>Indicator Script Structure</h3>
+                    <p>
+                        Every scripted indicator receives two objects: <code>control</code> (the control record 
+                        being evaluated) and <code>indicator</code> (the indicator configuration). The script 
+                        must return one of three values:
+                    </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Return Value</th>
+                                    <th>Meaning</th>
+                                    <th>When to Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>'pass'</code></td>
+                                    <td>Control is effective</td>
+                                    <td>The verified condition is met</td>
+                                </tr>
+                                <tr>
+                                    <td><code>'fail'</code></td>
+                                    <td>Control is not effective</td>
+                                    <td>The verified condition is NOT met</td>
+                                </tr>
+                                <tr>
+                                    <td><code>'not_applicable'</code></td>
+                                    <td>Control doesn't apply</td>
+                                    <td>Entity doesn't have the prerequisites for this check</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" data-tab="tab-ind-patch">Patch Compliance</button>
+                            <button class="tab-btn" data-tab="tab-ind-incident">Incident SLA</button>
+                            <button class="tab-btn" data-tab="tab-ind-change">Change Approval</button>
+                        </div>
+
+                        <div class="tab-panel active" id="tab-ind-patch">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Scripted Indicator — Patch Compliance Check</span>
+                                    <button class="code-copy">Copy</button>
+                                </div>
+                                <div class="code-body">
+<pre><code>// Check: Are all critical patches applied within 30 days?
+(function(control, indicator) {
+    var ci = control.profile.applies_to;
+    if (!ci) return 'not_applicable';
+    
+    var threshold = gs.daysAgoStart(30);
+    
+    // Query for outstanding critical patches
+    var gr = new GlideRecord('cmdb_ci_patch');
+    gr.addQuery('cmdb_ci', ci);
+    gr.addQuery('severity', 'critical');
+    gr.addQuery('state', '!=', 'applied');
+    gr.addQuery('release_date', '<=', threshold);
+    gr.query();
+    
+    if (gr.getRowCount() > 0) {
+        // Store details as supporting data
+        indicator.supporting_data = 
+            gr.getRowCount() + ' critical patches overdue';
+        return 'fail';
+    }
+    
+    return 'pass';
+})(control, indicator);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-panel" id="tab-ind-incident">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Scripted Indicator — Incident SLA Compliance</span>
+                                    <button class="code-copy">Copy</button>
+                                </div>
+                                <div class="code-body">
+<pre><code>// Check: Are P1 incidents resolved within SLA?
+(function(control, indicator) {
+    var ci = control.profile.applies_to;
+    if (!ci) return 'not_applicable';
+    
+    var ninetyDaysAgo = gs.daysAgoStart(90);
+    
+    // Count P1 incidents that breached SLA
+    var gr = new GlideRecord('incident');
+    gr.addQuery('cmdb_ci', ci);
+    gr.addQuery('priority', '1');
+    gr.addQuery('opened_at', '>=', ninetyDaysAgo);
+    gr.addQuery('made_sla', false);
+    gr.query();
+    
+    var breachCount = gr.getRowCount();
+    
+    if (breachCount > 0) {
+        indicator.supporting_data = 
+            breachCount + ' P1 SLA breaches in 90 days';
+        return 'fail';
+    }
+    
+    return 'pass';
+})(control, indicator);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-panel" id="tab-ind-change">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Scripted Indicator — Unauthorized Changes</span>
+                                    <button class="code-copy">Copy</button>
+                                </div>
+                                <div class="code-body">
+<pre><code>// Check: Were all changes to this CI properly approved?
+(function(control, indicator) {
+    var ci = control.profile.applies_to;
+    if (!ci) return 'not_applicable';
+    
+    var thirtyDaysAgo = gs.daysAgoStart(30);
+    
+    // Find changes without proper approval
+    var gr = new GlideRecord('change_request');
+    gr.addQuery('cmdb_ci', ci);
+    gr.addQuery('sys_created_on', '>=', thirtyDaysAgo);
+    gr.addQuery('approval', '!=', 'approved');
+    gr.addQuery('state', 'closed');
+    gr.query();
+    
+    if (gr.getRowCount() > 0) {
+        indicator.supporting_data = 
+            gr.getRowCount() + ' unapproved changes detected';
+        return 'fail';
+    }
+    
+    return 'pass';
+})(control, indicator);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Flow Designer -->
+                <section class="content-section" id="flow-designer">
+                    <h2>Flow Designer Patterns</h2>
+                    <p>
+                        <strong>Flow Designer</strong> is the preferred way to build automation in IRM (over legacy 
+                        Workflows). Common patterns include:
+                    </p>
+
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Auto-Create Issue on Indicator Failure</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p><strong>Trigger:</strong> Record Updated on <code>sn_grc_indicator_result</code> where result = 'fail'</p>
+                                    <p><strong>Actions:</strong></p>
+                                    <p>
+                                        1. Look up the related control and entity<br>
+                                        2. Check if an open issue already exists for this control<br>
+                                        3. If no existing issue → Create new <code>sn_grc_issue</code> record<br>
+                                        4. Assign to control owner<br>
+                                        5. Send notification to risk manager
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Risk Appetite Breach Escalation</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p><strong>Trigger:</strong> Record Updated on <code>sn_risk_risk</code> where residual_risk changed</p>
+                                    <p><strong>Actions:</strong></p>
+                                    <p>
+                                        1. Compare new residual risk score against risk appetite threshold<br>
+                                        2. If over appetite → Move risk state to "Respond"<br>
+                                        3. Create approval request for risk response<br>
+                                        4. Notify risk committee members<br>
+                                        5. Create calendar event for review meeting
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger">
+                                <span class="accordion-trigger-text">Automated Evidence Request Workflow</span>
+                                <span class="accordion-icon">▾</span>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <p><strong>Trigger:</strong> Record Created on audit test execution record</p>
+                                    <p><strong>Actions:</strong></p>
+                                    <p>
+                                        1. Identify required evidence types from test template<br>
+                                        2. Look up control owner for the in-scope control<br>
+                                        3. Create evidence request record with due date<br>
+                                        4. Send personalized email with specific evidence instructions<br>
+                                        5. Schedule reminder at 75% of due date if not submitted<br>
+                                        6. Escalate to manager if overdue
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Business Rules -->
+                <section class="content-section" id="business-rules">
+                    <h2>Business Rules</h2>
+                    <p>
+                        Some common business rule patterns used in IRM customizations:
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Business Rule — Auto-Assign Risk Owner from Entity</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Table: sn_risk_risk
+// When: Before Insert
+// Condition: Risk owner is empty
+
+(function executeRule(current, previous) {
+    if (!current.risk_owner) {
+        // Inherit owner from the entity
+        var entity = new GlideRecord('sn_grc_profile');
+        if (entity.get(current.profile)) {
+            current.risk_owner = entity.owned_by;
+            gs.info('Auto-assigned risk owner from entity: ' 
+                    + entity.owned_by.getDisplayValue());
+        }
+    }
+})(current, previous);</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Business Rule — Cascade Entity Deactivation</span>
+                            <button class="code-copy">Copy</button>
+                        </div>
+                        <div class="code-body">
+<pre><code>// Table: sn_grc_profile
+// When: After Update
+// Condition: active changes to false
+
+(function executeRule(current, previous) {
+    // When an entity is deactivated, close all
+    // associated controls and risks
+    
+    // Close controls
+    var ctrl = new GlideRecord('sn_compliance_control');
+    ctrl.addQuery('profile', current.sys_id);
+    ctrl.addActiveQuery();
+    ctrl.query();
+    while (ctrl.next()) {
+        ctrl.state = 'not_applicable';
+        ctrl.active = false;
+        ctrl.update();
+    }
+    
+    // Retire risks
+    var risk = new GlideRecord('sn_risk_risk');
+    risk.addQuery('profile', current.sys_id);
+    risk.addQuery('state', '!=', 'retired');
+    risk.query();
+    while (risk.next()) {
+        risk.state = 'retired';
+        risk.update();
+    }
+    
+    gs.info('Cascaded deactivation for entity: ' 
+            + current.name);
+})(current, previous);</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section class="content-section" id="best-practices">
+                    <h2>Best Practices</h2>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">1. Use the Entity Framework — Don't Hardcode</div>
+                        <p>
+                            Always leverage Entity Types and their dynamic filters to associate risks and 
+                            controls with assets. Never hardcode entity-to-CI mappings. When a new CI is 
+                            added to the CMDB that matches an Entity Type filter, IRM should automatically 
+                            create the corresponding entity and scope controls to it.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">2. Align with CSDM</div>
+                        <p>
+                            When modeling your entities, align them with the Common Service Data Model (CSDM). 
+                            This ensures risk data remains consistent with your service architecture and enables 
+                            service-level risk reporting.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">3. Prefer Configuration Over Customization</div>
+                        <p>
+                            IRM provides extensive configuration options (RAM, Entity Types, Content References, 
+                            Indicator Templates). Exhaust these before writing custom scripts. Custom code 
+                            increases upgrade complexity and can break platform automation that relies on the 
+                            standard schema.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">4. Use Scoped APIs</div>
+                        <p>
+                            Always use the <code>sn_grc</code> and <code>sn_compliance</code> scoped APIs when 
+                            available. These enforce data integrity constraints and business logic that raw 
+                            GlideRecord operations might bypass.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">5. Test in Sub-Production</div>
+                        <p>
+                            IRM configurations can have cascading effects (e.g., changing an Entity Type filter 
+                            can generate or remove hundreds of controls). Always test configuration changes in 
+                            a sub-production instance first.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Common Pitfalls -->
+                <section class="content-section" id="common-pitfalls">
+                    <h2>Common Pitfalls</h2>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Writing Directly to M2M Tables</div>
+                        <p>
+                            Inserting or deleting records directly in M2M join tables (e.g., 
+                            <code>sn_grc_m2m_cont_ref_control</code>) can corrupt data relationships. 
+                            Use the UI or scoped APIs to manage these relationships.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Ignoring Application Scope</div>
+                        <p>
+                            IRM tables are scoped to <code>sn_grc</code>, <code>sn_compliance</code>, etc. 
+                            If your custom scripts or integrations don't run in the correct scope, they may 
+                            fail with "access denied" errors or silently skip records they can't see.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Over-Customizing Control Generation</div>
+                        <p>
+                            The Content Reference mechanism automatically generates controls based on Entity 
+                            Type and Control Objective combinations. Custom scripts that also generate controls 
+                            can lead to duplicates and data quality issues. Understand the OOB generation 
+                            logic before adding custom creation logic.
+                        </p>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Not Handling "Not Applicable" in Indicators</div>
+                        <p>
+                            Always handle the case where an indicator can't determine pass/fail (e.g., 
+                            the entity has no associated CI). Returning <code>'not_applicable'</code> is 
+                            better than returning <code>'fail'</code> — false positives erode trust in 
+                            your compliance data.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/audit-regulatory" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Audit & Regulatory Change</span>
+                    </a>
+                    <a href="/irm" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Back to →</span>
+                        <span class="page-nav-title">IRM Hub</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

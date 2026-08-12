@@ -1,0 +1,68 @@
+<%- include('../../partials/head', { title: 'Process Simulator — IRM | SN Learn', styles: ['/styles/module-layout.css', '/styles/simulator.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#how-to-use" class="toc-link">How to Use</a>
+                        <a href="#simulator" class="toc-link">Record Simulator</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Process Simulator</span>
+                    </div>
+                    <h1 class="content-title">Process <span class="gradient-text">Simulator</span></h1>
+                    <p class="content-subtitle">
+                        Explore realistic sample records from key GRC tables. Click any record to expand
+                        its full form view — see choice dropdowns, reference fields with info tooltips,
+                        and understand how the end-to-end risk and compliance process works in practice.
+                    </p>
+                </div>
+
+                <section class="content-section" id="how-to-use">
+                    <h2>How to Use This Simulator</h2>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Interactive Guide</div>
+                        <p>
+                            <strong>Click any record</strong> to expand its ServiceNow-style form view.
+                            <strong>Choice fields</strong> (like State, Classification) are shown as dropdowns with all available options.
+                            <strong>Reference fields</strong> (like Owner, Parent Policy) have a small
+                            <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid rgba(59,130,246,0.4);font-size:10px;color:#60a5fa;margin:0 2px;vertical-align:middle;">i</span>
+                            info button — click it to see which table the field references.
+                            The tabs are ordered by <strong>process flow</strong> — from defining entities and policies through resolving issues.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="simulator">
+                    <h2>Record Explorer</h2>
+
+                    <!-- Simulator tabs — rendered by JS -->
+                    <div class="sim-tabs-header" id="sim-tabs-header"></div>
+                    <div class="sim-tabs-content" id="sim-tabs-content"></div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/developer-patterns" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Developer Patterns & APIs</span>
+                    </a>
+                    <div></div>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js', '/scripts/irm-simulator.js', '/scripts/simulator-core.js'] }) %>

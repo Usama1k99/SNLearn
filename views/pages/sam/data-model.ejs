@@ -1,0 +1,72 @@
+<%- include('../../partials/head', { title: 'Data Model & Key Tables — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#erd" class="toc-link">Entity Relationship</a><a href="#core-tables" class="toc-link">Table Breakdown</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Data Model</span>
+                    </div>
+                    <h1 class="content-title">SAM <span class="gradient-text">Data Model</span></h1>
+                    <p class="content-subtitle">
+                        To master ServiceNow SAM, you must understand how hardware CIs, raw installation strings, and financial purchasing data all connect through the Software Model.
+                    </p>
+                </div>
+
+                <section class="content-section" id="erd">
+                    <h2>Entity Relationship Diagram</h2>
+                    <p>
+                        The core challenge of SAM is that IT data (Installations) and Procurement data (Entitlements) speak different languages. The <strong>Software Model</strong> acts as the central translator linking these two worlds.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">SAM Core Tables ERD</div>
+                        <div class="mermaid">
+                        erDiagram
+                            cmdb_ci_computer ||--o{ cmdb_sam_sw_install : "Hosts"
+                            cmdb_sam_sw_discovery_model ||--|{ cmdb_sam_sw_install : "Normalizes"
+                            cmdb_software_product_model ||--|{ cmdb_sam_sw_discovery_model : "Maps to"
+                            cmdb_software_product_model ||--|{ alm_license : "Licensed by"
+                            sys_user ||--o{ alm_entitlement_user : "Assigned"
+                            alm_license ||--o{ alm_entitlement_user : "Allocated to"
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="core-tables">
+                    <h2>Core Table Breakdown</h2>
+                    
+                    <h3>1. Software Installation (<code>cmdb_sam_sw_install</code>)</h3>
+                    <p><strong>The What and Where.</strong> This table holds the raw data discovered on a device. It links directly to a hardware CI (like a Windows Server) and contains the messy publisher/product strings found in the registry.</p>
+                    
+                    <h3>2. Discovery Model (<code>cmdb_sam_sw_discovery_model</code>)</h3>
+                    <p><strong>The Normalized Concept.</strong> Thousands of identical <code>cmdb_sam_sw_install</code> records (e.g., all installations of Adobe Acrobat DC 2020) point to a single Discovery Model. This is the output of the Normalization engine.</p>
+                    
+                    <h3>3. Software Model (<code>cmdb_software_product_model</code>)</h3>
+                    <p><strong>The Business Concept.</strong> This is the specific product you actually care about managing from a business perspective. It connects the normalized technical data (Discovery Models) to your financial purchases (Entitlements). It also tracks product lifecycles like End of Support (EOS).</p>
+                    
+                    <h3>4. Entitlement (<code>alm_license</code>)</h3>
+                    <p><strong>The Purchase.</strong> This table represents your legal right to use a software product. It dictates the License Metric (e.g., Per User, Per Core), the number of rights purchased, and the cost. It points directly to a Software Model.</p>
+
+                    <h3>5. Software Allocation (<code>alm_entitlement_user</code> or <code>alm_entitlement_asset</code>)</h3>
+                    <p><strong>The Assignment.</strong> When you reserve a license right for a specific person or server, an allocation record is created linking the User/Asset to the Entitlement. This ensures rights aren't double-counted.</p>
+                </section>
+        
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

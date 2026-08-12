@@ -1,0 +1,372 @@
+<%- include('../../partials/head', { title: 'Developer Patterns & Integrations — SecOps | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'secops' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'secops', moduleLabel: 'SecOps', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#rest-api" class="toc-link">REST API Patterns</a>
+                        <a href="#gliderecord" class="toc-link">GlideRecord Patterns</a>
+                        <a href="#flow-designer" class="toc-link">Flow Designer Playbooks</a>
+                        <a href="#siem-integration" class="toc-link">SIEM Integration</a>
+                        <a href="#orchestration" class="toc-link">Orchestration Patterns</a>
+                        <a href="#best-practices" class="toc-link">Best Practices</a>
+                        <a href="#pitfalls" class="toc-link">Common Pitfalls</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb"><a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/secops">SecOps</a><span class="breadcrumb-sep">›</span><span>Developer Patterns & Integrations</span></div>
+                    <h1 class="content-title">Developer Patterns & <span class="gradient-text">Integrations</span></h1>
+                    <p class="content-subtitle">
+                        Practical code patterns, integration recipes, and operational guidance for developers 
+                        building on and extending ServiceNow SecOps.
+                    </p>
+                </div>
+
+                <section class="content-section" id="rest-api">
+                    <h2>REST API Patterns</h2>
+                    <p>
+                        SecOps tables are accessible via the standard ServiceNow Table API. 
+                        Here are the most common patterns:
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST — Create a Security Incident</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>POST /api/now/table/sn_si_incident
+
+Headers:
+  Content-Type: application/json
+  Accept: application/json
+
+Body:
+{
+    "short_description": "Suspicious login activity detected",
+    "category": "Unauthorized Access",
+    "subcategory": "Brute Force",
+    "priority": "2",
+    "severity": "2",
+    "description": "Multiple failed login attempts from IP 203.0.113.50",
+    "affected_ci": "{ci_sys_id}"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST — Query Open High-Priority Incidents</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>GET /api/now/table/sn_si_incident
+    ?sysparm_query=active=true^priority<=2
+    &sysparm_fields=sys_id,number,short_description,state,priority,assigned_to
+    &sysparm_display_value=true
+    &sysparm_limit=25
+    &sysparm_order_by=priority</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">REST — Add an Observable to an Incident</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>POST /api/now/table/sn_ti_observable
+
+Body:
+{
+    "type": "IP Address",
+    "value": "203.0.113.50",
+    "notes": "Source IP of brute force attempts"
+}
+
+// Then link it via M2M table:
+POST /api/now/table/sn_ti_m2m_observable_sn_si_incident
+
+Body:
+{
+    "sn_ti_observable": "{observable_sys_id}",
+    "sn_si_incident": "{incident_sys_id}"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="gliderecord">
+                    <h2>GlideRecord Patterns</h2>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Find All Critical Vulnerabilities on Production Systems</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>// Query critical vulnerable items on production CIs
+var gr = new GlideRecord('sn_vul_vulnerable_item');
+gr.addQuery('state', 'open');
+gr.addQuery('vulnerability.severity', 'critical');
+gr.addQuery('cmdb_ci.used_for', 'Production');
+gr.orderByDesc('risk_score');
+gr.setLimit(50);
+gr.query();
+
+while (gr.next()) {
+    gs.info('VI: ' + gr.number + 
+            ' | CVE: ' + gr.vulnerability.id +
+            ' | CI: ' + gr.cmdb_ci.getDisplayValue() +
+            ' | Risk Score: ' + gr.risk_score);
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Auto-Escalate Aged Security Incidents</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>// Scheduled Job: Escalate SIR incidents open > 72 hours
+var threshold = gs.daysAgoStart(3);
+
+var gr = new GlideRecord('sn_si_incident');
+gr.addQuery('active', true);
+gr.addQuery('state', '!=', 'closed');
+gr.addQuery('sys_created_on', '<=', threshold);
+gr.addQuery('priority', '>', 1); // Not already P1
+gr.query();
+
+while (gr.next()) {
+    var oldPriority = gr.priority;
+    gr.priority = parseInt(gr.priority) - 1;
+    gr.work_notes = 'Auto-escalated from P' + oldPriority + 
+                    ' to P' + gr.priority + 
+                    ' — incident open > 72 hours';
+    gr.update();
+    gs.info('Escalated: ' + gr.number);
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Link MITRE Technique to Incident via Script</span><button class="code-copy">Copy</button></div>
+                        <div class="code-body">
+<pre><code>// Add a MITRE ATT&CK technique to a security incident
+// Uses the sn_ti.MITREUtil Script Include
+var mitreUtil = new sn_ti.MITREUtil();
+
+var incidentSysId = 'abc123...'; // sn_si_incident sys_id
+var techniqueId = 'T1566.001';   // Phishing: Spearphishing Attachment
+
+// Look up the technique record
+var technique = new GlideRecord('sn_ti_stix2_attack_pattern');
+technique.addQuery('mitre_id', techniqueId);
+technique.query();
+
+if (technique.next()) {
+    mitreUtil.addTechniqueToIncident(
+        incidentSysId, 
+        technique.sys_id
+    );
+    gs.info('Added ' + techniqueId + ' to incident');
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="flow-designer">
+                    <h2>Flow Designer Playbooks</h2>
+                    <p>Common Flow Designer patterns used in SecOps automation:</p>
+
+                    <div class="accordion">
+                        <div class="accordion-item open">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">Auto-Enrich Observables on Creation</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p><strong>Trigger:</strong> Record Created on <code>sn_ti_observable</code> where state = 'Processed'</p>
+                                <p><strong>Flow:</strong></p>
+                                <p>
+                                    1. Check observable type (IP, Domain, Hash, URL)<br>
+                                    2. Filter out internal/private addresses to save API calls<br>
+                                    3. Branch by type:<br>
+                                    &nbsp;&nbsp;— IP → Query AbuseIPDB + VirusTotal<br>
+                                    &nbsp;&nbsp;— Domain → Query WHOIS + VirusTotal<br>
+                                    &nbsp;&nbsp;— Hash → Query VirusTotal + MalwareBazaar<br>
+                                    4. Update observable with enrichment results<br>
+                                    5. Set state to 'Enriched' or 'Potential New Threat'<br>
+                                    6. If threat score > threshold → auto-link to active incidents
+                                </p>
+                            </div></div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">SIEM Alert to Security Incident</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p><strong>Trigger:</strong> REST API call from SIEM (e.g., Splunk webhook)</p>
+                                <p><strong>Flow:</strong></p>
+                                <p>
+                                    1. Parse incoming alert payload (source IP, destination, rule name, severity)<br>
+                                    2. Look up affected CI in CMDB by IP/hostname<br>
+                                    3. Check for duplicate — is there an existing open incident with same observables?<br>
+                                    4. If duplicate → add to existing incident as work note<br>
+                                    5. If new → create sn_si_incident with auto-categorization<br>
+                                    6. Create observables for all IoCs in the alert<br>
+                                    7. Auto-assign based on affected CI's assignment group<br>
+                                    8. Trigger enrichment subflow for new observables
+                                </p>
+                            </div></div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-trigger"><span class="accordion-trigger-text">Auto-Containment on Critical Incident</span><span class="accordion-icon">▾</span></button>
+                            <div class="accordion-body"><div class="accordion-content">
+                                <p><strong>Trigger:</strong> Record Updated on <code>sn_si_incident</code> where state changes to 'Contain'</p>
+                                <p><strong>Flow:</strong></p>
+                                <p>
+                                    1. Retrieve all observables linked to the incident<br>
+                                    2. For each malicious IP → call firewall API to add block rule<br>
+                                    3. For each affected CI → call EDR API to isolate host<br>
+                                    4. For each compromised account → call AD API to disable account<br>
+                                    5. Log all containment actions as work notes on the incident<br>
+                                    6. Create SIR tasks for manual verification of each containment action
+                                </p>
+                            </div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="siem-integration">
+                    <h2>SIEM Integration Architecture</h2>
+                    <p>The typical SIEM → SecOps integration follows this pattern:</p>
+                    <div class="diagram-block">
+                        <div class="diagram-title">SIEM Integration Flow</div>
+                        <div class="flow-container">
+                            <div class="flow-step">
+                                <span class="flow-step-label">SIEM</span>
+                                <span class="flow-step-desc">Splunk / QRadar / Sentinel</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Webhook / API</span>
+                                <span class="flow-step-desc">Alert forwarded via REST</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">Event Ingestion</span>
+                                <span class="flow-step-desc">Parse, deduplicate, correlate</span>
+                            </div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-step">
+                                <span class="flow-step-label">SIR Incident</span>
+                                <span class="flow-step-desc">Created with CMDB context</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Deduplication is Critical</div>
+                        <p>
+                            A single attack can generate hundreds of SIEM alerts. Without proper deduplication, 
+                            you'll create hundreds of duplicate SIR incidents. Always implement deduplication 
+                            logic based on source IP, destination CI, alert rule, and time window.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="orchestration">
+                    <h2>Orchestration Patterns</h2>
+                    <p>Common orchestration patterns for connecting SecOps to your security ecosystem:</p>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>Pattern</th><th>Direction</th><th>Tools</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Alert Ingestion</strong></td><td>Tool → SecOps</td><td>SIEM, EDR, Cloud Security</td></tr>
+                                <tr><td><strong>Containment Actions</strong></td><td>SecOps → Tool</td><td>Firewall, EDR, IAM, Email Gateway</td></tr>
+                                <tr><td><strong>Enrichment Lookups</strong></td><td>SecOps ↔ Tool</td><td>VirusTotal, WHOIS, Threat Feeds</td></tr>
+                                <tr><td><strong>Scan Triggering</strong></td><td>SecOps → Tool</td><td>Qualys, Tenable, Rapid7</td></tr>
+                                <tr><td><strong>Ticket Sync</strong></td><td>SecOps ↔ Tool</td><td>Jira, ITSM, Change Management</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-section" id="best-practices">
+                    <h2>Best Practices</h2>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">1. Stay Close to OOTB</div>
+                        <p>
+                            ServiceNow strongly recommends staying as close to out-of-the-box configurations 
+                            as possible. Custom table structures, modified state models, and overridden business 
+                            rules create technical debt and complicate upgrades.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">2. Invest in CMDB Quality</div>
+                        <p>
+                            SecOps is only as good as your CMDB. If CI records are incomplete, outdated, or 
+                            have no service mapping, SecOps can't provide business context. Run CMDB health 
+                            checks regularly and enforce data governance.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">3. Start with Governance, Not Automation</div>
+                        <p>
+                            Before automating heavily, establish governance — define severity criteria, 
+                            response SLAs, escalation paths, and role assignments. Automating a bad process 
+                            just makes it fail faster.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">4. Use Store Apps for Integrations</div>
+                        <p>
+                            Check the ServiceNow Store before building custom integrations. Pre-built apps for 
+                            Splunk, CrowdStrike, Qualys, Tenable, etc. are tested, supported, and upgraded by 
+                            ServiceNow. Custom integrations should be a last resort.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">5. Implement Alert Deduplication Early</div>
+                        <p>
+                            One of the biggest operational challenges is alert fatigue from duplicate incidents. 
+                            Implement deduplication logic (matching on source, target, rule, and time window) 
+                            before connecting your SIEM, or you'll drown in noise.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="pitfalls">
+                    <h2>Common Pitfalls</h2>
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Ignoring CI Matching in VR</div>
+                        <p>
+                            If your scanner reports assets by IP but your CMDB uses hostnames, VIs will be 
+                            created with temporary CIs. This breaks prioritization, assignment, and reporting. 
+                            Always validate CI matching rules before going live with scanner integrations.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Over-Enriching Observables</div>
+                        <p>
+                            Querying every observable against every enrichment source wastes API calls and 
+                            money. Filter out private IPs, internal domains, and known-safe hashes before 
+                            sending to external services. Set up allowlists for your own infrastructure.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Not Testing Playbooks End-to-End</div>
+                        <p>
+                            Playbooks that work perfectly in a demo environment can fail in production due to 
+                            permission issues, API rate limits, or unexpected data formats. Always test playbooks 
+                            end-to-end with realistic data in a sub-production instance.
+                        </p>
+                    </div>
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">⚠ Modifying Process Definitions</div>
+                        <p>
+                            Changing the built-in NIST/SANS process definitions can break playbook execution 
+                            and reporting. If you need a custom state model, create a new process definition 
+                            rather than modifying the existing ones.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/secops/threat-intelligence" class="page-nav-link"><span class="page-nav-label">← Previous</span><span class="page-nav-title">Threat Intelligence & MITRE</span></a>
+                    <a href="/secops" class="page-nav-link page-nav-link--next"><span class="page-nav-label">Back to →</span><span class="page-nav-title">SecOps Hub</span></a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

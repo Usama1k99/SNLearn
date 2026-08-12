@@ -1,0 +1,97 @@
+<%- include('../../partials/head', { title: 'Procurement Lifecycle — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'ham' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'ham', moduleLabel: 'HAM', activePage: 'procurement' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#request-phase" class="toc-link">1. The Request Phase</a>
+                    <a href="#po-phase" class="toc-link">2. Purchase Orders</a>
+                    <a href="#receiving-phase" class="toc-link">3. Receiving Slips</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/ham">HAM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Procurement Lifecycle</span>
+                </div>
+                <h1 class="content-title">Procurement <span class="gradient-text">Lifecycle</span></h1>
+                <p class="content-subtitle">
+                    Follow the money: Learn how ServiceNow translates Service Catalog requests into Purchase Orders, and eventually into physical assets.
+                </p>
+            </div>
+
+            <section class="content-section" id="request-phase">
+                <h2 class="section-title">1. The Request Phase</h2>
+                <div class="prose">
+                    <p>
+                        The hardware lifecycle usually begins in the <strong>Service Catalog</strong>. A user requests a new laptop, generating a Request (<code>sc_request</code>) and a Requested Item (<code>sc_req_item</code>). 
+                    </p>
+                    <p>
+                        If the item is not currently available in a local Stockroom, the system (via workflow) can automatically generate a Procurement Task to buy the item from a vendor.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="po-phase">
+                <h2 class="section-title">2. Purchase Orders (<code>proc_po</code>)</h2>
+                <div class="prose">
+                    <p>
+                        A <strong>Purchase Order (PO)</strong> is a formal request sent to a vendor (like Dell or Apple) to buy hardware. 
+                    </p>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="page-card">
+                        <h3>Purchase Order <code>[proc_po]</code></h3>
+                        <p>The parent record containing the Vendor, Ship-to address, total cost, and PO status (Requested, Ordered, Pending Delivery).</p>
+                    </div>
+                    <div class="page-card">
+                        <h3>PO Line Item <code>[proc_po_item]</code></h3>
+                        <p>Child records detailing exactly <em>what</em> is being ordered. (e.g., Line 1: 50x Laptops, Line 2: 50x Docks).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="receiving-phase">
+                <h2 class="section-title">3. Receiving Slips (<code>proc_rec_slip</code>)</h2>
+                <div class="prose">
+                    <p>
+                        When a delivery truck arrives at the loading dock, IT staff use the <strong>Receiving</strong> module. They create a <strong>Receiving Slip</strong> against the Purchase Order.
+                    </p>
+                    <p>
+                        This is the magical moment in HAM: When a Receiving Slip Line is submitted, ServiceNow <strong>automatically generates the Asset records</strong> (<code>alm_hardware</code>) and assigns them to the receiving Stockroom.
+                    </p>
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="mermaid">
+                    flowchart TD
+                        PO[Purchase Order: Ordered] --> Dock[Box Arrives at Dock]
+                        Dock --> Rec[Create Receiving Slip]
+                        Rec --> RecLine[Add Receiving Slip Line: Qty 5]
+                        RecLine -->|Submit| Magic{ServiceNow Automation}
+                        
+                        Magic --> Asset1[Create Asset 1: In Stock]
+                        Magic --> Asset2[Create Asset 2: In Stock]
+                        Magic --> Asset5[Create Asset 3-5...]
+                        
+                        classDef default fill:#1f2937,stroke:#374151,color:#e5e7eb
+                        classDef highlight fill:#10b981,stroke:#047857,color:#ffffff
+                        class Magic highlight
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

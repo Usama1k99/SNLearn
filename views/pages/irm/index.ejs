@@ -1,0 +1,148 @@
+<%- include('../../partials/head', { title: 'IRM — Integrated Risk Management | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-hub">
+        <div class="container">
+            <div class="irm-hub-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>IRM</span>
+                </div>
+                <div class="irm-title-row">
+                    <div class="irm-icon-badge">
+                        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                            <path d="M20 4L36 12V28L20 36L4 28V12L20 4Z" stroke="url(#irm-g)" stroke-width="2"/>
+                            <path d="M20 12L28 16V24L20 28L12 24V16L20 12Z" fill="url(#irm-g)" opacity="0.3"/>
+                            <circle cx="20" cy="20" r="3" fill="url(#irm-g)"/>
+                            <defs>
+                                <linearGradient id="irm-g" x1="4" y1="4" x2="36" y2="36">
+                                    <stop stop-color="#10b981"/><stop offset="1" stop-color="#6ee7b7"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="irm-hub-title">
+                            Integrated Risk<br>
+                            <span class="gradient-text">Management</span>
+                        </h1>
+                    </div>
+                </div>
+                <p class="irm-hub-subtitle">
+                    Formerly known as GRC (Governance, Risk & Compliance), IRM is a unified platform on the Now Platform 
+                    that connects risk, compliance, audit, and policy activities across the enterprise. Explore each 
+                    topic below to understand how it works under the hood.
+                </p>
+            </div>
+
+            <div class="pages-grid">
+                <!-- Page 1: Overview & Architecture -->
+                <a href="/irm/overview" class="module-card-horizontal page-card">
+                    <span class="page-card-number">01</span>
+                    <h3 class="page-card-title">Overview & Architecture</h3>
+                    <p class="page-card-desc">
+                        Understand what IRM is, its core value proposition, how it fits into the Now Platform, 
+                        and the high-level architecture of the suite.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Platform Architecture</span>
+                        <span class="topic-tag">Core Modules</span>
+                        <span class="topic-tag">GRC Evolution</span>
+                    </div>
+                </a>
+
+                <!-- Page 2: Entity Framework & Data Model -->
+                <a href="/irm/data-model" class="module-card-horizontal page-card">
+                    <span class="page-card-number">02</span>
+                    <h3 class="page-card-title">Entity Framework & Data Model</h3>
+                    <p class="page-card-desc">
+                        Deep-dive into the Entity Framework, core GRC tables, relationships (M2M), 
+                        and how IRM integrates with the CMDB.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">sn_grc_profile</span>
+                        <span class="topic-tag">Entity Types</span>
+                        <span class="topic-tag">M2M Tables</span>
+                    </div>
+                </a>
+
+                <!-- Page 3: Risk Management Lifecycle -->
+                <a href="/irm/risk-lifecycle" class="module-card-horizontal page-card">
+                    <span class="page-card-number">03</span>
+                    <h3 class="page-card-title">Risk Management Lifecycle</h3>
+                    <p class="page-card-desc">
+                        Walk through the full risk lifecycle — from draft to retirement. Learn about 
+                        Advanced Risk Assessment (ARA), RAM, scoring, and response workflows.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Risk States</span>
+                        <span class="topic-tag">ARA / RAM</span>
+                        <span class="topic-tag">Scoring</span>
+                    </div>
+                </a>
+
+                <!-- Page 4: Policy & Compliance -->
+                <a href="/irm/policy-compliance" class="module-card-horizontal page-card">
+                    <span class="page-card-number">04</span>
+                    <h3 class="page-card-title">Policy & Compliance Management</h3>
+                    <p class="page-card-desc">
+                        Understand authority documents, policies, controls, control objectives, 
+                        indicators, and how compliance is continuously monitored.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Authority Docs</span>
+                        <span class="topic-tag">Controls</span>
+                        <span class="topic-tag">Indicators</span>
+                    </div>
+                </a>
+
+                <!-- Page 5: Audit & Regulatory Change -->
+                <a href="/irm/audit-regulatory" class="module-card-horizontal page-card">
+                    <span class="page-card-number">05</span>
+                    <h3 class="page-card-title">Audit & Regulatory Change</h3>
+                    <p class="page-card-desc">
+                        Learn about audit planning, execution, evidence collection, and how Regulatory 
+                        Change Management tracks evolving compliance landscapes.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Audit Lifecycle</span>
+                        <span class="topic-tag">RCM</span>
+                        <span class="topic-tag">Findings</span>
+                    </div>
+                </a>
+
+                <!-- Page 6: Developer Patterns -->
+                <a href="/irm/developer-patterns" class="module-card-horizontal page-card">
+                    <span class="page-card-number">06</span>
+                    <h3 class="page-card-title">Developer Patterns & APIs</h3>
+                    <p class="page-card-desc">
+                        Practical developer guidance — scripted indicators, Table API usage, 
+                        Flow Designer patterns, best practices, and common customization patterns.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Table API</span>
+                        <span class="topic-tag">Scripted Indicators</span>
+                        <span class="topic-tag">Flow Designer</span>
+                    </div>
+                </a>
+
+                <!-- Page 7: Process Simulator -->
+                <a href="/irm/simulator" class="module-card-horizontal page-card">
+                    <span class="page-card-number">07</span>
+                    <h3 class="page-card-title">Process Simulator</h3>
+                    <p class="page-card-desc">
+                        Interactive simulator to explore sample records, field choices, and the 
+                        end-to-end data flow from Entities to Issues.
+                    </p>
+                    <div class="page-card-topics">
+                        <span class="topic-tag">Interactive</span>
+                        <span class="topic-tag">Data Model</span>
+                        <span class="topic-tag">Process Flow</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>
