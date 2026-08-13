@@ -38,7 +38,7 @@ const DEFAULT_PREFS = {
     sparkleTrail: false,
     cursorSize: 1.0,
     cursorChaseSpeed: 0.5,
-    cursorBloomEnabled: true,
+    cursorBloomEnabled: false,
     cursorEncompassDelay: 0.15,
     starfieldEnabled: false,
     starfieldParticleCount: 250,

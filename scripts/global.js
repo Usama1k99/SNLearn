@@ -214,7 +214,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
     window.currentCursorType = 'default';
     window.sparkleTrailEnabled = false;
-    window.cursorBloomEnabled = true;
+    window.cursorBloomEnabled = false;
     window.cursorEncompassDelay = 0.15;
     window.invertColors = false;
 
@@ -231,7 +231,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             window.sparkleTrailEnabled = !!data.sparkleTrail;
             window.cursorSizeMultiplier = data.cursorSize || 1.0;
             window.cursorChaseSpeed = data.cursorChaseSpeed !== undefined ? data.cursorChaseSpeed : 0.5;
-            window.cursorBloomEnabled = data.cursorBloomEnabled !== undefined ? data.cursorBloomEnabled : true;
+            window.cursorBloomEnabled = data.cursorBloomEnabled !== undefined ? !!data.cursorBloomEnabled : false;
             window.cursorEncompassDelay = data.cursorEncompassDelay !== undefined ? data.cursorEncompassDelay : 0.15;
             window.starfieldEnabled = !!data.starfieldEnabled;
             window.starfieldParticleCount = data.starfieldParticleCount || 250;
@@ -294,7 +294,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             window.sparkleTrailEnabled = false;
             window.cursorSizeMultiplier = 1.0;
             window.cursorChaseSpeed = 0.5;
-            window.cursorBloomEnabled = true;
+            window.cursorBloomEnabled = false;
             window.cursorEncompassDelay = 0.15;
             window.starfieldEnabled = false;
             window.starfieldParticleCount = 250;
@@ -316,7 +316,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     sparkleTrail: false,
                     cursorSize: 1.0,
                     cursorChaseSpeed: 0.5,
-                    cursorBloomEnabled: true,
+                    cursorBloomEnabled: false,
                     cursorEncompassDelay: 0.15,
                     starfieldEnabled: false,
                     starfieldParticleCount: 250,
@@ -839,7 +839,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 opt.style.background = 'transparent';
             }
         });
-        if (bloomCheckbox) bloomCheckbox.checked = window.cursorBloomEnabled !== false;
+        if (bloomCheckbox) bloomCheckbox.checked = !!window.cursorBloomEnabled;
         if (trailCheckbox) trailCheckbox.checked = !!window.sparkleTrailEnabled;
         if (sizeSlider) sizeSlider.value = window.cursorSizeMultiplier || 1.0;
         if (speedSlider) {
@@ -1001,7 +1001,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const trail = !!window.sparkleTrailEnabled;
         const sizeMult = window.cursorSizeMultiplier || 1.0;
         const chaseSpeed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.5;
-        const bloomEnabled = window.cursorBloomEnabled !== false;
+        const bloomEnabled = !!window.cursorBloomEnabled;
         const encompassDelay = window.cursorEncompassDelay !== undefined ? window.cursorEncompassDelay : 0.15;
 
         document.documentElement.classList.remove('custom-cursor', 'cursor-inverted');
@@ -1473,13 +1473,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
         clearTimeout(idleTimer);
 
-        if (window.cursorBloomEnabled === false) {
+        if (!window.cursorBloomEnabled) {
             bloom.classList.remove('blooming', 'fading');
             return;
         }
 
         idleTimer = setTimeout(() => {
-            if (window.cursorBloomEnabled === false) return;
+            if (!window.cursorBloomEnabled) return;
             bloom.style.left = `${e.clientX}px`;
             bloom.style.top = `${e.clientY}px`;
             bloom.classList.remove('fading');

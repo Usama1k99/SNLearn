@@ -29,7 +29,7 @@
     "starfieldParticleCount": 250,
     "starfieldGravityStrength": 0.1,
     "starfieldRampDuration": 8,
-    "cursorBloomEnabled": true,
+    "cursorBloomEnabled": false,
     "cursorEncompassDelay": 0.15,
     "invertColors": false
   }
