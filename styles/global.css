@@ -919,23 +919,6 @@ path.edge-hover-glow {
         border 0.3s ease;
 }
 
-.cursor-ghost.tiny-dot {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background: var(--accent-primary) !important;
-    box-shadow: 0 0 10px var(--accent-glow) !important;
-    transition: none !important;
-}
-
-.cursor-ghost.morphing-to-droplet {
-    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1),
-                height 1s cubic-bezier(0.16, 1, 0.3, 1),
-                border-radius 1s cubic-bezier(0.16, 1, 0.3, 1),
-                background 1s ease,
-                box-shadow 1s ease !important;
-}
-
 .cursor-ghost.text-hover {
     background: transparent;
     border: 2px solid var(--accent-primary);

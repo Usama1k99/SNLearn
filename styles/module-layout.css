@@ -89,11 +89,11 @@
     border: 1px solid var(--border-subtle);
     background: var(--bg-secondary);
     padding: var(--space-xl);
-    transition: all var(--transition-base);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .page-card::before {

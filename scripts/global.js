@@ -446,7 +446,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             // Normal follow mode
             const dx = mouseX - cursorX;
             const dy = mouseY - cursorY;
-            const chaseSpeed = window.cursorChaseSpeed || 0.26;
+            const chaseSpeed = window.cursorChaseSpeed || 0.5;
 
             cursorX += dx * chaseSpeed;
             cursorY += dy * chaseSpeed;
@@ -490,17 +490,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             const size = baseSize * (window.cursorSizeMultiplier || 1.0);
             const offset = size / 2;
 
-            if (cursor.classList.contains('tiny-dot')) {
-                cursor.style.width = '';
-                cursor.style.height = '';
-                cursor.style.borderRadius = '';
-                cursor.style.transform = `translate(${cursorX - 4}px, ${cursorY - 4}px)`;
-            } else if (cursor.classList.contains('morphing-to-droplet')) {
-                cursor.style.width = '';
-                cursor.style.height = '';
-                cursor.style.borderRadius = '';
-                cursor.style.transform = `translate(${cursorX - offset}px, ${cursorY - offset}px) rotate(${currentAngle}rad) scale(${scaleX}, ${scaleY}) rotate(-45deg)`;
-            } else if (window.currentCursorType === 'inverted') {
+            if (window.currentCursorType === 'inverted') {
                 cursor.style.width = `${size}px`;
                 cursor.style.height = `${size}px`;
                 cursor.style.transform = `translate(${cursorX - offset}px, ${cursorY - offset}px)`;
@@ -510,24 +500,6 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 cursor.style.transform = `translate(${cursorX - offset}px, ${cursorY - offset}px) rotate(${currentAngle}rad) scale(${scaleX}, ${scaleY}) rotate(-45deg)`;
             }
             
-            if (!pointerDot || !document.body || !document.body.contains(pointerDot)) {
-                pointerDot = document.querySelector('.cursor-pointer-dot');
-                if (!pointerDot && document.body) {
-                    pointerDot = document.createElement('div');
-                    pointerDot.className = 'cursor-pointer-dot';
-                    document.body.appendChild(pointerDot);
-                }
-            }
-            if (pointerDot) {
-                pointerDot.style.left = `${mouseX}px`;
-                pointerDot.style.top = `${mouseY}px`;
-                if (isHovering && window.currentCursorType === 'droplet') {
-                    pointerDot.classList.add('active');
-                } else {
-                    pointerDot.classList.remove('active');
-                }
-            }
-
             // Sparkle Trail logic
             if (window.sparkleTrailEnabled && speed > 2 && Math.random() > 0.4) {
                 const sparkle = document.createElement('div');
@@ -545,6 +517,18 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             }
         }
 
+        // Pointer dot: always update position, toggle visibility based on hover state
+        // This MUST be outside the if/else so it runs every frame
+        if (pointerDot) {
+            pointerDot.style.left = `${mouseX}px`;
+            pointerDot.style.top = `${mouseY}px`;
+            if (isHovering && window.currentCursorType === 'droplet') {
+                pointerDot.classList.add('active');
+            } else {
+                pointerDot.classList.remove('active');
+            }
+        }
+
         requestAnimationFrame(animate);
     };
     animate();
@@ -555,8 +539,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }, { passive: true });
 
-    let delayTimer = null;
-    let morphTimer = null;
+
+    let encompassTimer = null;
 
     const setupInteractives = () => {
         const interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary, .node, .nav-link, .sidebar-link, .toc-link, .tab-btn, .sim-record-header, .sim-ref-info-btn, .sim-tab-btn, select, option, input[type="button"], input[type="submit"], .flow-step, .custom-scrollbar-thumb');
@@ -565,12 +549,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             el.dataset.cursorBound = 'true';
 
             el.addEventListener('mouseenter', () => {
-                if (delayTimer) clearTimeout(delayTimer);
-                if (morphTimer) clearTimeout(morphTimer);
+                // Cancel any pending delay from a previous leave
+                if (encompassTimer) { clearTimeout(encompassTimer); encompassTimer = null; }
                 isHovering = true;
                 targetElement = el;
                 targetRect = el.getBoundingClientRect();
-                cursor.classList.remove('tiny-dot', 'morphing-to-droplet');
+                // Immediately reset for new encompassment
+                cursor.style.transition = '';
                 cursor.style.opacity = '1';
                 cursor.classList.add('magnetic-hover');
             });
@@ -580,25 +565,39 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 targetElement = null;
                 targetRect = null;
                 cursor.classList.remove('magnetic-hover');
-                
-                cursor.style.width = '';
-                cursor.style.height = '';
-                cursor.style.borderRadius = '';
-                cursor.style.opacity = '1';
 
                 if (window.currentCursorType === 'droplet') {
-                    cursor.classList.add('tiny-dot');
-                    const delayMs = (window.cursorEncompassDelay !== undefined ? window.cursorEncompassDelay : 0.15) * 1000;
+                    // Fade out the encompassed rectangle in place
+                    cursor.style.transition = 'opacity 0.15s ease';
+                    cursor.style.opacity = '0';
 
-                    delayTimer = setTimeout(() => {
-                        if (!isHovering && window.currentCursorType === 'droplet') {
-                            cursor.classList.remove('tiny-dot');
-                            cursor.classList.add('morphing-to-droplet');
-                            morphTimer = setTimeout(() => {
-                                cursor.classList.remove('morphing-to-droplet');
-                            }, 1000);
+                    // After the configured delay, silently reset and show the droplet
+                    const delayMs = (window.cursorEncompassDelay !== undefined ? window.cursorEncompassDelay : 0.15) * 1000;
+                    encompassTimer = setTimeout(() => {
+                        encompassTimer = null;
+                        if (!isHovering) {
+                            // Reset dimensions without any visible transition
+                            cursor.style.transition = 'none';
+                            cursor.style.width = '';
+                            cursor.style.height = '';
+                            cursor.style.borderRadius = '';
+                            // Force layout so 'transition: none' takes effect before we fade in
+                            cursor.offsetHeight;
+                            // Fade the droplet back in
+                            cursor.style.transition = 'opacity 0.25s ease';
+                            cursor.style.opacity = '1';
+                            // Clean up transition after fade-in completes
+                            setTimeout(() => {
+                                if (!isHovering) cursor.style.transition = '';
+                            }, 250);
                         }
                     }, delayMs);
+                } else {
+                    // Inverted cursor: just reset immediately
+                    cursor.style.width = '';
+                    cursor.style.height = '';
+                    cursor.style.borderRadius = '';
+                    cursor.style.opacity = '1';
                 }
             });
         });
