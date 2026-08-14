@@ -322,6 +322,13 @@ html[data-theme="noir"] #starfieldCanvas {
     transform: scale(0.92);
 }
 
+@media (max-width: 768px) {
+    .shortcut-action-row[data-action="zen"],
+    .shortcut-action-row[data-action="nav"] {
+        display: none !important;
+    }
+}
+
 /* Mobile / Tablet Floating Action Button (FAB) */
 .mobile-floating-hub-btn {
     display: none;
@@ -1301,14 +1308,7 @@ body.zen-mode .irm-content {
 html.invert-mode {
     filter: invert(100%) !important;
     -webkit-filter: invert(100%) !important;
-    background-color: #0a0a0f !important;
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
-    will-change: filter;
-}
-
-html.invert-mode body {
-    background-color: #0a0a0f !important;
+    background: #0a0a0f !important;
 }
 
 /* Re-invert media & dev mode so images/videos/canvas/dev overlay look natural */

@@ -2029,11 +2029,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     const overlay = document.createElement('div');
     overlay.className = 'konami-overlay';
     overlay.innerHTML = `
-        <div class="konami-title" style="position: relative; width: 100%; max-width: 480px; text-align: center;">
-            🎮 DEVELOPER MODE UNLOCKED
-            <button class="konami-close-btn" aria-label="Close" style="position: absolute; right: 0; top: -4px; background: transparent; border: 1px solid #00ff66; color: #00ff66; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">✕</button>
-        </div>
-        <div class="konami-stats" style="position: relative; max-width: 90vw; width: 480px; box-sizing: border-box;">
+        <div class="konami-title">🎮 DEVELOPER MODE UNLOCKED</div>
+        <div class="konami-stats">
             <div style="color: var(--accent-primary); font-weight: bold; margin-bottom: 8px;">⚡ ServiceNow Learning Hub Telemetry</div>
             <div style="border-bottom: 1px dashed rgba(255,255,255,0.2); margin-bottom: 10px;"></div>
             <div>📱 Device Type: <span id="konamiDeviceType" style="color: #6ee7b7; font-weight: bold;"></span></div>
@@ -2044,144 +2041,128 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             <div>⚡ GPU / Renderer: <span id="konamiGPU" style="color: #f472b6;"></span></div>
             <div>🔑 Active Session ID: <span id="konamiSessionId" style="color: #e2e8f0;"></span></div>
             <div>🎨 Current Theme: <span id="konamiTheme" style="color: #e2e8f0;"></span></div>
-            <div style="margin-top: 16px; color: #94a3b8; font-size: 11px;">Press ESC, tap ✕ or tap outside to close</div>
+            <div style="margin-top: 16px; color: #94a3b8; font-size: 11px;">Press ESC or tap anywhere to close</div>
         </div>
     `;
-
-    if (document.body) {
-        document.body.appendChild(overlay);
-    } else {
-        document.addEventListener('DOMContentLoaded', () => document.body && document.body.appendChild(overlay));
-    }
+    document.body.appendChild(overlay);
 
     function getDetailedDeviceInfo() {
-        try {
-            const ua = navigator.userAgent || '';
-            const platform = navigator.platform || '';
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            const dpr = window.devicePixelRatio || 1;
-            const maxTouchPoints = navigator.maxTouchPoints || 0;
-            const isTouch = maxTouchPoints > 0 || 'ontouchstart' in window;
+        const ua = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const maxTouchPoints = navigator.maxTouchPoints || 0;
+        const isTouch = maxTouchPoints > 0 || 'ontouchstart' in window;
 
-            // 1. Device Type Detection
-            let deviceType = 'PC / Desktop';
-            const isMobileUA = /Mobi|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-            const isTabletUA = /iPad|Tablet|PlayBook|Silk/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1);
+        // 1. Device Type Detection
+        let deviceType = 'PC / Desktop';
+        const isMobileUA = /Mobi|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        const isTabletUA = /iPad|Tablet|PlayBook|Silk/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1);
 
-            if (isTabletUA || (isTouch && Math.min(width, height) >= 600 && Math.max(width, height) >= 900)) {
-                deviceType = 'Tablet';
-            } else if (isMobileUA || (isTouch && Math.min(width, height) < 600)) {
-                deviceType = 'Mobile';
-            } else if (isTouch) {
-                deviceType = 'Touchscreen PC';
-            }
-
-            // 2. Device Model / Name Detection
-            let deviceName = 'Generic Device';
-            if (/iPhone/i.test(ua)) {
-                const screenMax = Math.max(window.screen.width, window.screen.height);
-                const screenMin = Math.min(window.screen.width, window.screen.height);
-                if (screenMax === 932 && screenMin === 430) deviceName = 'iPhone 14/15/16 Pro Max / Plus';
-                else if (screenMax === 852 && screenMin === 393) deviceName = 'iPhone 14/15/16 Pro';
-                else if (screenMax === 844 && screenMin === 390) deviceName = 'iPhone 12/13/14';
-                else if (screenMax === 812 && screenMin === 375) deviceName = 'iPhone X / XS / 11 Pro / 12 Mini / 13 Mini';
-                else if (screenMax === 896 && screenMin === 414) deviceName = 'iPhone XR / XS Max / 11 / 11 Pro Max';
-                else if (screenMax === 667 && screenMin === 375) deviceName = 'iPhone 6/7/8/SE';
-                else deviceName = 'Apple iPhone';
-            } else if (/iPad/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1)) {
-                deviceName = 'Apple iPad';
-            } else if (/Android/i.test(ua)) {
-                const match = ua.match(/;\s*([A-Za-z0-9\-\s\_]+)\s*Build/i) || ua.match(/Android[^;]+;\s*([^;]+)/i);
-                if (match && match[1]) {
-                    deviceName = match[1].trim();
-                } else if (/Pixel/i.test(ua)) {
-                    deviceName = 'Google Pixel';
-                } else if (/SM-|Samsung/i.test(ua)) {
-                    deviceName = 'Samsung Galaxy';
-                } else {
-                    deviceName = 'Android Device';
-                }
-            } else if (/Macintosh|Mac OS X/i.test(ua)) {
-                deviceName = 'Apple Mac';
-            } else if (/Windows NT 10.0/i.test(ua)) {
-                deviceName = 'Windows 10/11 PC';
-            } else if (/Windows NT/i.test(ua)) {
-                deviceName = 'Windows PC';
-            } else if (/Linux/i.test(ua)) {
-                deviceName = 'Linux Workstation';
-            }
-
-            // 3. Operating System
-            let osName = 'Unknown OS';
-            if (/iPhone|iPad|iPod/i.test(ua)) {
-                const match = ua.match(/OS ([\d_]+)/i);
-                osName = match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
-            } else if (platform === 'MacIntel' && maxTouchPoints > 1) {
-                osName = 'iPadOS';
-            } else if (/Android/i.test(ua)) {
-                const match = ua.match(/Android\s+([\d\.]+)/i);
-                osName = match ? `Android ${match[1]}` : 'Android';
-            } else if (/Windows NT 10.0/i.test(ua)) {
-                osName = 'Windows 10 / 11';
-            } else if (/Windows NT 6.3/i.test(ua)) {
-                osName = 'Windows 8.1';
-            } else if (/Windows NT 6.1/i.test(ua)) {
-                osName = 'Windows 7';
-            } else if (/Mac OS X/i.test(ua)) {
-                const match = ua.match(/Mac OS X ([\d_]+)/i);
-                osName = match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
-            } else if (/Linux/i.test(ua)) {
-                osName = 'Linux';
-            }
-
-            // 4. Browser Info
-            let browserName = 'Browser';
-            if (/Edg\//i.test(ua)) {
-                const m = ua.match(/Edg\/([\d\.]+)/i);
-                browserName = `Microsoft Edge ${m ? m[1].split('.')[0] : ''}`;
-            } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua) && !/OPR\//i.test(ua)) {
-                const m = ua.match(/Chrome\/([\d\.]+)/i);
-                browserName = `Google Chrome ${m ? m[1].split('.')[0] : ''}`;
-            } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
-                const m = ua.match(/Version\/([\d\.]+)/i);
-                browserName = `Apple Safari ${m ? m[1].split('.')[0] : ''}`;
-            } else if (/Firefox\//i.test(ua)) {
-                const m = ua.match(/Firefox\/([\d\.]+)/i);
-                browserName = `Mozilla Firefox ${m ? m[1].split('.')[0] : ''}`;
-            }
-
-            // 5. GPU Renderer (via WebGL)
-            let gpuRenderer = 'Hardware Accelerated';
-            try {
-                const glCanvas = document.createElement('canvas');
-                const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
-                if (gl) {
-                    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-                    if (dbg) {
-                        gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpuRenderer;
-                    }
-                }
-            } catch (e) {}
-
-            return {
-                deviceType,
-                deviceName,
-                osName,
-                browserName,
-                viewport: `${width}×${height} (Screen: ${window.screen.width}×${window.screen.height}, DPR: ${dpr.toFixed(1)}x)`,
-                gpuRenderer: gpuRenderer.length > 35 ? gpuRenderer.slice(0, 35) + '...' : gpuRenderer
-            };
-        } catch (err) {
-            return {
-                deviceType: window.innerWidth <= 768 ? 'Mobile' : 'PC / Desktop',
-                deviceName: 'Device',
-                osName: 'Operating System',
-                browserName: 'Browser',
-                viewport: `${window.innerWidth}×${window.innerHeight}`,
-                gpuRenderer: 'WebGL'
-            };
+        if (isTabletUA || (isTouch && Math.min(width, height) >= 600 && Math.max(width, height) >= 900)) {
+            deviceType = 'Tablet';
+        } else if (isMobileUA || (isTouch && Math.min(width, height) < 600)) {
+            deviceType = 'Mobile';
+        } else if (isTouch) {
+            deviceType = 'Touchscreen PC';
         }
+
+        // 2. Device Model / Name Detection
+        let deviceName = 'Generic Device';
+        if (/iPhone/i.test(ua)) {
+            const screenMax = Math.max(window.screen.width, window.screen.height);
+            const screenMin = Math.min(window.screen.width, window.screen.height);
+            if (screenMax === 932 && screenMin === 430) deviceName = 'iPhone 14/15/16 Pro Max / Plus';
+            else if (screenMax === 852 && screenMin === 393) deviceName = 'iPhone 14/15/16 Pro';
+            else if (screenMax === 844 && screenMin === 390) deviceName = 'iPhone 12/13/14';
+            else if (screenMax === 812 && screenMin === 375) deviceName = 'iPhone X / XS / 11 Pro / 12 Mini / 13 Mini';
+            else if (screenMax === 896 && screenMin === 414) deviceName = 'iPhone XR / XS Max / 11 / 11 Pro Max';
+            else if (screenMax === 667 && screenMin === 375) deviceName = 'iPhone 6/7/8/SE';
+            else deviceName = 'Apple iPhone';
+        } else if (/iPad/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1)) {
+            deviceName = 'Apple iPad';
+        } else if (/Android/i.test(ua)) {
+            const match = ua.match(/;\s*([A-Za-z0-9\-\s\_]+)\s*Build/i) || ua.match(/Android[^;]+;\s*([^;]+)/i);
+            if (match && match[1]) {
+                deviceName = match[1].trim();
+            } else if (/Pixel/i.test(ua)) {
+                deviceName = 'Google Pixel';
+            } else if (/SM-|Samsung/i.test(ua)) {
+                deviceName = 'Samsung Galaxy';
+            } else {
+                deviceName = 'Android Device';
+            }
+        } else if (/Macintosh|Mac OS X/i.test(ua)) {
+            deviceName = 'Apple Mac';
+        } else if (/Windows NT 10.0/i.test(ua)) {
+            deviceName = 'Windows 10/11 PC';
+        } else if (/Windows NT/i.test(ua)) {
+            deviceName = 'Windows PC';
+        } else if (/Linux/i.test(ua)) {
+            deviceName = 'Linux Workstation';
+        }
+
+        // 3. Operating System
+        let osName = 'Unknown OS';
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            const match = ua.match(/OS ([\d_]+)/i);
+            osName = match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
+        } else if (platform === 'MacIntel' && maxTouchPoints > 1) {
+            osName = 'iPadOS';
+        } else if (/Android/i.test(ua)) {
+            const match = ua.match(/Android\s+([\d\.]+)/i);
+            osName = match ? `Android ${match[1]}` : 'Android';
+        } else if (/Windows NT 10.0/i.test(ua)) {
+            osName = 'Windows 10 / 11';
+        } else if (/Windows NT 6.3/i.test(ua)) {
+            osName = 'Windows 8.1';
+        } else if (/Windows NT 6.1/i.test(ua)) {
+            osName = 'Windows 7';
+        } else if (/Mac OS X/i.test(ua)) {
+            const match = ua.match(/Mac OS X ([\d_]+)/i);
+            osName = match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
+        } else if (/Linux/i.test(ua)) {
+            osName = 'Linux';
+        }
+
+        // 4. Browser Info
+        let browserName = 'Browser';
+        if (/Edg\//i.test(ua)) {
+            const m = ua.match(/Edg\/([\d\.]+)/i);
+            browserName = `Microsoft Edge ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua) && !/OPR\//i.test(ua)) {
+            const m = ua.match(/Chrome\/([\d\.]+)/i);
+            browserName = `Google Chrome ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+            const m = ua.match(/Version\/([\d\.]+)/i);
+            browserName = `Apple Safari ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Firefox\//i.test(ua)) {
+            const m = ua.match(/Firefox\/([\d\.]+)/i);
+            browserName = `Mozilla Firefox ${m ? m[1].split('.')[0] : ''}`;
+        }
+
+        // 5. GPU Renderer (via WebGL)
+        let gpuRenderer = 'Hardware Accelerated';
+        try {
+            const glCanvas = document.createElement('canvas');
+            const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+            if (gl) {
+                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                if (dbg) {
+                    gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpuRenderer;
+                }
+            }
+        } catch (e) {}
+
+        return {
+            deviceType,
+            deviceName,
+            osName,
+            browserName,
+            viewport: `${width}×${height} (Screen: ${window.screen.width}×${window.screen.height}, DPR: ${dpr.toFixed(1)}x)`,
+            gpuRenderer: gpuRenderer.length > 35 ? gpuRenderer.slice(0, 35) + '...' : gpuRenderer
+        };
     }
     window.getDetailedDeviceInfo = getDetailedDeviceInfo;
 
@@ -2234,28 +2215,19 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     }
 
     window.triggerKonamiEasterEgg = function() {
-        try {
-            const info = getDetailedDeviceInfo();
-            const setField = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.innerText = val || '';
-            };
-            setField('konamiDeviceType', info.deviceType);
-            setField('konamiDeviceName', info.deviceName);
-            setField('konamiOS', info.osName);
-            setField('konamiBrowser', info.browserName);
-            setField('konamiViewport', info.viewport);
-            setField('konamiGPU', info.gpuRenderer);
-            setField('konamiSessionId', globalSessionId || 'default');
-            setField('konamiTheme', document.documentElement.getAttribute('data-theme') || 'emerald');
-            
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 100]);
-        } catch (err) {
-            console.error('Error displaying Konami modal:', err);
-            overlay.classList.add('active');
-        }
+        const info = getDetailedDeviceInfo();
+        document.getElementById('konamiDeviceType').innerText = info.deviceType;
+        document.getElementById('konamiDeviceName').innerText = info.deviceName;
+        document.getElementById('konamiOS').innerText = info.osName;
+        document.getElementById('konamiBrowser').innerText = info.browserName;
+        document.getElementById('konamiViewport').innerText = info.viewport;
+        document.getElementById('konamiGPU').innerText = info.gpuRenderer;
+        document.getElementById('konamiSessionId').innerText = globalSessionId || 'default';
+        document.getElementById('konamiTheme').innerText = document.documentElement.getAttribute('data-theme') || 'emerald';
+        
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 100]);
     };
 
     window.addEventListener('keydown', (e) => {
@@ -2288,7 +2260,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 window.triggerKonamiEasterEgg();
             }
         } else {
-            if (normalized === desktopSequence[0]) {
+            if (normalized === 'up') {
+                e.preventDefault();
                 desktopIndex = 1;
                 clearTimeout(desktopTimer);
                 desktopTimer = setTimeout(() => { 
@@ -2300,7 +2273,11 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 const devInfo = getDetailedDeviceInfo();
                 logKonamiProgress(devInfo.deviceType, 1, desktopSequence.length, '↑ Up');
             } else if (desktopIndex > 0) {
-                console.log('%c[PC / Desktop] ❌ Konami sequence reset', 'color: #ef4444; font-family: monospace; font-size: 11px;');
+                const devInfo = getDetailedDeviceInfo();
+                console.log(
+                    `%c[${devInfo.deviceType}] ❌ Sequence reset (received: "${e.key}", expected: "${keyLabels[expected] || expected}")`,
+                    `color: #ef4444; font-family: monospace; font-size: 11px;`
+                );
                 desktopIndex = 0;
             }
         }
@@ -2310,10 +2287,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }, true);
 
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay || e.target.closest('.konami-close-btn')) {
-            closeKonami();
-        }
+    overlay.addEventListener('click', () => {
+        closeKonami();
     });
 })();
 
@@ -2352,8 +2327,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             const dist = Math.hypot(dx, dy);
             const duration = Date.now() - singleTouchStartTime;
 
-            // Detect swipe if gesture moved >= 18px in < 800ms
-            if (dist >= 18 && duration < 800) {
+            // Detect swipe if gesture moved >= 28px in < 750ms
+            if (dist >= 28 && duration < 750) {
                 let swipeDir = '';
                 if (Math.abs(dy) > Math.abs(dx)) {
                     swipeDir = dy < 0 ? 'up' : 'down';
@@ -2366,7 +2341,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
                 if (swipeDir === mobileSwipeSequence[mobileSwipeIndex]) {
                     mobileSwipeIndex++;
-                    if (navigator.vibrate) navigator.vibrate(20);
+                    if (navigator.vibrate) navigator.vibrate(15);
                     clearTimeout(swipeTimer);
                     swipeTimer = setTimeout(() => { mobileSwipeIndex = 0; }, 3500);
 
@@ -2381,7 +2356,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 } else {
                     if (swipeDir === mobileSwipeSequence[0]) {
                         mobileSwipeIndex = 1;
-                        if (navigator.vibrate) navigator.vibrate(20);
+                        if (navigator.vibrate) navigator.vibrate(15);
                         clearTimeout(swipeTimer);
                         swipeTimer = setTimeout(() => { mobileSwipeIndex = 0; }, 3500);
                         if (window.logKonamiProgress) {
@@ -2395,29 +2370,25 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }, { passive: true });
 
-    // 2. Secret 5-Tap on Logo (100% Reliable Android Activation)
+    // 2. Secret 5-Tap on Logo
     let logoTaps = 0;
     let lastLogoTapTime = 0;
     let logoNavTimer = null;
 
-    const onLogoTap = (e) => {
+    document.addEventListener('click', (e) => {
         const logo = e.target.closest('.nav-logo, .site-logo');
         if (!logo) return;
 
-        if (e.cancelable) e.preventDefault();
+        e.preventDefault();
         clearTimeout(logoNavTimer);
 
         const now = Date.now();
-        if (now - lastLogoTapTime < 650) {
+        if (now - lastLogoTapTime < 500) {
             logoTaps++;
         } else {
             logoTaps = 1;
         }
         lastLogoTapTime = now;
-
-        if (navigator.vibrate) navigator.vibrate(15);
-        const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: 'Mobile' };
-        console.log(`%c[${devInfo.deviceType}] 📱 Logo tapped (${logoTaps}/5) for Developer Mode`, 'color: #10b981; font-family: monospace; font-size: 11px;');
 
         if (logoTaps >= 5) {
             logoTaps = 0;
@@ -2428,12 +2399,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     window.location.href = logo.getAttribute('href') || '/';
                 }
                 logoTaps = 0;
-            }, 650);
+            }, 300);
         }
-    };
-
-    document.addEventListener('touchend', onLogoTap);
-    document.addEventListener('click', onLogoTap);
+    });
 
     // 3. Multi-touch gesture tracking (4-Finger Tap -> Konami, 2-Finger Double Tap -> Hub)
     let touchCount = 0;
