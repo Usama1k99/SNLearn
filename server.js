@@ -30,7 +30,7 @@ const THEME_COLORS = {
     'amethyst':  '#8b5cf6',
     'amber':     '#f59e0b',
     'ruby':      '#f43f5e',
-    'noir':      '#e0e0e0',
+    'noir':      '#ffffff',
     'neon-red':  '#ff1a1a',
     'neon':      '#ff1a1a'
 };

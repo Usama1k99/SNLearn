@@ -278,7 +278,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             return res.json();
         })
         .then(data => {
-            window.currentCursorType = data.cursorType || (data.customCursor ? 'droplet' : 'default');
+            window.currentCursorType = (data.cursorType === 'droplet') ? 'ring' : (data.cursorType || (data.customCursor ? 'ring' : 'default'));
             window.sparkleTrailEnabled = !!data.sparkleTrail;
             window.cursorSizeMultiplier = data.cursorSize || 1.0;
             window.cursorChaseSpeed = data.cursorChaseSpeed !== undefined ? data.cursorChaseSpeed : 0.5;
@@ -340,7 +340,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             cursor.style.height = '';
             cursor.style.borderRadius = '';
             cursor.style.opacity = '1';
-            cursor.classList.remove('magnetic-hover', 'text-hover', 'text-drag');
+            cursor.classList.remove('magnetic-hover', 'text-drag');
 
             window.currentCursorType = 'default';
             window.sparkleTrailEnabled = false;
@@ -402,32 +402,6 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     window.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        const el = document.elementFromPoint(mouseX, mouseY);
-        if (el) {
-            const tag = el.tagName.toLowerCase();
-            let isText = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'span', 'td', 'th', 'a', 'code', 'pre'].includes(tag);
-            
-            if (!isText && !isHovering) {
-                for (let i = 0; i < el.childNodes.length; i++) {
-                    const child = el.childNodes[i];
-                    if (child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
-                        const range = document.createRange();
-                        range.selectNodeContents(child);
-                        const rects = range.getClientRects();
-                        for (let j = 0; j < rects.length; j++) {
-                            const rect = rects[j];
-                            if (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom) {
-                                isText = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (isText) break;
-                }
-            }
-
-            isTextHovering = isText && !el.classList.contains('custom-scrollbar-thumb') && !isHovering;
-        }
     });
 
     const animate = () => {
@@ -450,18 +424,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 cursor.style.transform = `translate(${cursorX - 12}px, ${cursorY - (rect.height + 6)/2}px)`;
                 
                 cursor.classList.add('text-drag');
-                cursor.classList.remove('text-hover', 'magnetic-hover');
+                cursor.classList.remove('magnetic-hover');
                 requestAnimationFrame(animate);
                 return;
             }
         } 
         cursor.classList.remove('text-drag');
-
-        if (isTextHovering && !hasSelection && !isMouseDown && window.currentCursorType !== 'inverted') {
-            cursor.classList.add('text-hover');
-        } else {
-            cursor.classList.remove('text-hover');
-        }
 
         if (isHovering && targetElement && targetRect && window.currentCursorType !== 'inverted') {
             // Magnetic pull to center of target
@@ -533,13 +501,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     scaleY -= jiggleAmt * 0.4;
                 }
             } else {
-                // Inverted stays a circle
                 cursor.style.borderRadius = '50%';
             }
 
             prevStretch = stretch;
 
-            const baseSize = (window.currentCursorType === 'inverted') ? 48 : ((isTextHovering && !isHovering) ? 24 : 16);
+            const baseSize = (window.currentCursorType === 'inverted') ? 48 : 20;
             const size = baseSize * (window.cursorSizeMultiplier || 1.0);
             const offset = size / 2;
 
@@ -570,12 +537,10 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             }
         }
 
-        // Pointer dot: always update position, toggle visibility based on hover state
-        // This MUST be outside the if/else so it runs every frame
         if (pointerDot) {
             pointerDot.style.left = `${mouseX}px`;
             pointerDot.style.top = `${mouseY}px`;
-            if (isHovering && window.currentCursorType === 'droplet') {
+            if (isHovering && (window.currentCursorType === 'ring' || window.currentCursorType === 'droplet')) {
                 pointerDot.classList.add('active');
             } else {
                 pointerDot.classList.remove('active');
@@ -622,12 +587,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 targetRect = null;
                 cursor.classList.remove('magnetic-hover');
 
-                if (window.currentCursorType === 'droplet') {
+                if (window.currentCursorType === 'ring' || window.currentCursorType === 'droplet') {
                     // Fade out the encompassed rectangle in place
                     cursor.style.transition = 'opacity 0.15s ease';
                     cursor.style.opacity = '0';
 
-                    // After the configured delay, silently reset and show the droplet
+                    // After the configured delay, silently reset and show the ring
                     const delayMs = (window.cursorEncompassDelay !== undefined ? window.cursorEncompassDelay : 0.15) * 1000;
                     encompassTimer = setTimeout(() => {
                         encompassTimer = null;
@@ -639,7 +604,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                             cursor.style.borderRadius = '';
                             // Force layout so 'transition: none' takes effect before we fade in
                             cursor.offsetHeight;
-                            // Fade the droplet back in
+                            // Fade the ring back in
                             cursor.style.transition = 'opacity 0.25s ease';
                             cursor.style.opacity = '1';
                             // Clean up transition after fade-in completes
@@ -673,7 +638,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         { id: 'amethyst', name: 'Amethyst', color: '#8b5cf6' },
         { id: 'amber', name: 'Amber', color: '#f59e0b' },
         { id: 'ruby', name: 'Ruby', color: '#f43f5e' },
-        { id: 'noir', name: 'Noir', color: '#e0e0e0' },
+        { id: 'noir', name: 'Noir', color: '#ffffff' },
         { id: 'neon-red', name: 'Neon Red', color: '#ff1a1a' }
     ];
 
@@ -741,11 +706,11 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     <div class="cursor-option theme-swatch-container" data-cursor-id="default" style="flex: 1; text-align: center; justify-content: center; padding: 10px;">
                         <span class="theme-label">Default</span>
                     </div>
-                    <div class="cursor-option theme-swatch-container" data-cursor-id="droplet" style="flex: 1; text-align: center; justify-content: center; padding: 10px;">
-                        <span class="theme-label">Droplet</span>
+                    <div class="cursor-option theme-swatch-container" data-cursor-id="ring" style="flex: 1; text-align: center; justify-content: center; padding: 10px;">
+                        <span class="theme-label">Ring</span>
                     </div>
                     <div class="cursor-option theme-swatch-container" data-cursor-id="inverted" style="flex: 1; text-align: center; justify-content: center; padding: 10px;">
-                        <span class="theme-label">Inverted</span>
+                        <span class="theme-label">Inverted Circle</span>
                     </div>
                 </div>
 
@@ -888,7 +853,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         // Cursor UI
         const type = window.currentCursorType || 'default';
         cursorOptions.forEach(opt => {
-            const isActive = opt.dataset.cursorId === type;
+            const optId = opt.dataset.cursorId;
+            const isActive = (optId === type) || (optId === 'ring' && type === 'droplet');
             if (isActive) {
                 opt.style.boxShadow = '0 0 0 2px var(--accent-primary)';
                 opt.style.background = 'var(--accent-soft)';
@@ -920,15 +886,19 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 cursorSizeContainer.style.opacity = '1';
                 sizeSlider.disabled = false;
                 cursorPreview.style.display = 'block';
-                const baseSize = type === 'inverted' ? 20 : 12;
+                const baseSize = type === 'inverted' ? 20 : 16;
                 const previewSize = baseSize * sizeSlider.value;
                 cursorPreview.style.width = `${previewSize}px`;
                 cursorPreview.style.height = `${previewSize}px`;
                 if (type === 'inverted') {
                     cursorPreview.style.background = 'var(--text-primary)';
+                    cursorPreview.style.border = 'none';
+                    cursorPreview.style.boxShadow = 'none';
                     cursorPreview.style.opacity = '0.5';
                 } else {
-                    cursorPreview.style.background = 'var(--accent-primary)';
+                    cursorPreview.style.background = 'transparent';
+                    cursorPreview.style.border = '2px solid var(--accent-primary)';
+                    cursorPreview.style.boxShadow = '0 0 6px var(--accent-glow)';
                     cursorPreview.style.opacity = '1';
                 }
             }
@@ -1284,7 +1254,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             'amethyst':  '#8b5cf6',
             'amber':     '#f59e0b',
             'ruby':      '#f43f5e',
-            'noir':      '#e0e0e0',
+            'noir':      '#ffffff',
             'neon-red':  '#ff1a1a',
             'neon':      '#ff1a1a'
         };
@@ -1690,7 +1660,20 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
     function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
+
+        const themeColors = {
+            'emerald':   '#10b981',
+            'sapphire':  '#3b82f6',
+            'amethyst':  '#8b5cf6',
+            'amber':     '#f59e0b',
+            'ruby':      '#f43f5e',
+            'noir':      '#ffffff',
+            'neon-red':  '#ff1a1a',
+            'neon':      '#ff1a1a'
+        };
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
+        const particleColor = themeColors[currentTheme] || (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '').trim() || '#10b981';
+        ctx.fillStyle = particleColor;
 
         // Calculate gravity ramp factor (0.0 -> 1.0 over dynamic ramp duration)
         let gravityWeight = 0;
