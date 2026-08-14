@@ -2,14 +2,68 @@
 // GLOBAL SCRIPTS — ServiceNow Learning Hub
 // ============================================
 
-// Session ID initialization
-let globalSessionId = sessionStorage.getItem('sessionId');
+// Session ID initialization (Persistent across mobile & desktop reloads)
+let globalSessionId = null;
+try {
+    globalSessionId = localStorage.getItem('sessionId') || sessionStorage.getItem('sessionId');
+} catch (e) {}
+
 if (!globalSessionId) {
     globalSessionId = 'session_' + Math.random().toString(36).substring(2, 9);
-    sessionStorage.setItem('sessionId', globalSessionId);
+    try { localStorage.setItem('sessionId', globalSessionId); } catch (e) {}
+    try { sessionStorage.setItem('sessionId', globalSessionId); } catch (e) {}
 }
 
-// Update favicon to include session ID so server can pick the right theme color
+// Early theme & invert restoration
+window.invertColors = false;
+try {
+    const cachedTheme = localStorage.getItem('theme') || sessionStorage.getItem('theme');
+    if (cachedTheme) {
+        document.documentElement.setAttribute('data-theme', cachedTheme);
+    }
+    const cachedInvert = localStorage.getItem('invertColors') || sessionStorage.getItem('invertColors');
+    if (cachedInvert === 'true') {
+        window.invertColors = true;
+        document.documentElement.classList.add('invert-mode');
+    }
+} catch (e) {}
+
+// Color calculation helpers
+function invertHexColor(hex) {
+    if (!hex || hex === '#ffffff') return '#000000';
+    if (hex === '#000000') return '#ffffff';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    const r = 255 - (num >> 16);
+    const g = 255 - ((num >> 8) & 0x00FF);
+    const b = 255 - (num & 0x0000FF);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+window.invertHexColor = invertHexColor;
+
+function getActiveThemeColor() {
+    const themeColors = {
+        'emerald':   '#10b981',
+        'sapphire':  '#3b82f6',
+        'amethyst':  '#8b5cf6',
+        'amber':     '#f59e0b',
+        'ruby':      '#f43f5e',
+        'noir':      '#ffffff',
+        'neon-red':  '#ff1a1a',
+        'neon':      '#ff1a1a'
+    };
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
+    let baseColor = themeColors[currentTheme] || (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '').trim() || '#10b981';
+
+    if (window.invertColors) {
+        return invertHexColor(baseColor);
+    }
+    return baseColor;
+}
+window.getActiveThemeColor = getActiveThemeColor;
+
+// Update favicon to include session ID and invert state so server can pick the right theme color
 function updateFavicon() {
     let link = document.querySelector("link[rel='icon']");
     if (!link) {
@@ -18,7 +72,12 @@ function updateFavicon() {
         link.type = 'image/svg+xml';
         document.head.appendChild(link);
     }
-    link.href = `/favicon.svg?sid=${globalSessionId}&t=${Date.now()}`;
+    let isInv = !!window.invertColors;
+    try {
+        if (localStorage.getItem('invertColors') === 'true') isInv = true;
+    } catch(e) {}
+    const invParam = isInv ? '&inv=1' : '&inv=0';
+    link.href = `/favicon.svg?sid=${globalSessionId}${invParam}&t=${Date.now()}`;
 }
 updateFavicon();
 
@@ -291,8 +350,10 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             window.invertColors = !!data.invertColors;
 
             if (window.invertColors) {
+                try { localStorage.setItem('invertColors', 'true'); } catch (e) {}
                 document.documentElement.classList.add('invert-mode');
             } else {
+                try { localStorage.setItem('invertColors', 'false'); } catch (e) {}
                 document.documentElement.classList.remove('invert-mode');
             }
 
@@ -308,11 +369,106 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             }
             if (data.theme) {
                 document.documentElement.setAttribute('data-theme', data.theme);
+                try { localStorage.setItem('theme', data.theme); } catch (e) {}
+                try { sessionStorage.setItem('theme', data.theme); } catch (e) {}
                 if (window.updateActiveSwatch) window.updateActiveSwatch(data.theme);
                 if (window.showConsoleArt) window.showConsoleArt();
             }
+
+            updateFavicon();
         })
         .catch(err => console.error('Failed to load user preferences:', err));
+
+    // Global helper functions
+    window.toggleZenMode = function() {
+        document.body.classList.toggle('zen-mode');
+    };
+
+    window.toggleInvertColors = function() {
+        window.invertColors = !window.invertColors;
+        document.documentElement.classList.toggle('invert-mode', window.invertColors);
+        try { localStorage.setItem('invertColors', window.invertColors ? 'true' : 'false'); } catch (e) {}
+        try { sessionStorage.setItem('invertColors', window.invertColors ? 'true' : 'false'); } catch (e) {}
+
+        updateFavicon();
+
+        const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: (window.innerWidth <= 768 ? 'Mobile' : 'PC / Desktop') };
+        const activeColor = getActiveThemeColor();
+        const stateText = window.invertColors ? 'ACTIVE (INVERTED)' : 'INACTIVE (NORMAL)';
+
+        console.log(
+            `%c[${devInfo.deviceType}] 🌓 Invert Colors toggled -> State: ${stateText} | Accent: ${activeColor}`,
+            `color: ${activeColor}; font-weight: bold; font-family: monospace; font-size: 12px; padding: 2px 6px; background: rgba(0,0,0,0.6); border: 1px solid ${activeColor}; border-radius: 4px;`
+        );
+
+        if (window.updateUnifiedSettingsUI) window.updateUnifiedSettingsUI();
+        fetch('/api/user-prefs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-session-id': globalSessionId },
+            body: JSON.stringify({ invertColors: window.invertColors })
+        }).catch(() => {});
+    };
+
+    window.performFactoryReset = function() {
+        document.documentElement.setAttribute('data-theme', 'emerald');
+        document.documentElement.classList.remove('custom-cursor', 'cursor-inverted', 'invert-mode');
+        document.body.classList.remove('zen-mode', 'invert-mode');
+        window.invertColors = false;
+        try { localStorage.setItem('theme', 'emerald'); } catch (e) {}
+        try { sessionStorage.setItem('theme', 'emerald'); } catch (e) {}
+        try { localStorage.setItem('invertColors', 'false'); } catch (e) {}
+        try { sessionStorage.setItem('invertColors', 'false'); } catch (e) {}
+        updateFavicon();
+        
+        document.querySelectorAll('.unified-settings-overlay, .shortcuts-modal-overlay, .cmd-palette-overlay').forEach(m => m.classList.remove('active'));
+
+        const cursorGhost = document.querySelector('.cursor-ghost');
+        if (cursorGhost) {
+            cursorGhost.style.display = 'none';
+            cursorGhost.style.width = '';
+            cursorGhost.style.height = '';
+            cursorGhost.style.borderRadius = '';
+            cursorGhost.style.opacity = '1';
+            cursorGhost.classList.remove('magnetic-hover', 'text-drag');
+        }
+
+        window.currentCursorType = 'default';
+        window.sparkleTrailEnabled = false;
+        window.cursorSizeMultiplier = 1.0;
+        window.cursorChaseSpeed = 0.5;
+        window.cursorBloomEnabled = false;
+        window.cursorEncompassDelay = 0.15;
+        window.starfieldEnabled = false;
+        window.starfieldParticleCount = 250;
+        window.starfieldGravityStrength = 0.1;
+        window.starfieldRampDuration = 8;
+        window.invertColors = false;
+        
+        if (window.updateActiveSwatch) window.updateActiveSwatch('emerald');
+        if (window.updateUnifiedSettingsUI) window.updateUnifiedSettingsUI();
+        if (window.updateStarfieldState) window.updateStarfieldState(false);
+        if (window.reinitStarfieldParticles) window.reinitStarfieldParticles(250);
+        if (window.showConsoleArt) window.showConsoleArt();
+        
+        fetch('/api/user-prefs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-session-id': globalSessionId },
+            body: JSON.stringify({
+                theme: 'emerald',
+                cursorType: 'default',
+                sparkleTrail: false,
+                cursorSize: 1.0,
+                cursorChaseSpeed: 0.5,
+                cursorBloomEnabled: false,
+                cursorEncompassDelay: 0.15,
+                starfieldEnabled: false,
+                starfieldParticleCount: 250,
+                starfieldGravityStrength: 0.1,
+                starfieldRampDuration: 8,
+                invertColors: false
+            })
+        }).catch(() => {});
+    };
 
     // Hotkeys: Settings Modal (Alt + T), Zen Mode (Alt + Z), Reset (Alt + R), Shortcuts (Alt + H), Invert (Alt + I)
     window.addEventListener('keydown', (e) => {
@@ -325,59 +481,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 window.openUnifiedSettingsModal('theme');
             }
         } else if (key === 'z' || e.code === 'KeyZ') {
-            document.body.classList.toggle('zen-mode');
+            window.toggleZenMode();
         } else if (key === 'r') {
-            // Factory Reset to pristine state
-            document.documentElement.setAttribute('data-theme', 'emerald');
-            document.documentElement.classList.remove('custom-cursor', 'cursor-inverted', 'invert-mode');
-            document.body.classList.remove('zen-mode');
-            
-            // Close any open modals
-            document.querySelectorAll('.unified-settings-overlay, .shortcuts-modal-overlay, .cmd-palette-overlay').forEach(m => m.classList.remove('active'));
-
-            cursor.style.display = 'none';
-            cursor.style.width = '';
-            cursor.style.height = '';
-            cursor.style.borderRadius = '';
-            cursor.style.opacity = '1';
-            cursor.classList.remove('magnetic-hover', 'text-drag');
-
-            window.currentCursorType = 'default';
-            window.sparkleTrailEnabled = false;
-            window.cursorSizeMultiplier = 1.0;
-            window.cursorChaseSpeed = 0.5;
-            window.cursorBloomEnabled = false;
-            window.cursorEncompassDelay = 0.15;
-            window.starfieldEnabled = false;
-            window.starfieldParticleCount = 250;
-            window.starfieldGravityStrength = 0.1;
-            window.starfieldRampDuration = 8;
-            window.invertColors = false;
-            
-            if (window.updateActiveSwatch) window.updateActiveSwatch('emerald');
-            if (window.updateUnifiedSettingsUI) window.updateUnifiedSettingsUI();
-            if (window.updateStarfieldState) window.updateStarfieldState(false);
-            if (window.reinitStarfieldParticles) window.reinitStarfieldParticles(250);
-            if (window.showConsoleArt) window.showConsoleArt();
-            
-            fetch('/api/user-prefs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-session-id': globalSessionId },
-                body: JSON.stringify({
-                    theme: 'emerald',
-                    cursorType: 'default',
-                    sparkleTrail: false,
-                    cursorSize: 1.0,
-                    cursorChaseSpeed: 0.5,
-                    cursorBloomEnabled: false,
-                    cursorEncompassDelay: 0.15,
-                    starfieldEnabled: false,
-                    starfieldParticleCount: 250,
-                    starfieldGravityStrength: 0.1,
-                    starfieldRampDuration: 8,
-                    invertColors: false
-                })
-            }).catch(() => {});
+            window.performFactoryReset();
         } else if (key === 'h') {
             const shortcutsOverlay = document.querySelector('.shortcuts-modal-overlay');
             if (shortcutsOverlay) {
@@ -385,14 +491,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             }
         } else if (key === 'i') {
             e.preventDefault();
-            window.invertColors = !window.invertColors;
-            document.documentElement.classList.toggle('invert-mode', window.invertColors);
-            if (window.updateUnifiedSettingsUI) window.updateUnifiedSettingsUI();
-            fetch('/api/user-prefs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-session-id': globalSessionId },
-                body: JSON.stringify({ invertColors: window.invertColors })
-            }).catch(() => {});
+            window.toggleInvertColors();
         }
     });
 
@@ -800,6 +899,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     });
 
     window.openUnifiedSettingsModal = function(initialTab = 'theme') {
+        if (window.innerWidth <= 768 && initialTab === 'cursor') {
+            initialTab = 'theme';
+        }
         const isActive = overlay.classList.contains('active');
         if (isActive) {
             overlay.classList.remove('active');
@@ -917,6 +1019,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             const selectedTheme = swatch.dataset.themeId;
             document.documentElement.setAttribute('data-theme', selectedTheme);
             originalTheme = selectedTheme;
+            try { localStorage.setItem('theme', selectedTheme); } catch (e) {}
+            try { sessionStorage.setItem('theme', selectedTheme); } catch (e) {}
             updateActiveSwatch(selectedTheme);
             if (window.showConsoleArt) window.showConsoleArt();
             fetch('/api/user-prefs', {
@@ -1187,43 +1291,71 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 })();
 
 // ============================================
-// SHORTCUTS MODAL
+// SHORTCUTS & QUICK ACTIONS MODAL
 // ============================================
 (function initShortcutsModal() {
     const overlay = document.createElement('div');
     overlay.className = 'shortcuts-modal-overlay theme-modal-overlay';
     
     overlay.innerHTML = `
-        <div class="theme-modal" style="width: 370px;">
-            <div class="theme-modal-title">Available Shortcuts</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px; color: var(--text-primary); font-size: 13px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Search Box</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Ctrl + K</kbd>
+        <div class="theme-modal shortcuts-modal-container" style="width: 380px; max-width: 92vw;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="theme-modal-title" style="margin-bottom: 0; text-align: left; font-size: 1.15rem;">⚡ Quick Actions</div>
+                <button class="shortcuts-close-btn" aria-label="Close" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;">✕</button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Tap any action to execute, or use keyboard hotkeys.</div>
+            <div class="shortcuts-actions-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="shortcut-action-row" data-action="search" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🔍</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Search Box</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Ctrl + K</kbd>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Show Shortcuts</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Alt + H</kbd>
+                <div class="shortcut-action-row" data-action="settings" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🎨</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Personalization & Settings</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + T</kbd>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Personalization & Settings</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Alt + T</kbd>
+                <div class="shortcut-action-row" data-action="zen" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🧘</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Zen Mode</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + Z</kbd>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Zen Mode</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Alt + Z</kbd>
+                <div class="shortcut-action-row" data-action="invert" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🌓</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Invert Colors</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + I</kbd>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Invert Colors</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Alt + I</kbd>
+                <div class="shortcut-action-row" data-action="nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">📖</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Chapter Navigation</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="nav-prev-btn" title="Previous Page" style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-secondary); border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-family: monospace;">◀ [</button>
+                        <button class="nav-next-btn" title="Next Page" style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-secondary); border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-family: monospace;">] ▶</button>
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Next / Prev Page</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">] / [</kbd>
+                <div class="shortcut-action-row" data-action="reset" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🔄</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Factory Reset</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + R</kbd>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Factory Reset</span>
-                    <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Alt + R</kbd>
+                <div class="shortcut-action-row" data-action="dev" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 16px;">🎮</span>
+                        <span style="font-weight: 500; color: var(--text-primary);">Developer Mode</span>
+                    </div>
+                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Konami</kbd>
                 </div>
             </div>
         </div>
@@ -1234,8 +1366,80 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         document.addEventListener('DOMContentLoaded', () => document.body.appendChild(overlay));
     }
 
+    const closeBtn = overlay.querySelector('.shortcuts-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            overlay.classList.remove('active');
+        });
+    }
+
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('active');
+    });
+
+    function handleAction(action, e) {
+        if (e) {
+            e.stopPropagation();
+        }
+        overlay.classList.remove('active');
+
+        const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: (window.innerWidth <= 768 ? 'Mobile' : 'PC / Desktop') };
+        console.log(`%c[${devInfo.deviceType}] 📱 Quick Action Executed: ${action}`, 'color: #3b82f6; font-weight: bold; font-family: monospace; font-size: 11px;');
+
+        if (action === 'search') {
+            const cmdOverlay = document.querySelector('.cmd-palette-overlay');
+            if (cmdOverlay) {
+                cmdOverlay.classList.add('active');
+                const input = cmdOverlay.querySelector('.cmd-palette-input');
+                if (input) setTimeout(() => input.focus(), 50);
+            }
+        } else if (action === 'settings') {
+            if (window.openUnifiedSettingsModal) {
+                window.openUnifiedSettingsModal('theme');
+            }
+        } else if (action === 'zen') {
+            if (window.toggleZenMode) window.toggleZenMode();
+        } else if (action === 'invert') {
+            if (window.toggleInvertColors) window.toggleInvertColors();
+        } else if (action === 'nav') {
+            if (window.navigateModulePage) window.navigateModulePage('next');
+        } else if (action === 'reset') {
+            if (window.performFactoryReset) window.performFactoryReset();
+        } else if (action === 'dev') {
+            if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+        }
+    }
+
+    const rows = overlay.querySelectorAll('.shortcut-action-row');
+    rows.forEach(row => {
+        let touchTriggered = false;
+
+        const onTrigger = (e) => {
+            if (e.target.closest('.nav-prev-btn')) {
+                e.stopPropagation();
+                if (window.navigateModulePage) window.navigateModulePage('prev');
+                return;
+            }
+            if (e.target.closest('.nav-next-btn')) {
+                e.stopPropagation();
+                if (window.navigateModulePage) window.navigateModulePage('next');
+                return;
+            }
+            handleAction(row.dataset.action, e);
+        };
+
+        row.addEventListener('touchend', (e) => {
+            touchTriggered = true;
+            onTrigger(e);
+            setTimeout(() => { touchTriggered = false; }, 350);
+        });
+
+        row.addEventListener('click', (e) => {
+            if (!touchTriggered) {
+                onTrigger(e);
+            }
+        });
     });
 })();
 
@@ -1248,18 +1452,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             console.clear();
         } catch (e) {}
 
-        const themeColors = {
-            'emerald':   '#10b981',
-            'sapphire':  '#3b82f6',
-            'amethyst':  '#8b5cf6',
-            'amber':     '#f59e0b',
-            'ruby':      '#f43f5e',
-            'noir':      '#ffffff',
-            'neon-red':  '#ff1a1a',
-            'neon':      '#ff1a1a'
-        };
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
-        const color = themeColors[currentTheme] || (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '').trim() || '#10b981';
+        const color = getActiveThemeColor();
 
         console.log(
             '%c' +
@@ -1308,20 +1501,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 // KEYBOARD PAGE NAVIGATION (Feature 5 - Module Scoped)
 // ============================================
 (function initKeyboardPageNavigation() {
-    window.addEventListener('keydown', (e) => {
-        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-        if (e.ctrlKey || e.altKey || e.metaKey) return;
-        if (e.key !== '[' && e.key !== ']') return;
-
-        // 1. Collect all sidebar navigation links on the current page
+    window.navigateModulePage = function(direction) {
         const sidebarLinks = Array.from(document.querySelectorAll('.irm-sidebar a, .sidebar-nav a, .module-nav a'))
             .map(a => a.getAttribute('href'))
             .filter(href => href && href.startsWith('/'));
 
-        // Unique links for the active module
         let modulePages = [...new Set(sidebarLinks)];
 
-        // If no sidebar links found in DOM, fallback to route-based module subpages
         if (modulePages.length === 0) {
             const path = window.location.pathname;
             if (path.startsWith('/irm')) {
@@ -1340,17 +1526,25 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
         const currentIndex = modulePages.indexOf(currentPath);
 
-        if (e.key === ']') {
+        if (direction === 'next' || direction === ']') {
             if (currentIndex !== -1 && currentIndex < modulePages.length - 1) {
                 document.body.classList.add('page-exiting');
                 setTimeout(() => window.location.href = modulePages[currentIndex + 1], 150);
             }
-        } else if (e.key === '[') {
+        } else if (direction === 'prev' || direction === '[') {
             if (currentIndex > 0) {
                 document.body.classList.add('page-exiting');
                 setTimeout(() => window.location.href = modulePages[currentIndex - 1], 150);
             }
         }
+    };
+
+    window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        if (e.key !== '[' && e.key !== ']') return;
+
+        window.navigateModulePage(e.key);
     });
 })();
 
@@ -1743,6 +1937,79 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         animationFrame = requestAnimationFrame(render);
     }
 
+    // Touch Gravitation: Touch and hold for 200ms without scrolling to activate gravity vortex
+    let touchHoldTimer = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchGravitating = false;
+
+    window.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            clearTimeout(touchHoldTimer);
+
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.closest('a, button, input, textarea, select, .theme-modal, .cmd-palette-modal, .theme-swatch-container, .shortcut-action-row')) {
+                return;
+            }
+
+            touchHoldTimer = setTimeout(() => {
+                isTouchGravitating = true;
+                isStationary = true;
+                mouseX = touchStartX;
+                mouseY = touchStartY;
+                stationaryStartTime = Date.now();
+                if (navigator.vibrate) navigator.vibrate(15);
+            }, 200);
+        } else {
+            clearTimeout(touchHoldTimer);
+            if (isTouchGravitating) {
+                isTouchGravitating = false;
+                isStationary = false;
+                stationaryStartTime = 0;
+            }
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (!isTouchGravitating && dist > 15) {
+                clearTimeout(touchHoldTimer);
+            } else if (isTouchGravitating) {
+                mouseX = touch.clientX;
+                mouseY = touch.clientY;
+            }
+        }
+    }, { passive: true });
+
+    const endTouchGravity = () => {
+        clearTimeout(touchHoldTimer);
+        if (isTouchGravitating) {
+            isTouchGravitating = false;
+            isStationary = false;
+            stationaryStartTime = 0;
+        }
+    };
+
+    window.addEventListener('touchend', endTouchGravity, { passive: true });
+    window.addEventListener('touchcancel', endTouchGravity, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animationFrame);
+        } else if (window.starfieldEnabled) {
+            cancelAnimationFrame(animationFrame);
+            render();
+        }
+    });
+
     window.updateStarfieldState = function(enabled) {
         canvas.style.display = enabled ? 'block' : 'none';
         if (enabled) {
@@ -1756,7 +2023,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 })();
 
 // ============================================
-// KONAMI CODE EASTER EGG (Feature 3 - Viewport & Scroll Lock)
+// KONAMI CODE EASTER EGG & DEVICE TELEMETRY
 // ============================================
 (function initKonamiCode() {
     const overlay = document.createElement('div');
@@ -1764,47 +2031,555 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     overlay.innerHTML = `
         <div class="konami-title">🎮 DEVELOPER MODE UNLOCKED</div>
         <div class="konami-stats">
-            <div>⚡ ServiceNow Learning Hub Stats</div>
-            <div>------------------------------</div>
-            <div>Active Session ID: <span id="konamiSessionId"></span></div>
-            <div>Current Theme: <span id="konamiTheme"></span></div>
-            <div>Viewport Size: <span id="konamiViewport"></span></div>
-            <div>Platform OS: Windows (Antigravity IDE)</div>
-            <div style="margin-top: 16px; color: #888;">Press ESC or click anywhere to close</div>
+            <div style="color: var(--accent-primary); font-weight: bold; margin-bottom: 8px;">⚡ ServiceNow Learning Hub Telemetry</div>
+            <div style="border-bottom: 1px dashed rgba(255,255,255,0.2); margin-bottom: 10px;"></div>
+            <div>📱 Device Type: <span id="konamiDeviceType" style="color: #6ee7b7; font-weight: bold;"></span></div>
+            <div>🏷️ Device Model: <span id="konamiDeviceName" style="color: #6ee7b7; font-weight: bold;"></span></div>
+            <div>💻 Operating System: <span id="konamiOS" style="color: #93c5fd;"></span></div>
+            <div>🌐 Browser & Engine: <span id="konamiBrowser" style="color: #c4b5fd;"></span></div>
+            <div>📐 Viewport & Screen: <span id="konamiViewport" style="color: #fde047;"></span></div>
+            <div>⚡ GPU / Renderer: <span id="konamiGPU" style="color: #f472b6;"></span></div>
+            <div>🔑 Active Session ID: <span id="konamiSessionId" style="color: #e2e8f0;"></span></div>
+            <div>🎨 Current Theme: <span id="konamiTheme" style="color: #e2e8f0;"></span></div>
+            <div style="margin-top: 16px; color: #94a3b8; font-size: 11px;">Press ESC or tap anywhere to close</div>
         </div>
     `;
     document.body.appendChild(overlay);
 
-    const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-    let index = 0;
+    function getDetailedDeviceInfo() {
+        const ua = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const maxTouchPoints = navigator.maxTouchPoints || 0;
+        const isTouch = maxTouchPoints > 0 || 'ontouchstart' in window;
+
+        // 1. Device Type Detection
+        let deviceType = 'PC / Desktop';
+        const isMobileUA = /Mobi|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        const isTabletUA = /iPad|Tablet|PlayBook|Silk/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1);
+
+        if (isTabletUA || (isTouch && Math.min(width, height) >= 600 && Math.max(width, height) >= 900)) {
+            deviceType = 'Tablet';
+        } else if (isMobileUA || (isTouch && Math.min(width, height) < 600)) {
+            deviceType = 'Mobile';
+        } else if (isTouch) {
+            deviceType = 'Touchscreen PC';
+        }
+
+        // 2. Device Model / Name Detection
+        let deviceName = 'Generic Device';
+        if (/iPhone/i.test(ua)) {
+            const screenMax = Math.max(window.screen.width, window.screen.height);
+            const screenMin = Math.min(window.screen.width, window.screen.height);
+            if (screenMax === 932 && screenMin === 430) deviceName = 'iPhone 14/15/16 Pro Max / Plus';
+            else if (screenMax === 852 && screenMin === 393) deviceName = 'iPhone 14/15/16 Pro';
+            else if (screenMax === 844 && screenMin === 390) deviceName = 'iPhone 12/13/14';
+            else if (screenMax === 812 && screenMin === 375) deviceName = 'iPhone X / XS / 11 Pro / 12 Mini / 13 Mini';
+            else if (screenMax === 896 && screenMin === 414) deviceName = 'iPhone XR / XS Max / 11 / 11 Pro Max';
+            else if (screenMax === 667 && screenMin === 375) deviceName = 'iPhone 6/7/8/SE';
+            else deviceName = 'Apple iPhone';
+        } else if (/iPad/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1)) {
+            deviceName = 'Apple iPad';
+        } else if (/Android/i.test(ua)) {
+            const match = ua.match(/;\s*([A-Za-z0-9\-\s\_]+)\s*Build/i) || ua.match(/Android[^;]+;\s*([^;]+)/i);
+            if (match && match[1]) {
+                deviceName = match[1].trim();
+            } else if (/Pixel/i.test(ua)) {
+                deviceName = 'Google Pixel';
+            } else if (/SM-|Samsung/i.test(ua)) {
+                deviceName = 'Samsung Galaxy';
+            } else {
+                deviceName = 'Android Device';
+            }
+        } else if (/Macintosh|Mac OS X/i.test(ua)) {
+            deviceName = 'Apple Mac';
+        } else if (/Windows NT 10.0/i.test(ua)) {
+            deviceName = 'Windows 10/11 PC';
+        } else if (/Windows NT/i.test(ua)) {
+            deviceName = 'Windows PC';
+        } else if (/Linux/i.test(ua)) {
+            deviceName = 'Linux Workstation';
+        }
+
+        // 3. Operating System
+        let osName = 'Unknown OS';
+        if (/iPhone|iPad|iPod/i.test(ua)) {
+            const match = ua.match(/OS ([\d_]+)/i);
+            osName = match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
+        } else if (platform === 'MacIntel' && maxTouchPoints > 1) {
+            osName = 'iPadOS';
+        } else if (/Android/i.test(ua)) {
+            const match = ua.match(/Android\s+([\d\.]+)/i);
+            osName = match ? `Android ${match[1]}` : 'Android';
+        } else if (/Windows NT 10.0/i.test(ua)) {
+            osName = 'Windows 10 / 11';
+        } else if (/Windows NT 6.3/i.test(ua)) {
+            osName = 'Windows 8.1';
+        } else if (/Windows NT 6.1/i.test(ua)) {
+            osName = 'Windows 7';
+        } else if (/Mac OS X/i.test(ua)) {
+            const match = ua.match(/Mac OS X ([\d_]+)/i);
+            osName = match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
+        } else if (/Linux/i.test(ua)) {
+            osName = 'Linux';
+        }
+
+        // 4. Browser Info
+        let browserName = 'Browser';
+        if (/Edg\//i.test(ua)) {
+            const m = ua.match(/Edg\/([\d\.]+)/i);
+            browserName = `Microsoft Edge ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua) && !/OPR\//i.test(ua)) {
+            const m = ua.match(/Chrome\/([\d\.]+)/i);
+            browserName = `Google Chrome ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+            const m = ua.match(/Version\/([\d\.]+)/i);
+            browserName = `Apple Safari ${m ? m[1].split('.')[0] : ''}`;
+        } else if (/Firefox\//i.test(ua)) {
+            const m = ua.match(/Firefox\/([\d\.]+)/i);
+            browserName = `Mozilla Firefox ${m ? m[1].split('.')[0] : ''}`;
+        }
+
+        // 5. GPU Renderer (via WebGL)
+        let gpuRenderer = 'Hardware Accelerated';
+        try {
+            const glCanvas = document.createElement('canvas');
+            const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+            if (gl) {
+                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                if (dbg) {
+                    gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpuRenderer;
+                }
+            }
+        } catch (e) {}
+
+        return {
+            deviceType,
+            deviceName,
+            osName,
+            browserName,
+            viewport: `${width}×${height} (Screen: ${window.screen.width}×${window.screen.height}, DPR: ${dpr.toFixed(1)}x)`,
+            gpuRenderer: gpuRenderer.length > 35 ? gpuRenderer.slice(0, 35) + '...' : gpuRenderer
+        };
+    }
+    window.getDetailedDeviceInfo = getDetailedDeviceInfo;
+
+    function logKonamiProgress(devicePrefix, step, total, moveName) {
+        const color = getActiveThemeColor();
+
+        if (step === total) {
+            console.log(
+                `%c[${devicePrefix}] 🎮 Konami Sequence Completed: ${step}/${total} (${moveName}) -> Developer Mode Unlocked!`,
+                `color: ${color}; font-weight: bold; font-family: monospace; font-size: 12px; padding: 3px 6px; background: rgba(0,0,0,0.5); border: 1px solid ${color}; border-radius: 4px;`
+            );
+        } else {
+            console.log(
+                `%c[${devicePrefix}] 🎮 Konami Sequence: ${step}/${total} (${moveName})`,
+                `color: ${color}; font-weight: 600; font-family: monospace; font-size: 11px; padding: 1px 4px;`
+            );
+        }
+    }
+    window.logKonamiProgress = logKonamiProgress;
+
+    const desktopSequence = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
+    const keyLabels = {
+        'up': '↑ Up',
+        'down': '↓ Down',
+        'left': '← Left',
+        'right': '→ Right',
+        'b': 'B',
+        'a': 'A'
+    };
+    let desktopIndex = 0;
+    let desktopTimer = null;
+
+    function normalizeKey(e) {
+        const k = (e.key || '').toLowerCase();
+        const c = (e.code || '').toLowerCase();
+        const code = e.keyCode || e.which;
+
+        if (code === 38 || k === 'arrowup' || k === 'up' || c === 'arrowup' || c === 'numpad8') return 'up';
+        if (code === 40 || k === 'arrowdown' || k === 'down' || c === 'arrowdown' || c === 'numpad2') return 'down';
+        if (code === 37 || k === 'arrowleft' || k === 'left' || c === 'arrowleft' || c === 'numpad4') return 'left';
+        if (code === 39 || k === 'arrowright' || k === 'right' || c === 'arrowright' || c === 'numpad6') return 'right';
+        if (code === 66 || k === 'b' || c === 'keyb') return 'b';
+        if (code === 65 || k === 'a' || c === 'keya') return 'a';
+        return k || '';
+    }
 
     function closeKonami() {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
     }
 
+    window.triggerKonamiEasterEgg = function() {
+        const info = getDetailedDeviceInfo();
+        document.getElementById('konamiDeviceType').innerText = info.deviceType;
+        document.getElementById('konamiDeviceName').innerText = info.deviceName;
+        document.getElementById('konamiOS').innerText = info.osName;
+        document.getElementById('konamiBrowser').innerText = info.browserName;
+        document.getElementById('konamiViewport').innerText = info.viewport;
+        document.getElementById('konamiGPU').innerText = info.gpuRenderer;
+        document.getElementById('konamiSessionId').innerText = globalSessionId || 'default';
+        document.getElementById('konamiTheme').innerText = document.documentElement.getAttribute('data-theme') || 'emerald';
+        
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 100]);
+    };
+
     window.addEventListener('keydown', (e) => {
-        if (e.key === sequence[index] || e.key.toLowerCase() === sequence[index]) {
-            index++;
-            if (index === sequence.length) {
-                index = 0;
-                document.getElementById('konamiSessionId').innerText = globalSessionId || 'default';
-                document.getElementById('konamiTheme').innerText = document.documentElement.getAttribute('data-theme') || 'emerald';
-                document.getElementById('konamiViewport').innerText = `${window.innerWidth}x${window.innerHeight}`;
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+        const normalized = normalizeKey(e);
+        const expected = desktopSequence[desktopIndex];
+
+        if (normalized === expected) {
+            // Prevent arrow keys from scrolling the page during code entry
+            if (['up', 'down', 'left', 'right'].includes(normalized)) {
+                e.preventDefault();
+            }
+
+            desktopIndex++;
+            clearTimeout(desktopTimer);
+            desktopTimer = setTimeout(() => { 
+                if (desktopIndex > 0) {
+                    desktopIndex = 0;
+                    console.log('%c[PC / Desktop] ⏱️ Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
+                }
+            }, 4000);
+
+            const devInfo = getDetailedDeviceInfo();
+            logKonamiProgress(devInfo.deviceType, desktopIndex, desktopSequence.length, keyLabels[normalized] || e.key);
+
+            if (desktopIndex === desktopSequence.length) {
+                desktopIndex = 0;
+                window.triggerKonamiEasterEgg();
             }
         } else {
-            index = 0;
+            if (normalized === 'up') {
+                e.preventDefault();
+                desktopIndex = 1;
+                clearTimeout(desktopTimer);
+                desktopTimer = setTimeout(() => { 
+                    if (desktopIndex > 0) {
+                        desktopIndex = 0;
+                        console.log('%c[PC / Desktop] ⏱️ Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
+                    }
+                }, 4000);
+                const devInfo = getDetailedDeviceInfo();
+                logKonamiProgress(devInfo.deviceType, 1, desktopSequence.length, '↑ Up');
+            } else if (desktopIndex > 0) {
+                const devInfo = getDetailedDeviceInfo();
+                console.log(
+                    `%c[${devInfo.deviceType}] ❌ Sequence reset (received: "${e.key}", expected: "${keyLabels[expected] || expected}")`,
+                    `color: #ef4444; font-family: monospace; font-size: 11px;`
+                );
+                desktopIndex = 0;
+            }
         }
 
         if (e.key === 'Escape' && overlay.classList.contains('active')) {
             closeKonami();
         }
-    });
+    }, true);
 
     overlay.addEventListener('click', () => {
         closeKonami();
     });
+})();
+
+// ============================================
+// MOBILE GESTURES, SWIPES & FLOATING ACTION BUTTON
+// ============================================
+(function initMobileGestures() {
+    // 1. Mobile Swipe Sequence for Konami Dev Mode (Up, Up, Down, Down, Left, Right, Left, Right)
+    const mobileSwipeSequence = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right'];
+    const swipeLabels = {
+        'up': '↑ Up',
+        'down': '↓ Down',
+        'left': '← Left',
+        'right': '→ Right'
+    };
+    let mobileSwipeIndex = 0;
+    let swipeTimer = null;
+    let singleTouchStartX = 0;
+    let singleTouchStartY = 0;
+    let singleTouchStartTime = 0;
+
+    window.addEventListener('touchstart', (e) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (e.touches.length === 1) {
+            singleTouchStartX = e.touches[0].clientX;
+            singleTouchStartY = e.touches[0].clientY;
+            singleTouchStartTime = Date.now();
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length === 1) {
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - singleTouchStartX;
+            const dy = touch.clientY - singleTouchStartY;
+            const dist = Math.hypot(dx, dy);
+            const duration = Date.now() - singleTouchStartTime;
+
+            // Detect swipe if gesture moved >= 28px in < 750ms
+            if (dist >= 28 && duration < 750) {
+                let swipeDir = '';
+                if (Math.abs(dy) > Math.abs(dx)) {
+                    swipeDir = dy < 0 ? 'up' : 'down';
+                } else {
+                    swipeDir = dx < 0 ? 'left' : 'right';
+                }
+
+                const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: 'Mobile' };
+                const devicePrefix = devInfo.deviceType || 'Mobile';
+
+                if (swipeDir === mobileSwipeSequence[mobileSwipeIndex]) {
+                    mobileSwipeIndex++;
+                    if (navigator.vibrate) navigator.vibrate(15);
+                    clearTimeout(swipeTimer);
+                    swipeTimer = setTimeout(() => { mobileSwipeIndex = 0; }, 3500);
+
+                    if (window.logKonamiProgress) {
+                        window.logKonamiProgress(devicePrefix, mobileSwipeIndex, mobileSwipeSequence.length, swipeLabels[swipeDir] || swipeDir);
+                    }
+
+                    if (mobileSwipeIndex === mobileSwipeSequence.length) {
+                        mobileSwipeIndex = 0;
+                        if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+                    }
+                } else {
+                    if (swipeDir === mobileSwipeSequence[0]) {
+                        mobileSwipeIndex = 1;
+                        if (navigator.vibrate) navigator.vibrate(15);
+                        clearTimeout(swipeTimer);
+                        swipeTimer = setTimeout(() => { mobileSwipeIndex = 0; }, 3500);
+                        if (window.logKonamiProgress) {
+                            window.logKonamiProgress(devicePrefix, 1, mobileSwipeSequence.length, swipeLabels[swipeDir] || swipeDir);
+                        }
+                    } else {
+                        mobileSwipeIndex = 0;
+                    }
+                }
+            }
+        }
+    }, { passive: true });
+
+    // 2. Secret 5-Tap on Logo
+    let logoTaps = 0;
+    let lastLogoTapTime = 0;
+    let logoNavTimer = null;
+
+    document.addEventListener('click', (e) => {
+        const logo = e.target.closest('.nav-logo, .site-logo');
+        if (!logo) return;
+
+        e.preventDefault();
+        clearTimeout(logoNavTimer);
+
+        const now = Date.now();
+        if (now - lastLogoTapTime < 500) {
+            logoTaps++;
+        } else {
+            logoTaps = 1;
+        }
+        lastLogoTapTime = now;
+
+        if (logoTaps >= 5) {
+            logoTaps = 0;
+            if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+        } else {
+            logoNavTimer = setTimeout(() => {
+                if (logoTaps === 1) {
+                    window.location.href = logo.getAttribute('href') || '/';
+                }
+                logoTaps = 0;
+            }, 300);
+        }
+    });
+
+    // 3. Multi-touch gesture tracking (4-Finger Tap -> Konami, 2-Finger Double Tap -> Hub)
+    let touchCount = 0;
+    let twoFingerTouchStartTime = 0;
+    let twoFingerStartPos = null;
+    let lastTwoFingerTapTime = 0;
+
+    window.addEventListener('touchstart', (e) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+        touchCount = e.touches.length;
+
+        // 4-Finger Tap -> Konami Developer Easter Egg
+        if (touchCount === 4) {
+            if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+            return;
+        }
+
+        // 2-Finger Gestures
+        if (touchCount === 2) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            twoFingerTouchStartTime = Date.now();
+            twoFingerStartPos = {
+                x1: t1.clientX,
+                y1: t1.clientY,
+                x2: t2.clientX,
+                y2: t2.clientY,
+                centerX: (t1.clientX + t2.clientX) / 2,
+                centerY: (t1.clientY + t2.clientY) / 2,
+                dist: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+            };
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        if (twoFingerStartPos && touchCount === 2) {
+            const duration = Date.now() - twoFingerTouchStartTime;
+            
+            if (duration < 350) {
+                const now = Date.now();
+                if (now - lastTwoFingerTapTime < 450) {
+                    lastTwoFingerTapTime = 0;
+                    const shortcutsOverlay = document.querySelector('.shortcuts-modal-overlay');
+                    if (shortcutsOverlay) {
+                        shortcutsOverlay.classList.add('active');
+                        if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+                    }
+                } else {
+                    lastTwoFingerTapTime = now;
+                }
+            }
+
+            twoFingerStartPos = null;
+            twoFingerTouchStartTime = 0;
+        }
+        touchCount = e.touches.length;
+    }, { passive: true });
+
+    // 2-Finger Horizontal Swipe -> Next / Prev Chapter
+    let twoFingerSwiped = false;
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && twoFingerStartPos && !twoFingerSwiped) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            
+            if (Math.abs(currentDist - twoFingerStartPos.dist) > 40) return;
+
+            const currentCenterX = (t1.clientX + t2.clientX) / 2;
+            const currentCenterY = (t1.clientY + t2.clientY) / 2;
+            const deltaX = currentCenterX - twoFingerStartPos.centerX;
+            const deltaY = currentCenterY - twoFingerStartPos.centerY;
+
+            if (Math.abs(deltaX) > 70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+                twoFingerSwiped = true;
+                if (navigator.vibrate) navigator.vibrate(25);
+                if (deltaX < 0) {
+                    if (window.navigateModulePage) window.navigateModulePage('next');
+                } else {
+                    if (window.navigateModulePage) window.navigateModulePage('prev');
+                }
+                setTimeout(() => { twoFingerSwiped = false; }, 800);
+            }
+        }
+    }, { passive: true });
+
+    // 4. Inject Mobile / Tablet Floating Action Button (FAB)
+    function setupMobileFloatingBtn() {
+        if (document.querySelector('.mobile-floating-hub-btn')) return;
+
+        const fab = document.createElement('button');
+        fab.className = 'mobile-floating-hub-btn';
+        fab.setAttribute('aria-label', 'Open Quick Actions Hub');
+        fab.title = 'Quick Actions & Shortcuts';
+        fab.innerHTML = `<span>⚡</span>`;
+
+        let fabTouchHandled = false;
+
+        const triggerFab = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: 'Mobile' };
+            console.log(`%c[${devInfo.deviceType}] ⚡ Floating Action Button pressed -> Opening Quick Actions Hub`, 'color: #f59e0b; font-weight: bold; font-family: monospace; font-size: 11px;');
+
+            const shortcutsOverlay = document.querySelector('.shortcuts-modal-overlay');
+            if (shortcutsOverlay) {
+                shortcutsOverlay.classList.toggle('active');
+                if (navigator.vibrate) navigator.vibrate(20);
+            }
+        };
+
+        fab.addEventListener('touchend', (e) => {
+            fabTouchHandled = true;
+            triggerFab(e);
+            setTimeout(() => { fabTouchHandled = false; }, 350);
+        });
+
+        fab.addEventListener('click', (e) => {
+            if (!fabTouchHandled) {
+                triggerFab(e);
+            }
+        });
+
+        document.body.appendChild(fab);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupMobileFloatingBtn);
+    } else {
+        setupMobileFloatingBtn();
+    }
+})();
+
+// ============================================
+// MOBILE EXPANDABLE NAVBAR
+// ============================================
+(function initMobileNavbar() {
+    function setupNavToggle() {
+        const toggleBtn = document.getElementById('navMobileToggle');
+        const navLinks = document.getElementById('navLinks');
+        const navHubBtn = document.getElementById('navHubBtn');
+
+        if (toggleBtn && navLinks) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = navLinks.classList.toggle('active');
+                toggleBtn.classList.toggle('active', isOpen);
+                toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                if (navigator.vibrate) navigator.vibrate(15);
+            });
+
+            // Close on link click
+            navLinks.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#navbar')) {
+                    navLinks.classList.remove('active');
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupNavToggle);
+    } else {
+        setupNavToggle();
+    }
 })();
 

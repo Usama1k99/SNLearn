@@ -8,8 +8,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" id="faviconLink">
     <link rel="stylesheet" href="/styles/global.css">
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('theme') || sessionStorage.getItem('theme');
+                if (t) document.documentElement.setAttribute('data-theme', t);
+                var inv = localStorage.getItem('invertColors') || sessionStorage.getItem('invertColors');
+                var sid = localStorage.getItem('sessionId') || sessionStorage.getItem('sessionId');
+                if (inv === 'true') {
+                    document.documentElement.classList.add('invert-mode');
+                }
+                var fav = document.getElementById('faviconLink');
+                if (fav && sid) {
+                    fav.href = '/favicon.svg?sid=' + sid + '&inv=' + (inv === 'true' ? '1' : '0') + '&t=' + Date.now();
+                }
+            } catch(e) {}
+        })();
+    </script>
     <% if (typeof styles !== 'undefined') { %>
         <% styles.forEach(function(style) { %>
             <link rel="stylesheet" href="<%= style %>">

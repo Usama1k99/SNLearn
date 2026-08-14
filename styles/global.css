@@ -269,12 +269,95 @@ html[data-theme="noir"] #starfieldCanvas {
     display: block;
 }
 
+@media (max-width: 768px) {
+    .unified-tab-btn[data-tab="cursor"],
+    .unified-tab-cursor,
+    #panel-cursor {
+        display: none !important;
+    }
+}
+
 .theme-modal-title {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 16px;
     text-align: center;
     color: var(--text-primary);
+}
+
+/* Shortcuts & Quick Actions Hub Styles */
+.shortcuts-modal-container {
+    max-height: 85vh;
+    overflow-y: auto;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.shortcut-action-row {
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.shortcut-action-row:hover {
+    background: var(--accent-soft) !important;
+    border-color: var(--border-accent) !important;
+    box-shadow: 0 0 12px var(--accent-soft);
+}
+
+.shortcut-action-row:active {
+    transform: scale(0.98);
+    background: var(--accent-glow) !important;
+}
+
+.shortcuts-close-btn {
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.shortcuts-close-btn:hover {
+    background: var(--accent-soft);
+    color: var(--text-primary);
+}
+
+.shortcuts-close-btn:active {
+    transform: scale(0.92);
+}
+
+/* Mobile / Tablet Floating Action Button (FAB) */
+.mobile-floating-hub-btn {
+    display: none;
+    position: fixed;
+    bottom: max(22px, env(safe-area-inset-bottom, 22px));
+    right: max(22px, env(safe-area-inset-right, 22px));
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--accent-primary);
+    color: var(--accent-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow);
+    font-size: 20px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99999;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.mobile-floating-hub-btn:hover,
+.mobile-floating-hub-btn:active {
+    transform: scale(1.12);
+    background: var(--accent-soft);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 24px var(--accent-primary);
+}
+
+@media (max-width: 1024px) {
+    .mobile-floating-hub-btn {
+        display: flex;
+    }
 }
 
 .theme-swatches {
@@ -600,6 +683,7 @@ img {
     color: var(--text-secondary);
     transition: all var(--transition-fast);
     position: relative;
+    text-decoration: none;
 }
 
 .nav-link:hover {
@@ -610,6 +694,124 @@ img {
 .nav-link.active {
     color: var(--accent-tertiary);
     background: var(--accent-soft);
+}
+
+/* Mobile Navigation Hamburger Toggle */
+.nav-mobile-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 38px;
+    height: 38px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    gap: 4px;
+    padding: 0;
+    z-index: 1002;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-mobile-toggle:hover,
+.nav-mobile-toggle:active {
+    background: var(--accent-soft);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.hamburger-line {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, background-color 0.2s ease;
+}
+
+/* Animated Hamburger to X */
+.nav-mobile-toggle.active .line-1 {
+    transform: translateY(6px) rotate(45deg);
+    background: var(--accent-primary);
+}
+
+.nav-mobile-toggle.active .line-2 {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.nav-mobile-toggle.active .line-3 {
+    transform: translateY(-6px) rotate(-45deg);
+    background: var(--accent-primary);
+}
+
+.nav-link-icon {
+    display: none;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .nav-mobile-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 56px;
+        left: 12px;
+        right: 12px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-accent);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px var(--accent-glow);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        flex-direction: column;
+        padding: 12px;
+        gap: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-12px) scale(0.97);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1001;
+    }
+
+    .nav-links.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+    }
+
+    .nav-link {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+    }
+
+    .nav-link-icon {
+        display: inline-block;
+    }
+
+    .nav-link:hover,
+    .nav-link:active {
+        background: var(--accent-soft);
+        border-color: var(--border-accent);
+        transform: translateX(4px);
+    }
+
+    .nav-link.active {
+        background: var(--accent-glow);
+        border-color: var(--accent-primary);
+        color: #fff;
+    }
 }
 
 /* -- Gradient Text -- */
@@ -1094,17 +1296,22 @@ body.zen-mode .irm-content {
 }
 
 /* ============================================
-   INVERT MODE (Alt + I)
+   INVERT MODE (Alt + I & Mobile)
    ============================================ */
 html.invert-mode {
-    filter: invert(1);
+    filter: invert(100%) !important;
+    -webkit-filter: invert(100%) !important;
+    background: #0a0a0f !important;
 }
 
-/* Re-invert media so images/videos look correct */
+/* Re-invert media & dev mode so images/videos/canvas/dev overlay look natural */
 html.invert-mode img,
 html.invert-mode video,
-html.invert-mode iframe {
-    filter: invert(1);
+html.invert-mode iframe,
+html.invert-mode canvas,
+html.invert-mode .konami-overlay {
+    filter: invert(100%) !important;
+    -webkit-filter: invert(100%) !important;
 }
 
 /* ============================================

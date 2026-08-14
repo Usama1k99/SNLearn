@@ -13,12 +13,36 @@
                 </div>
                 <span class="logo-text">SN<span class="logo-accent">Learn</span></span>
             </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'home' ? 'active' : '' %>">Home</a>
-                <a href="/irm" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'irm' ? 'active' : '' %>">IRM</a>
-                <a href="/secops" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'secops' ? 'active' : '' %>">SecOps</a>
-                <a href="/sam" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'sam' ? 'active' : '' %>">SAM</a>
-                <a href="/ham" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'ham' ? 'active' : '' %>">HAM</a>
+
+            <!-- Mobile Hamburger Toggle Button -->
+            <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                <span class="hamburger-line line-1"></span>
+                <span class="hamburger-line line-2"></span>
+                <span class="hamburger-line line-3"></span>
+            </button>
+
+            <!-- Navigation Links (Desktop Row & Mobile Expandable Menu) -->
+            <div class="nav-links" id="navLinks">
+                <a href="/" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'home' ? 'active' : '' %>">
+                    <span class="nav-link-icon">🏠</span>
+                    <span class="nav-link-text">Home</span>
+                </a>
+                <a href="/irm" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'irm' ? 'active' : '' %>">
+                    <span class="nav-link-icon">🛡️</span>
+                    <span class="nav-link-text">IRM</span>
+                </a>
+                <a href="/secops" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'secops' ? 'active' : '' %>">
+                    <span class="nav-link-icon">🔒</span>
+                    <span class="nav-link-text">SecOps</span>
+                </a>
+                <a href="/sam" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'sam' ? 'active' : '' %>">
+                    <span class="nav-link-icon">📦</span>
+                    <span class="nav-link-text">SAM</span>
+                </a>
+                <a href="/ham" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'ham' ? 'active' : '' %>">
+                    <span class="nav-link-icon">💻</span>
+                    <span class="nav-link-text">HAM</span>
+                </a>
             </div>
         </div>
     </nav>

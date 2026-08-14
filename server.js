@@ -50,8 +50,21 @@ const DEFAULT_PREFS = {
     invertColors: false
 };
 
+function invertHexColor(hex) {
+    if (!hex || hex === '#ffffff') return '#000000';
+    if (hex === '#000000') return '#ffffff';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    const r = 255 - (num >> 16);
+    const g = 255 - ((num >> 8) & 0x00FF);
+    const b = 255 - (num & 0x0000FF);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
 app.get('/favicon.svg', async (req, res) => {
     let themeColor = THEME_COLORS['emerald'];
+    let isInverted = req.query.inv === '1';
 
     try {
         const allPrefs = await readAllPrefs();
@@ -66,7 +79,17 @@ app.get('/favicon.svg', async (req, res) => {
         if (sessionPrefs && sessionPrefs.theme && THEME_COLORS[sessionPrefs.theme]) {
             themeColor = THEME_COLORS[sessionPrefs.theme];
         }
+        if (sessionPrefs && sessionPrefs.invertColors !== undefined) {
+            isInverted = !!sessionPrefs.invertColors;
+        }
+        if (req.query.inv !== undefined) {
+            isInverted = req.query.inv === '1';
+        }
     } catch(e) {}
+
+    if (isInverted) {
+        themeColor = invertHexColor(themeColor);
+    }
 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${themeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`;
 
