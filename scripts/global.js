@@ -668,13 +668,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 // ============================================
 (function initUnifiedSettingsModal() {
     const themes = [
-        { id: 'emerald', color: '#10b981' },
-        { id: 'sapphire', color: '#3b82f6' },
-        { id: 'amethyst', color: '#8b5cf6' },
-        { id: 'amber', color: '#f59e0b' },
-        { id: 'ruby', color: '#f43f5e' },
-        { id: 'noir', color: '#e0e0e0' },
-        { id: 'neon', color: '#ff003c' }
+        { id: 'emerald', name: 'Emerald', color: '#10b981' },
+        { id: 'sapphire', name: 'Sapphire', color: '#3b82f6' },
+        { id: 'amethyst', name: 'Amethyst', color: '#8b5cf6' },
+        { id: 'amber', name: 'Amber', color: '#f59e0b' },
+        { id: 'ruby', name: 'Ruby', color: '#f43f5e' },
+        { id: 'noir', name: 'Noir', color: '#e0e0e0' },
+        { id: 'neon-red', name: 'Neon Red', color: '#ff1a1a' }
     ];
 
     const overlay = document.createElement('div');
@@ -695,7 +695,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 <div class="theme-swatches" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px;">
                     ${themes.map(t => `<div class="theme-swatch-container" data-theme-id="${t.id}" style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; padding: 10px 14px; border-radius: 8px; cursor: pointer;">
                         <div class="theme-swatch" style="--swatch-color: ${t.color}"></div>
-                        <span class="theme-label" style="text-align: left;">${t.id.charAt(0).toUpperCase() + t.id.slice(1)}</span>
+                        <span class="theme-label" style="text-align: left;">${t.name || (t.id.charAt(0).toUpperCase() + t.id.slice(1))}</span>
                     </div>`).join('')}
                 </div>
 
@@ -1279,13 +1279,14 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         } catch (e) {}
 
         const themeColors = {
-            'emerald':  '#10b981',
-            'sapphire': '#3b82f6',
-            'amethyst': '#8b5cf6',
-            'amber':    '#f59e0b',
-            'ruby':     '#f43f5e',
-            'noir':     '#e0e0e0',
-            'neon':     '#ff003c'
+            'emerald':   '#10b981',
+            'sapphire':  '#3b82f6',
+            'amethyst':  '#8b5cf6',
+            'amber':     '#f59e0b',
+            'ruby':      '#f43f5e',
+            'noir':      '#e0e0e0',
+            'neon-red':  '#ff1a1a',
+            'neon':      '#ff1a1a'
         };
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
         const color = themeColors[currentTheme] || (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '').trim() || '#10b981';

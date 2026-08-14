@@ -25,13 +25,14 @@ app.use('/models.json', express.static(path.join(__dirname, 'models.json')));
 const { readAllPrefs, writeAllPrefs } = require('./prefs-store');
 
 const THEME_COLORS = {
-    'emerald':  '#10b981',
-    'sapphire': '#3b82f6',
-    'amethyst': '#8b5cf6',
-    'amber':    '#f59e0b',
-    'ruby':     '#f43f5e',
-    'noir':     '#e0e0e0',
-    'neon':     '#ff003c'
+    'emerald':   '#10b981',
+    'sapphire':  '#3b82f6',
+    'amethyst':  '#8b5cf6',
+    'amber':     '#f59e0b',
+    'ruby':      '#f43f5e',
+    'noir':      '#e0e0e0',
+    'neon-red':  '#ff1a1a',
+    'neon':      '#ff1a1a'
 };
 
 const DEFAULT_PREFS = {
