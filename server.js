@@ -29,7 +29,9 @@ const THEME_COLORS = {
     'sapphire': '#3b82f6',
     'amethyst': '#8b5cf6',
     'amber':    '#f59e0b',
-    'ruby':     '#f43f5e'
+    'ruby':     '#f43f5e',
+    'noir':     '#e0e0e0',
+    'neon':     '#ff003c'
 };
 
 const DEFAULT_PREFS = {

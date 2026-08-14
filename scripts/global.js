@@ -72,69 +72,120 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     setTimeout(() => clearInterval(pollForMermaid), 10000);
 
     function setupDiagramInteractivity(svg) {
-        // In Mermaid v10, edges are <path> elements with class "flowchart-link LS-X LE-Y"
-        // inside a <g class="edgePaths"> container.
-        const edgePaths = svg.querySelectorAll('path.flowchart-link');
-        const allNodes = svg.querySelectorAll('.node');
+        // Query all connector elements: solid, dashed, message lines, relations
+        const edgeElements = Array.from(svg.querySelectorAll(
+            'path.flowchart-link, g.edgePath path, path.edge-pattern-dashed, path.edge-pattern-solid, path.edge-pattern-dotted, path.path, line.messageLine0, line.messageLine1, path.messageLine0, path.messageLine1, path.relation'
+        )).filter(el => !el.classList.contains('edge-hit-box'));
 
-        // Build node lookup: "A" -> <g id="flowchart-A-0">
+        const allNodes = Array.from(svg.querySelectorAll('.node, .actor, g.cluster, .statediagram-state, .classGroup'));
+
+        // Build node lookup by various ID formats
         const nodeById = {};
+        const nodeBoxes = [];
+
         allNodes.forEach(node => {
-            const match = node.id.match(/^flowchart-(.*?)-\d+$/);
-            if (match) nodeById[match[1]] = node;
+            if (node.id) {
+                nodeById[node.id] = node;
+                const m1 = node.id.match(/^flowchart-(.*?)-\d+$/);
+                if (m1) nodeById[m1[1]] = node;
+                const m2 = node.id.match(/^flowchart-(.*?)$/);
+                if (m2) nodeById[m2[1]] = node;
+            }
+            try {
+                const bbox = node.getBBox ? node.getBBox() : null;
+                if (bbox && bbox.width > 0 && bbox.height > 0) {
+                    nodeBoxes.push({
+                        node,
+                        cx: bbox.x + bbox.width / 2,
+                        cy: bbox.y + bbox.height / 2,
+                        bbox
+                    });
+                }
+            } catch (err) {}
         });
 
-        // Build edge map: path element -> { source, target }
         const edgeMap = new Map();
-        // Maps hit-box -> original path
         const hitBoxToPath = new Map();
 
-        edgePaths.forEach(path => {
-            const classes = path.className.baseVal || '';
-            const lsMatch = classes.match(/LS-([\w]+)/);
-            const leMatch = classes.match(/LE-([\w]+)/);
-            if (lsMatch && leMatch) {
-                edgeMap.set(path, {
-                    source: nodeById[lsMatch[1]] || null,
-                    target: nodeById[leMatch[1]] || null
-                });
-            }
-        });
+        // Helper to find nearest node geometrically
+        function findNearestNode(pt) {
+            if (!pt || nodeBoxes.length === 0) return null;
+            let bestNode = null;
+            let minDist = Infinity;
+            nodeBoxes.forEach(item => {
+                const dx = item.cx - pt.x;
+                const dy = item.cy - pt.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist < minDist) {
+                    minDist = dist;
+                    bestNode = item.node;
+                }
+            });
+            return bestNode;
+        }
 
-        // Add invisible thick hit-box paths for easier hovering
-        edgePaths.forEach(path => {
+        edgeElements.forEach(path => {
+            const parent = path.parentElement;
+            const classes = `${path.getAttribute('class') || ''} ${path.className.baseVal || ''} ${parent ? (parent.getAttribute('class') || '') + ' ' + (parent.className.baseVal || '') : ''}`;
+            const idStr = `${path.id || ''} ${parent ? parent.id || '' : ''}`;
+
+            const lsMatch = classes.match(/LS-([\w-]+)/) || idStr.match(/LS-([\w-]+)/);
+            const leMatch = classes.match(/LE-([\w-]+)/) || idStr.match(/LE-([\w-]+)/);
+
+            let source = lsMatch ? (nodeById[lsMatch[1]] || svg.querySelector(`[id*="${lsMatch[1]}"]`)) : null;
+            let target = leMatch ? (nodeById[leMatch[1]] || svg.querySelector(`[id*="${leMatch[1]}"]`)) : null;
+
+            // Geometric fallback if not found by ID classes (e.g. sequence messages or dashed links)
+            if (!source || !target) {
+                try {
+                    let startPt = null;
+                    let endPt = null;
+                    if (path.tagName.toLowerCase() === 'line') {
+                        startPt = { x: parseFloat(path.getAttribute('x1')), y: parseFloat(path.getAttribute('y1')) };
+                        endPt = { x: parseFloat(path.getAttribute('x2')), y: parseFloat(path.getAttribute('y2')) };
+                    } else if (path.getPointAtLength) {
+                        const len = path.getTotalLength();
+                        startPt = path.getPointAtLength(0);
+                        endPt = path.getPointAtLength(len);
+                    }
+                    if (!source && startPt) source = findNearestNode(startPt);
+                    if (!target && endPt) target = findNearestNode(endPt);
+                } catch (e) {}
+            }
+
+            edgeMap.set(path, { source, target });
+
+            // Create thick transparent hit-box path for easier hover interaction
             const hitBox = path.cloneNode();
             hitBox.removeAttribute('id');
             hitBox.removeAttribute('marker-end');
-            // CRITICAL: Remove flowchart-link and LS-/LE- classes so hit-box isn't treated as an edge
+            hitBox.removeAttribute('marker-start');
             hitBox.setAttribute('class', 'edge-hit-box');
             hitBox.setAttribute('stroke', 'transparent');
             hitBox.setAttribute('stroke-width', '45');
             hitBox.setAttribute('fill', 'none');
             hitBox.style.pointerEvents = 'stroke';
-            // Store reference to original path
+
             hitBoxToPath.set(hitBox, path);
-            // Also copy the edge map entry
-            if (edgeMap.has(path)) {
-                edgeMap.set(hitBox, edgeMap.get(path));
+            edgeMap.set(hitBox, { source, target });
+
+            if (path.parentNode) {
+                path.parentNode.insertBefore(hitBox, path.nextSibling);
             }
-            path.parentNode.insertBefore(hitBox, path.nextSibling);
         });
 
         // Event delegation on the SVG
         svg.addEventListener('mouseover', (e) => {
             const target = e.target;
-            const isEdge = target.classList.contains('flowchart-link');
             const isHitBox = target.classList.contains('edge-hit-box');
+            const isEdge = edgeMap.has(target);
             if (!isEdge && !isHitBox) return;
 
             clearHighlights(svg);
 
-            // Get the visible edge path to glow
             const visiblePath = isHitBox ? hitBoxToPath.get(target) : target;
             if (visiblePath) visiblePath.classList.add('edge-hover-glow');
 
-            // Highlight connected nodes
             const conn = edgeMap.get(target) || (visiblePath ? edgeMap.get(visiblePath) : null);
             if (conn) {
                 if (conn.source) conn.source.classList.add('node-hover-glow');
@@ -144,7 +195,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
         svg.addEventListener('mouseout', (e) => {
             const target = e.target;
-            if (!target.classList.contains('flowchart-link') && !target.classList.contains('edge-hit-box')) return;
+            if (!edgeMap.has(target) && !target.classList.contains('edge-hit-box')) return;
             clearHighlights(svg);
         });
     }
@@ -258,6 +309,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             if (data.theme) {
                 document.documentElement.setAttribute('data-theme', data.theme);
                 if (window.updateActiveSwatch) window.updateActiveSwatch(data.theme);
+                if (window.showConsoleArt) window.showConsoleArt();
             }
         })
         .catch(err => console.error('Failed to load user preferences:', err));
@@ -306,6 +358,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             if (window.updateUnifiedSettingsUI) window.updateUnifiedSettingsUI();
             if (window.updateStarfieldState) window.updateStarfieldState(false);
             if (window.reinitStarfieldParticles) window.reinitStarfieldParticles(250);
+            if (window.showConsoleArt) window.showConsoleArt();
             
             fetch('/api/user-prefs', {
                 method: 'POST',
@@ -425,7 +478,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             cursor.style.borderRadius = computedStyle.borderRadius !== '0px' ? computedStyle.borderRadius : '8px';
 
             // 3D Card Tilt check for encompassed cards
-            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card, .info-card');
+            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card');
             if (cardEl) {
                 const cRect = cardEl.getBoundingClientRect();
                 const relX = mouseX - cRect.left;
@@ -554,6 +607,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 isHovering = true;
                 targetElement = el;
                 targetRect = el.getBoundingClientRect();
+                // Snap cursor position to element center so encompass doesn't travel from old position
+                cursorX = targetRect.left + targetRect.width / 2;
+                cursorY = targetRect.top + targetRect.height / 2;
                 // Immediately reset for new encompassment
                 cursor.style.transition = '';
                 cursor.style.opacity = '1';
@@ -616,7 +672,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         { id: 'sapphire', color: '#3b82f6' },
         { id: 'amethyst', color: '#8b5cf6' },
         { id: 'amber', color: '#f59e0b' },
-        { id: 'ruby', color: '#f43f5e' }
+        { id: 'ruby', color: '#f43f5e' },
+        { id: 'noir', color: '#e0e0e0' },
+        { id: 'neon', color: '#ff003c' }
     ];
 
     const overlay = document.createElement('div');
@@ -888,7 +946,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         swatch.addEventListener('click', () => {
             const selectedTheme = swatch.dataset.themeId;
             document.documentElement.setAttribute('data-theme', selectedTheme);
+            originalTheme = selectedTheme;
             updateActiveSwatch(selectedTheme);
+            if (window.showConsoleArt) window.showConsoleArt();
             fetch('/api/user-prefs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-session-id': globalSessionId },
@@ -1168,7 +1228,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             <div class="theme-modal-title">Available Shortcuts</div>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px; color: var(--text-primary); font-size: 13px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                    <span>Command Palette</span>
+                    <span>Search Box</span>
                     <kbd style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">Ctrl + K</kbd>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
@@ -1212,19 +1272,39 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 // ============================================
 // CONSOLE ART (Feature 4)
 // ============================================
-(function showConsoleArt() {
-    console.log(
-        '%c' +
-        '   _____ _   _ _                          \n' +
-        '  / ____| \\ | | |                         \n' +
-        ' | (___ |  \\| | |     ___  __ _ _ __ _ __ \n' +
-        '  \\___ \\| . ` | |    / _ \\/ _` | \'__| \'_ \\\n' +
-        '  ____) | |\\  | |___|  __/ (_| | |  | | | |\n' +
-        ' |_____/|_| \\_|______\\___|\\__,_|_|  |_| |_|\n\n' +
-        '⚡ SNLearn — ServiceNow Learning Hub\n' +
-        'Press Ctrl+K or Alt+K to open Command Palette | Alt+H for Shortcuts.',
-        'color: #10b981; font-weight: bold; font-family: monospace; font-size: 12px;'
-    );
+(function initConsoleArt() {
+    window.showConsoleArt = function() {
+        try {
+            console.clear();
+        } catch (e) {}
+
+        const themeColors = {
+            'emerald':  '#10b981',
+            'sapphire': '#3b82f6',
+            'amethyst': '#8b5cf6',
+            'amber':    '#f59e0b',
+            'ruby':     '#f43f5e',
+            'noir':     '#e0e0e0',
+            'neon':     '#ff003c'
+        };
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
+        const color = themeColors[currentTheme] || (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '').trim() || '#10b981';
+
+        console.log(
+            '%c' +
+            '   _____ _   _ _                          \n' +
+            '  / ____| \\ | | |                         \n' +
+            ' | (___ |  \\| | |     ___  __ _ _ __ _ __ \n' +
+            '  \\___ \\| . ` | |    / _ \\/ _` | \'__| \'_ \\\n' +
+            '  ____) | |\\  | |___|  __/ (_| | |  | | | |\n' +
+            ' |_____/|_| \\_|______\\___|\\__,_|_|  |_| |_|\n\n' +
+            '⚡ SNLearn — ServiceNow Learning Hub\n' +
+            'Press Ctrl+K to open Search Box | Alt+H for Shortcuts.',
+            `color: ${color}; font-weight: bold; font-family: monospace; font-size: 12px;`
+        );
+    };
+
+    window.showConsoleArt();
 })();
 
 // ============================================
@@ -1313,7 +1393,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         <div class="cmd-palette-modal">
             <div class="cmd-palette-header">
                 <span class="cmd-palette-icon">🔍</span>
-                <input type="text" class="cmd-palette-input" placeholder="Type a command or search pages... (Esc to close)">
+                <input type="text" class="cmd-palette-input" placeholder="Search pages...">
             </div>
             <div class="cmd-palette-results"></div>
         </div>
@@ -1497,7 +1577,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     document.addEventListener('mousemove', (e) => {
         // Target top-level outer card containers
         const cardTarget = e.target.closest(
-            '.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card, .info-card'
+            '.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card'
         );
 
         if (!cardTarget) {
