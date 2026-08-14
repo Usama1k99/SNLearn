@@ -1301,7 +1301,14 @@ body.zen-mode .irm-content {
 html.invert-mode {
     filter: invert(100%) !important;
     -webkit-filter: invert(100%) !important;
-    background: #0a0a0f !important;
+    background-color: #0a0a0f !important;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: filter;
+}
+
+html.invert-mode body {
+    background-color: #0a0a0f !important;
 }
 
 /* Re-invert media & dev mode so images/videos/canvas/dev overlay look natural */
