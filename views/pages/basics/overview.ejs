@@ -1,0 +1,253 @@
+<%- include('../../partials/head', { title: 'The Big Picture & What is ServiceNow? — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'overview' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#chaos-before" class="toc-link">The Chaos Before ServiceNow</a>
+                    <a href="#what-is-servicenow" class="toc-link">What ServiceNow Actually Is</a>
+                    <a href="#who-uses-it" class="toc-link">The 4 User Personas</a>
+                    <a href="#multi-instance" class="toc-link">Multi-Instance Architecture</a>
+                    <a href="#request-lifecycle" class="toc-link">End-to-End Work Lifecycle</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>The Big Picture &amp; Overview</span>
+                </div>
+                <h1 class="content-title">The Big Picture &amp; <span class="gradient-text">What is ServiceNow?</span></h1>
+                <p class="content-subtitle">
+                    A plain-English introduction for absolute beginners — why 85% of Fortune 500 enterprises run on ServiceNow, 
+                    the 4 platform personas, and how cloud multi-instance architecture powers modern enterprise workflows.
+                </p>
+            </div>
+
+            <!-- Section 1: The Chaos Before ServiceNow -->
+            <section class="content-section" id="chaos-before">
+                <h2>The Chaos Before ServiceNow</h2>
+                <p>
+                    To understand why ServiceNow is one of the fastest-growing enterprise software platforms in the world, 
+                    imagine an enterprise company with <strong>50,000 employees</strong> operating without a centralized platform:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Broken Laptop Dilemma</h4>
+                        </div>
+                        <p>
+                            When an engineer's laptop keyboard breaks, they send an email to <code>it-help@company.com</code>. 
+                            The email gets buried under 400 other unread emails. Nobody knows who is assigned to fix it, and the engineer 
+                            is blocked from working for three days.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Disconnected Employee Onboarding</h4>
+                        </div>
+                        <p>
+                            When a new marketing director joins, HR tracks their paperwork in an Excel spreadsheet, Facilities writes desk 
+                            numbers on sticky notes, and IT forgets to order their laptop until their first day in the office.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The 40-Person Panic Thread</h4>
+                        </div>
+                        <p>
+                            When the core banking server crashes, engineers panic across three different Slack channels and a 40-person 
+                            reply-all email thread with zero visibility into who made the change that caused the outage.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">The Root Problem: Silos &amp; Chaos</div>
+                    <p>
+                        Without a unified platform, work gets lost in disconnected spreadsheets, private email inboxes, and isolated department tools. 
+                        There is no accountability, no tracking of deadlines (SLAs), and zero visibility for leadership.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: What ServiceNow Actually Is -->
+            <section class="content-section" id="what-is-servicenow">
+                <h2>What ServiceNow Actually Is</h2>
+                <p>
+                    <strong>ServiceNow is the Operating System for Enterprise Work.</strong>
+                </p>
+                <p>
+                    At its core, ServiceNow is a <strong>massive, cloud-hosted relational database</strong> equipped with an ultra-clean web interface, 
+                    automated workflow engines, and pre-built business applications.
+                </p>
+                <p>
+                    Whenever anyone inside an enterprise needs work done—whether requesting a new monitor, investigating a cyberattack, 
+                    deploying a software patch, or asking about maternity leave—they use <strong>ServiceNow</strong>.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. A Single Relational Database</h4>
+                        </div>
+                        <p>
+                            Every employee, server, laptop, software license, and open ticket lives in one unified database (the <strong>CMDB</strong> and <code>task</code> table). 
+                            No more hunting through five different spreadsheets.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. Automated Workflow Engines</h4>
+                        </div>
+                        <p>
+                            Instead of humans forwarding emails manually, ServiceNow's <strong>Flow Designer</strong> routes work automatically, 
+                            requests manager approvals, and provisions access in seconds.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. Extensible App Platform (Now Platform)</h4>
+                        </div>
+                        <p>
+                            Beyond IT, companies build custom applications on ServiceNow to run university admissions, hospital bed tracking, 
+                            and legal contract reviews using low-code tools.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Who Uses ServiceNow? -->
+            <section class="content-section" id="who-uses-it">
+                <h2>The 4 User Personas (Who Uses the Platform?)</h2>
+                <p>
+                    Everyone in the enterprise interacts with ServiceNow, but their interfaces and permissions look completely different:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User Persona</th>
+                            <th>Who They Are</th>
+                            <th>Where They Work in ServiceNow</th>
+                            <th>Typical Everyday Task</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. End Users / Requesters</strong></td>
+                            <td>Standard employees (Sales, Marketing, HR, Finance).</td>
+                            <td><strong>Employee Center / Service Portal</strong> (Consumer-friendly web interface).</td>
+                            <td>Ordering a keyboard, reporting a Wi-Fi issue, or reading a self-service knowledge article.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Fulfillers / Resolvers (ITIL)</strong></td>
+                            <td>Service Desk agents, SysAdmins, SOC analysts, Field techs.</td>
+                            <td><strong>Service Operations Workspace (SOW)</strong> &amp; Native Forms.</td>
+                            <td>Diagnosing server alerts, resolving user tickets, and deploying approved changes.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Developers &amp; Administrators</strong></td>
+                            <td>ServiceNow System Admins, Software Engineers, Solution Architects.</td>
+                            <td><strong>Studio, App Engine, &amp; System Definition Tools</strong>.</td>
+                            <td>Writing JavaScript Business Rules, configuring UI policies, and building automated flows.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Leadership &amp; Executives</strong></td>
+                            <td>CIOs, IT Directors, Risk Officers, Department Heads.</td>
+                            <td><strong>Performance Analytics &amp; Live Dashboards</strong>.</td>
+                            <td>Reviewing real-time MTTR (Mean Time to Resolution), SLA breach rates, and IT asset expenditures.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: Multi-Instance Architecture -->
+            <section class="content-section" id="multi-instance">
+                <h2>Multi-Instance Cloud Architecture (Why It Matters)</h2>
+                <p>
+                    Unlike traditional multi-tenant SaaS platforms (where thousands of companies share the exact same database tables), 
+                    ServiceNow uses a unique <strong>Multi-Instance Architecture</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Dedicated Database &amp; App Nodes</h4>
+                        </div>
+                        <p>
+                            Each customer receives their own dedicated, logically isolated database and application server nodes in ServiceNow's cloud. 
+                            Your company's data is never mixed with another company's data.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Standard 3-Tier Enterprise Pipeline</h4>
+                        </div>
+                        <p>
+                            Enterprises operate with three separate instances:
+                            <br>• <strong>DEV (Development):</strong> Where developers write code and build features.
+                            <br>• <strong>TEST / QA:</strong> Where testing teams validate functionality.
+                            <br>• <strong>PROD (Production):</strong> The live instance used by real employees.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: End-to-End Request Lifecycle -->
+            <section class="content-section" id="request-lifecycle">
+                <h2>How Work Moves Through ServiceNow (End-to-End)</h2>
+                <p>
+                    Here is a visual breakdown of how an employee request travels seamlessly across the platform:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">The Digital Journey of an Enterprise Request</div>
+                    <div class="mermaid">
+                    graph TD
+                        USER["1. Employee visits Employee Center<br>Orders Developer Laptop in Service Catalog"] --> FLOW["2. Flow Designer triggers automatically<br>Sends Approval Notification to Manager"]
+                        
+                        FLOW --> WAIT{"Manager Decision"}
+                        WAIT -->|Approved| SOW["3. ServiceNow generates Catalog Tasks (SCTASK)<br>Dispatched to Service Operations Workspace"]
+                        WAIT -->|Rejected| CANC["Request Canceled &amp; Notification Sent"]
+                        
+                        SOW --> HAM["4. Hardware Asset Team allocates Serial #<br>Stockroom inventory decremented in HAM"]
+                        HAM --> DESK["5. Desktop Support images OS &amp; security certs"]
+                        
+                        DESK --> COMPLETE["6. Laptop Delivered &amp; Ticket Marked Closed Complete<br>SLA timer halted with 100% compliance score"]
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Module Home</span>
+                    <span class="page-nav-title">Basics Hub</span>
+                </a>
+                <a href="/basics/pdi-setup" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Claiming Your PDI &amp; UI Navigation</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -164,25 +164,78 @@ function setupDiagramControls() {
         const EXPAND_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
         const CLOSE_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
 
-        function toggleFullscreen() {
-            const isFullscreen = block.classList.toggle('diagram-fullscreen');
-            document.body.classList.toggle('diagram-modal-open', isFullscreen);
+        let placeholderNode = null;
+
+        // Ensure global portal overlay exists on document.body
+        let overlay = document.getElementById('diagramModalOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'diagramModalOverlay';
+            overlay.className = 'diagram-modal-overlay';
+            document.body.appendChild(overlay);
+
+            // Close when clicking the backdrop mask outside the modal card
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeFullscreen();
+                }
+            });
+        }
+
+        function openFullscreen() {
+            placeholderNode = document.createElement('div');
+            placeholderNode.className = 'diagram-block-placeholder';
+            placeholderNode.style.display = 'none';
+            block.parentNode.insertBefore(placeholderNode, block);
+
+            overlay.innerHTML = '';
+            overlay.appendChild(block);
+            overlay.classList.add('active');
+            document.body.classList.add('diagram-modal-open');
 
             if (fullscreenBtn) {
-                fullscreenBtn.innerHTML = isFullscreen ? CLOSE_ICON : EXPAND_ICON;
-                fullscreenBtn.title = isFullscreen ? 'Close Fullscreen (Esc)' : 'Toggle Fullscreen';
-                fullscreenBtn.setAttribute('aria-label', isFullscreen ? 'Close Fullscreen' : 'Toggle Fullscreen');
+                fullscreenBtn.innerHTML = CLOSE_ICON;
+                fullscreenBtn.title = 'Close Fullscreen (Esc)';
+                fullscreenBtn.setAttribute('aria-label', 'Close Fullscreen');
             }
 
             applyZoom(1.0);
+        }
+
+        function closeFullscreen() {
+            if (!placeholderNode || !placeholderNode.parentNode) return;
+
+            placeholderNode.parentNode.insertBefore(block, placeholderNode);
+            placeholderNode.remove();
+            placeholderNode = null;
+
+            overlay.classList.remove('active');
+            overlay.innerHTML = '';
+            document.body.classList.remove('diagram-modal-open');
+
+            if (fullscreenBtn) {
+                fullscreenBtn.innerHTML = EXPAND_ICON;
+                fullscreenBtn.title = 'Toggle Fullscreen';
+                fullscreenBtn.setAttribute('aria-label', 'Toggle Fullscreen');
+            }
+
+            applyZoom(1.0);
+        }
+
+        function toggleFullscreen() {
+            if (overlay.classList.contains('active') && overlay.contains(block)) {
+                closeFullscreen();
+            } else {
+                openFullscreen();
+            }
         }
 
         fullscreenBtn?.addEventListener('click', toggleFullscreen);
 
         // Escape key listener to close fullscreen
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && block.classList.contains('diagram-fullscreen')) {
-                toggleFullscreen();
+            if (e.key === 'Escape' && overlay.classList.contains('active') && overlay.contains(block)) {
+                closeFullscreen();
             }
         });
 

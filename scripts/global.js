@@ -2576,10 +2576,52 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }
 
+    // Beginner Hero Card Onboarding Toggle Handler
+    function setupBeginnerCardToggle() {
+        const card = document.getElementById('beginnerHeroCard');
+        const exploreBtn = document.getElementById('exploreModulesBtn');
+        const dismissBtn = document.getElementById('dismissIntroCardBtn');
+        const reopenContainer = document.getElementById('reopenIntroContainer');
+        const reopenBtn = document.getElementById('reopenIntroBtn');
+        const modulesStack = document.getElementById('modulesStack');
+
+        if (!card) return;
+
+        function collapseCard(scrollDown = false) {
+            card.classList.add('is-collapsed');
+            if (reopenContainer) reopenContainer.style.display = 'block';
+            localStorage.setItem('sn_hide_intro_card', 'true');
+
+            if (scrollDown && modulesStack) {
+                modulesStack.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function expandCard() {
+            card.classList.remove('is-collapsed');
+            if (reopenContainer) reopenContainer.style.display = 'none';
+            localStorage.removeItem('sn_hide_intro_card');
+        }
+
+        // Check stored user preference
+        if (localStorage.getItem('sn_hide_intro_card') === 'true') {
+            card.classList.add('is-collapsed');
+            if (reopenContainer) reopenContainer.style.display = 'block';
+        }
+
+        exploreBtn?.addEventListener('click', () => collapseCard(true));
+        dismissBtn?.addEventListener('click', () => collapseCard(false));
+        reopenBtn?.addEventListener('click', expandCard);
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupNavToggle);
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavToggle();
+            setupBeginnerCardToggle();
+        });
     } else {
         setupNavToggle();
+        setupBeginnerCardToggle();
     }
 })();
 

@@ -1,7 +1,18 @@
 <div class="sidebar-section">
     <div class="sidebar-label"><%= moduleLabel %> Pages</div>
     <nav class="sidebar-nav">
-        <% if (module === 'itsm') { %>
+        <% if (module === 'basics') { %>
+            <a href="/basics/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> The Big Picture & Overview</a>
+            <a href="/basics/pdi-setup" class="sidebar-link <%= activePage === 'pdi-setup' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Claim PDI & UI Navigation</a>
+            <a href="/basics/data-architecture" class="sidebar-link <%= activePage === 'data-architecture' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Tables, Records & Sys IDs</a>
+            <a href="/basics/forms-and-lists" class="sidebar-link <%= activePage === 'forms-and-lists' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Forms, Lists & Filters</a>
+            <a href="/basics/client-scripting" class="sidebar-link <%= activePage === 'client-scripting' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> UI Policies & Client Scripts</a>
+            <a href="/basics/server-scripting" class="sidebar-link <%= activePage === 'server-scripting' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Business Rules & Script Includes</a>
+            <a href="/basics/flow-designer" class="sidebar-link <%= activePage === 'flow-designer' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Flow Designer Automation</a>
+            <a href="/basics/security-and-scopes" class="sidebar-link <%= activePage === 'security-and-scopes' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Security, Roles & Update Sets</a>
+            <a href="/basics/app-builder-sandbox" class="sidebar-link <%= activePage === 'app-builder-sandbox' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Custom App Sandbox Lab</a>
+            <a href="/basics/career-roadmap" class="sidebar-link <%= activePage === 'career-roadmap' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Career & Learning Roadmap</a>
+        <% } else if (module === 'itsm') { %>
             <a href="/itsm/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
             <a href="/itsm/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Master Data Model & CSDM</a>
             <a href="/itsm/incident-management" class="sidebar-link <%= activePage === 'incident-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Incident & Major Incident (MIM)</a>

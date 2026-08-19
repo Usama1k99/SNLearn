@@ -30,7 +30,38 @@
 
         <!-- Right Side: Vertical Module Cards -->
         <section class="split-right">
-            <div class="modules-stack">
+            <!-- Beginner Onboarding Card -->
+            <div class="beginner-hero-card" id="beginnerHeroCard">
+                <div class="beginner-card-glow"></div>
+                <div class="beginner-card-header">
+                    <span class="beginner-badge">
+                        <span class="beginner-badge-dot"></span>
+                        New to ServiceNow? Start Here
+                    </span>
+                    <button type="button" class="beginner-dismiss-btn" id="dismissIntroCardBtn" title="Hide intro card" aria-label="Hide intro card">✕</button>
+                </div>
+                <h2 class="beginner-card-title">The Absolute <span class="gradient-text">Beginner's Guide</span></h2>
+                <p class="beginner-card-desc">
+                    Never used ServiceNow before? Learn what the platform actually is in plain English, claim your free Personal Developer Instance (PDI), and understand tables, forms, client scripts, and workflows step by step.
+                </p>
+                <div class="beginner-card-actions">
+                    <a href="/basics/overview" class="btn-start-basics">
+                        <span>🚀 Start Beginner Course (10 Pages)</span>
+                    </a>
+                    <button type="button" class="btn-explore-modules" id="exploreModulesBtn">
+                        <span>⚡ Explore Modules Directly</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Re-open pill button (visible when intro card is collapsed) -->
+            <div class="beginner-reopen-container" id="reopenIntroContainer" style="display: none;">
+                <button type="button" class="btn-reopen-intro" id="reopenIntroBtn">
+                    <span>✨ New to ServiceNow? Show Beginner Onboarding</span>
+                </button>
+            </div>
+
+            <div class="modules-stack" id="modulesStack">
                 <!-- ITSM Module Card -->
                 <a href="/itsm" class="module-card-horizontal" id="itsm-card">
                     <div class="card-glow"></div>

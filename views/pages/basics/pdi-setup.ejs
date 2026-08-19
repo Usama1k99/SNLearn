@@ -1,0 +1,297 @@
+<%- include('../../partials/head', { title: 'Claiming Your PDI & Navigating the UI — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'pdi-setup' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-pdi" class="toc-link">What is a PDI?</a>
+                    <a href="#step-by-step-claim" class="toc-link">Step-by-Step Claim Guide</a>
+                    <a href="#inactivity-rule" class="toc-link">The 10-Day Inactivity Rule</a>
+                    <a href="#ui-tour" class="toc-link">Next Experience UI Tour</a>
+                    <a href="#navigator-shortcuts" class="toc-link">Filter Navigator Pro Shortcuts</a>
+                    <a href="#impersonation" class="toc-link">The Admin Impersonation Key</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Claiming Your PDI &amp; UI Navigation</span>
+                </div>
+                <h1 class="content-title">Claiming Your Free PDI &amp; <span class="gradient-text">Navigating the UI</span></h1>
+                <p class="content-subtitle">
+                    Get your own 100% free Personal Developer Instance (PDI) from ServiceNow, master the 10-day hibernation rules, 
+                    and take a comprehensive guided tour of the modern Next Experience user interface.
+                </p>
+            </div>
+
+            <!-- Section 1: What is a PDI? -->
+            <section class="content-section" id="what-is-pdi">
+                <h2>What is a Personal Developer Instance (PDI)?</h2>
+                <p>
+                    Unlike many enterprise software ecosystems that require expensive corporate licenses just to learn, 
+                    ServiceNow provides a <strong>100% free, fully functional, cloud-hosted enterprise sandbox</strong> called a 
+                    <strong>Personal Developer Instance (PDI)</strong> to anyone who registers on their developer portal.
+                </p>
+                <p>
+                    Your PDI comes pre-loaded with sample demo data (users, servers, laptops, incidents), full <code>admin</code> superuser rights, 
+                    and all major application modules enabled.
+                </p>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">You Have Full Admin Superpowers</div>
+                    <p>
+                        In your PDI, you have complete administrative authority: you can create custom tables, write scripts, build flows, 
+                        break things, and reset the instance back to factory settings whenever you want.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: Step-by-Step Claim Guide -->
+            <section class="content-section" id="step-by-step-claim">
+                <h2>Step-by-Step: How to Claim Your Free PDI</h2>
+                <p>
+                    Follow these 4 simple steps to spin up your instance in less than 5 minutes:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Step 1: Register on Developer Portal</h4>
+                        </div>
+                        <p>
+                            Navigate to <a href="https://developer.servicenow.com" target="_blank" rel="noopener noreferrer">developer.servicenow.com</a> 
+                            and click <strong>Sign In / Sign Up</strong>. You can use any personal email address (Gmail, Outlook, etc.).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Step 2: Request an Instance</h4>
+                        </div>
+                        <p>
+                            Once logged in, look at the top-right header and click <strong>Request Instance</strong>. 
+                            Select the latest available family release (e.g. <em>Washington DC</em> or <em>Xanadu</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Step 3: Wait for Cloud Spin-Up</h4>
+                        </div>
+                        <p>
+                            ServiceNow's cloud infrastructure will automatically provision your dedicated instance within 2 to 3 minutes.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Step 4: Save Your Admin Credentials</h4>
+                        </div>
+                        <p>
+                            You will receive your unique instance URL (e.g. <code>https://dev12345.service-now.com</code>), 
+                            username (<code>admin</code>), and temporary password. Save these in your password manager!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: The 10-Day Inactivity Rule -->
+            <section class="content-section" id="inactivity-rule">
+                <h2>The 10-Day Inactivity Rule &amp; Hibernation Management</h2>
+                <p>
+                    Because ServiceNow hosts millions of free developer instances globally, they enforce resource management policies:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>PDI Hibernation (Sleep Mode)</h4>
+                        </div>
+                        <p>
+                            If you do not use your PDI for a few hours, it goes into sleep mode to conserve server memory. 
+                            To wake it up, visit <a href="https://developer.servicenow.com" target="_blank" rel="noopener noreferrer">developer.servicenow.com</a> 
+                            and click <strong>Wake Instance</strong> (takes 60 to 90 seconds).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The 10-Day Reclamation Timer</h4>
+                        </div>
+                        <p>
+                            If you do not log into your PDI for <strong>10 consecutive days</strong>, ServiceNow will reclaim the instance 
+                            and wipe it to free up capacity for other learners.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Pro-Tip: How to Protect Your Code</div>
+                    <p>
+                        Always capture your custom work in <strong>Update Sets</strong> and export the XML file to your computer. 
+                        If your instance is ever reclaimed, you can request a new PDI and restore all your tables and scripts in 30 seconds by importing the XML!
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 4: Next Experience UI Tour -->
+            <section class="content-section" id="ui-tour">
+                <h2>Next Experience UI Tour (Anatomy of the Interface)</h2>
+                <p>
+                    Modern ServiceNow uses the <strong>Next Experience Unified Navigation</strong> layout:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. Unified Navigation Banner</h4>
+                        </div>
+                        <p>
+                            The persistent dark banner at the top of the browser. Houses the instance logo, the global search bar, 
+                            the navigation menus, and your user profile avatar.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. The "All" Filter Navigator</h4>
+                        </div>
+                        <p>
+                            Clicking <strong>All</strong> in the top left opens the master navigation drawer, listing every application, 
+                            table, and module in the system (e.g. <em>Incidents, Change, Service Catalog, System Definition</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. Favorites &amp; History Drawers</h4>
+                        </div>
+                        <p>
+                            • <strong>Favorites (Star icon):</strong> Pin frequently accessed tables for one-click access.<br>
+                            • <strong>History (Clock icon):</strong> Instant timeline of the last 30 records and forms you viewed.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>4. System Settings (Gear Icon)</h4>
+                        </div>
+                        <p>
+                            Customize your interface theme (Dark Mode / Light Mode), adjust accessibility settings, set timezone preferences, 
+                            and toggle compact list view densities.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Filter Navigator Shortcuts -->
+            <section class="content-section" id="navigator-shortcuts">
+                <h2>Filter Navigator Pro Shortcuts</h2>
+                <p>
+                    Instead of scrolling through hundreds of menus in the <em>All</em> drawer, professional ServiceNow developers 
+                    type direct table command shortcuts in the Filter Navigator box:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Command Syntax</th>
+                            <th>Example Command</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>&lt;table&gt;.list</code></td>
+                            <td><code>incident.list</code></td>
+                            <td>Opens the List view of that table in the <strong>current browser frame</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;table&gt;.LIST</code></td>
+                            <td><code>incident.LIST</code></td>
+                            <td>Opens the List view of that table in a <strong>brand new browser tab</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;table&gt;.do</code></td>
+                            <td><code>incident.do</code></td>
+                            <td>Opens a <strong>blank new record form</strong> directly without loading the list first.</td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;table&gt;.config</code></td>
+                            <td><code>incident.config</code></td>
+                            <td>Opens the master configuration dashboard listing all Business Rules, Client Scripts, UI Policies, and Dictionary fields for that table.</td>
+                        </tr>
+                        <tr>
+                            <td><code>sys_user.list</code></td>
+                            <td><code>sys_user.list</code></td>
+                            <td>Instantly jumps to the master User Directory table.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: Impersonation Key -->
+            <section class="content-section" id="impersonation">
+                <h2>The Admin Impersonation Key (🔑 Superpower)</h2>
+                <p>
+                    One of the most powerful built-in tools for ServiceNow administrators and developers is <strong>Impersonation</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>What is Impersonation?</h4>
+                        </div>
+                        <p>
+                            As an administrator, clicking your profile avatar $\rightarrow$ <strong>Impersonate User</strong> lets you temporarily 
+                            view the entire system through the eyes of any other user in the company (e.g. an end user, a manager, or a tier-1 agent).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Why is it Essential?</h4>
+                        </div>
+                        <p>
+                            It allows you to instantly verify whether your security rules (ACLs), catalog visibility policies, 
+                            and custom form layouts work correctly for standard employees without needing their passwords or logging out.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">How to End Impersonation</div>
+                    <p>
+                        When you are done testing, simply click the user avatar in the top right and select <strong>Unimpersonate</strong> 
+                        to return immediately to your full <code>admin</code> profile.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/overview" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">The Big Picture &amp; Overview</span>
+                </a>
+                <a href="/basics/data-architecture" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Tables, Records &amp; Sys IDs</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

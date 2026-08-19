@@ -642,51 +642,78 @@
     stroke-width: 2.2;
 }
 
-/* Fullscreen Modal View */
-.diagram-block.diagram-fullscreen {
+/* Fullscreen Modal View with Body-Level Backdrop Mask */
+.diagram-modal-overlay {
     position: fixed !important;
-    top: 16px !important;
-    left: 16px !important;
-    right: 16px !important;
-    bottom: 16px !important;
-    width: calc(100vw - 32px) !important;
-    height: calc(100vh - 32px) !important;
-    max-width: none !important;
-    z-index: 10000000 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 2147483647 !important; /* Maximum z-index above all navigation and modals */
+    background: rgba(3, 7, 18, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.diagram-modal-overlay.active {
     display: flex !important;
-    flex-direction: column !important;
+    animation: diagramOverlayFadeIn 0.2s ease-out;
+}
+
+@keyframes diagramOverlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.diagram-modal-overlay .diagram-block {
+    width: min(96vw, 1600px) !important;
+    height: min(92vh, 920px) !important;
+    max-width: 1600px !important;
+    max-height: 92vh !important;
     background: #0b1120 !important;
     border: 1px solid var(--border-accent) !important;
-    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.85), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
     border-radius: var(--radius-xl) !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 40px rgba(16, 185, 129, 0.1) !important;
+    margin: 0 !important;
     padding: var(--space-xl) !important;
-    animation: diagramFadeIn 0.2s ease-out;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    animation: diagramCardZoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes diagramFadeIn {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
+@keyframes diagramCardZoomIn {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-.diagram-block.diagram-fullscreen .diagram-header-row {
-    margin-bottom: var(--space-lg);
+.diagram-modal-overlay .diagram-block .diagram-header-row {
+    margin-bottom: var(--space-md);
     padding-bottom: var(--space-sm);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.diagram-block.diagram-fullscreen .diagram-title {
+.diagram-modal-overlay .diagram-block .diagram-title {
     font-size: 16px;
     color: var(--text-primary);
 }
 
-.diagram-block.diagram-fullscreen .mermaid {
+.diagram-modal-overlay .diagram-block .mermaid {
     flex: 1;
-    height: calc(100% - 60px);
+    height: calc(100% - 50px) !important;
     max-height: none !important;
     background: rgba(2, 6, 23, 0.85);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-subtle);
-    padding: 2rem;
+    padding: 1.5rem;
+    overflow: auto;
 }
 
 body.diagram-modal-open {
