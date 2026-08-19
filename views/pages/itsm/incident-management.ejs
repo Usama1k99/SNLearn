@@ -1,0 +1,420 @@
+<%- include('../../partials/head', { title: 'Incident & Major Incident Management — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'incident-management' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#incident-mission" class="toc-link">Core Mission & ITIL Alignment</a>
+                    <a href="#state-lifecycle" class="toc-link">State Model & On-Hold Logic</a>
+                    <a href="#priority-matrix" class="toc-link">Priority Engine & VIP Escalation</a>
+                    <a href="#major-incident-mgmt" class="toc-link">Major Incident Management (MIM)</a>
+                    <a href="#incident-tasks" class="toc-link">Incident Tasks & Child Incidents</a>
+                    <a href="#on-call-escalation" class="toc-link">On-Call Rosters & Paging</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Incident & Major Incident (MIM)</span>
+                </div>
+                <h1 class="content-title">Incident & <span class="gradient-text">Major Incident (MIM)</span></h1>
+                <p class="content-subtitle">
+                    Deep-dive into rapid IT service restoration, the comprehensive incident state model, 
+                    Data Lookup priority calculations, Major Incident Workbenches, child incident propagation, and on-call escalation.
+                </p>
+            </div>
+
+            <!-- Section 1: Core Mission -->
+            <section class="content-section" id="incident-mission">
+                <h2>Core Mission & ITIL Alignment</h2>
+                <p>
+                    According to ITIL v4, the primary objective of <strong>Incident Management</strong> is to 
+                    <em>"restore normal service operation as quickly as possible and minimize the adverse impact on business operations, 
+                    thereby ensuring that the best possible levels of service quality and availability are maintained."</em>
+                </p>
+                <p>
+                    Unlike Problem Management (which seeks permanent root causes) or Change Management (which controls modifications), 
+                    Incident Management is strictly focused on <strong>speed of restoration</strong> — whether through workarounds, 
+                    configuration rollbacks, service failovers, or temporary patches.
+                </p>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Key Distinction: Incident vs. Problem vs. Request</div>
+                    <p>
+                        <strong>Incident:</strong> Something is broken or degraded (e.g., <em>"I cannot connect to the corporate VPN"</em>).<br>
+                        <strong>Problem:</strong> Why did it break, and how do we prevent it forever? (e.g., <em>"VPN Gateway memory leak in firmware v4.2"</em>).<br>
+                        <strong>Request:</strong> Standard need for access or hardware (e.g., <em>"I need a new laptop monitor"</em>).
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: State Model & On-Hold Logic -->
+            <section class="content-section" id="state-lifecycle">
+                <h2>State Model & On-Hold Logic</h2>
+                <p>
+                    The lifecycle of an incident record (<code>incident</code>) is governed by strict state transitions 
+                    managed via integer choice values on the <code>state</code> field:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ServiceNow Incident State Model Lifecycle</div>
+                    <div class="mermaid">
+                    stateDiagram-v2
+                        [*] --> New : Ticket Created
+                        New --> InProgress : Agent Assigns / Starts Work
+                        InProgress --> OnHold : Blocker Encountered
+                        OnHold --> InProgress : Blocker Resolved
+                        InProgress --> Resolved : Fix / Workaround Applied
+                        Resolved --> InProgress : Caller Reopens Ticket
+                        Resolved --> Closed : Auto-Close Job (5-7 Days)
+                        New --> Canceled : Duplicate / Invalid
+                        InProgress --> Canceled : Duplicate / Invalid
+                        Closed --> [*]
+                        Canceled --> [*]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-states">Incident States Table</button>
+                        <button class="tab-btn" data-tab="tab-on-hold">On-Hold Reasons & SLA Pausing</button>
+                        <button class="tab-btn" data-tab="tab-resolution">Resolution & Auto-Close</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-states">
+                        <h3>Incident State Values (Integers)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>State Label</th>
+                                    <th>Integer Value</th>
+                                    <th>Operational Meaning & System Behavior</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>New</strong></td>
+                                    <td><code>1</code></td>
+                                    <td>Incident logged (via Portal, Email, or Integration). Unassigned or awaiting agent triage. Response SLA clock is running.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>In Progress</strong></td>
+                                    <td><code>2</code></td>
+                                    <td>Technician assigned and actively investigating. Response SLA stops; Resolution SLA continues ticking.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>On Hold</strong></td>
+                                    <td><code>3</code></td>
+                                    <td>Work temporarily blocked. Requires mandatory <code>hold_reason</code>. Pauses Resolution SLA timers for specific hold reasons.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resolved</strong></td>
+                                    <td><code>6</code></td>
+                                    <td>Service restored. Mandatory <code>close_code</code> and <code>close_notes</code> required. Resolution SLA stops. Notification sent to caller.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Closed</strong></td>
+                                    <td><code>7</code></td>
+                                    <td>Final read-only state. Auto-closed after caller verification window or manually confirmed. No further edits permitted.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Canceled</strong></td>
+                                    <td><code>8</code></td>
+                                    <td>Ticket invalidated as a duplicate, test record, or spam. Resolution SLA cancelled.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-on-hold">
+                        <h3>On-Hold Reasons (<code>hold_reason</code>)</h3>
+                        <p>When the state is changed to <code>On Hold (3)</code>, a UI Policy makes <code>hold_reason</code> mandatory:</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Hold Reason</th>
+                                    <th>Integer Value</th>
+                                    <th>Impact on Resolution SLA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Awaiting Caller</code></td>
+                                    <td><code>1</code></td>
+                                    <td><strong>Paused.</strong> The ball is in the user's court to provide screenshots or additional logs.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Awaiting Evidence</code></td>
+                                    <td><code>2</code></td>
+                                    <td><strong>Running.</strong> Resolver gathering technical packet captures or audit logs.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Awaiting Problem</code></td>
+                                    <td><code>3</code></td>
+                                    <td><strong>Paused or Running (Configurable).</strong> Waiting on Problem Management squad to determine workaround.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Awaiting Vendor</code></td>
+                                    <td><code>4</code></td>
+                                    <td><strong>Paused.</strong> Dependent on external third-party hardware/software vendor support.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Awaiting Change</code></td>
+                                    <td><code>5</code></td>
+                                    <td><strong>Paused.</strong> Waiting on scheduled Emergency or Normal RFC change deployment window.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-resolution">
+                        <h3>Resolution & Automated Closure Rules</h3>
+                        <p>When resolving an incident, ServiceNow enforces complete documentation before closing the ticket:</p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Resolution Code (<code>close_code</code>):</strong> Standardized classification (e.g., <em>Solved (Workaround)</em>, <em>Solved (Permanently)</em>, <em>Solved by Caller</em>, <em>Not Solved (Not Reproducible)</em>).</li>
+                            <li><strong>Resolution Notes (<code>close_notes</code>):</strong> Detailed narrative of steps executed to restore service. Can be automatically pushed to Knowledge Base via KCS.</li>
+                            <li><strong>Auto-Close Scheduled Job:</strong> Out of the box, the <code>incident autoclose</code> scheduled job queries all incidents where <code>state = 6 (Resolved)</code> for more than <strong>5 days</strong> (configured via <code>glide.ui.autoclose.time</code> property) and transitions them to <code>state = 7 (Closed)</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Priority Matrix -->
+            <section class="content-section" id="priority-matrix">
+                <h2>Priority Engine & VIP Escalation</h2>
+                <p>
+                    ServiceNow calculates ticket <strong>Priority (<code>priority</code>)</strong> automatically using 
+                    <strong>Data Lookup Rules (<code>dl_u_priority</code>)</strong> based on the intersection of 
+                    <strong>Impact</strong> (scope of business disruption) and <strong>Urgency</strong> (business time-sensitivity).
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Data Lookup Priority Calculation Matrix</div>
+                    <table class="data-table" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="vertical-align: middle;">Impact</th>
+                                <th colspan="3">Urgency</th>
+                            </tr>
+                            <tr>
+                                <th>1 - High</th>
+                                <th>2 - Medium</th>
+                                <th>3 - Low</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1 - High (Enterprise / Multiple Services)</strong></td>
+                                <td style="background: rgba(239, 68, 68, 0.2); font-weight: bold; color: #f87171;">1 - Critical (P1)</td>
+                                <td style="background: rgba(249, 115, 22, 0.2); font-weight: bold; color: #fb923c;">2 - High (P2)</td>
+                                <td style="background: rgba(234, 179, 8, 0.2); font-weight: bold; color: #facc15;">3 - Moderate (P3)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2 - Medium (Department / Workgroup)</strong></td>
+                                <td style="background: rgba(249, 115, 22, 0.2); font-weight: bold; color: #fb923c;">2 - High (P2)</td>
+                                <td style="background: rgba(234, 179, 8, 0.2); font-weight: bold; color: #facc15;">3 - Moderate (P3)</td>
+                                <td style="background: rgba(59, 130, 246, 0.2); font-weight: bold; color: #60a5fa;">4 - Low (P4)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3 - Low (Single User / Non-Critical)</strong></td>
+                                <td style="background: rgba(234, 179, 8, 0.2); font-weight: bold; color: #facc15;">3 - Moderate (P3)</td>
+                                <td style="background: rgba(59, 130, 246, 0.2); font-weight: bold; color: #60a5fa;">4 - Low (P4)</td>
+                                <td style="background: rgba(107, 114, 128, 0.2); font-weight: bold; color: #9ca3af;">5 - Planning (P5)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">VIP Caller Escalation Handling</div>
+                    <p>
+                        When the caller is flagged as a VIP (<code>sys_user.vip = true</code>), client scripts apply 
+                        visual highlight decorations (red badge icon) next to the caller name. Additionally, business rules 
+                        can automatically bump the <strong>Urgency</strong> from Low to Medium or High, ensuring executive incidents 
+                        trigger aggressive SLA targets and prioritized agent routing.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 4: Major Incident Management -->
+            <section class="content-section" id="major-incident-mgmt">
+                <h2>Major Incident Management (MIM)</h2>
+                <p>
+                    A <strong>Major Incident</strong> is an outage with significant business disruption or financial/reputational risk, 
+                    demanding immediate mobilization of cross-functional technical teams, executive leadership, and structured communications.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Major Incident Candidate Lifecycle & Resolution Flow</div>
+                    <div class="mermaid">
+                    graph TD
+                        INC["P1/P2 Critical Incident Logged<br>Priority 1/2 or Critical Service Impact"] -->|Trigger Rule / Agent Action| PROP["Candidate Proposed<br><code>major_incident_state = proposed</code>"]
+                        PROP --> DEC{"Major Incident Manager Assessment"}
+                        
+                        DEC -->|Approved / Promoted| ACC["Accepted Major Incident<br><code>major_incident_state = accepted</code>"]
+                        DEC -->|Rejected / Demoted| REJ["Candidate Rejected<br><code>major_incident_state = rejected</code>"]
+                        
+                        REJ --> NORM["Standard Incident Restoration Workflow"]
+                        
+                        ACC --> MIMW["Launch Major Incident Workbench Cockpit"]
+                        
+                        MIMW --> COMM["Incident Alerts & Multi-Channel Broadcast<br>(<code>incident_alert</code> / SMS / Portal Banner)"]
+                        MIMW --> CONF["Launch Technical & Executive Bridges<br>(Teams / Zoom Conference Integration)"]
+                        MIMW --> SQUAD["Mobilize On-Call Resolver Squads<br>(Network, Database, Cloud Infrastructure)"]
+                        
+                        COMM --> RESOLV["Service Restored & Operational Health Validated"]
+                        CONF --> RESOLV
+                        SQUAD --> RESOLV
+                        
+                        RESOLV --> PIR["Automated Post-Incident Review (PIR) & CIM Action Items"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-mim-workbench">Major Incident Workbench</button>
+                        <button class="tab-btn" data-tab="tab-mim-comms">Communication Plans & Alerts</button>
+                        <button class="tab-btn" data-tab="tab-mim-pir">Post-Incident Review (PIR)</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-mim-workbench">
+                        <h3>The Major Incident Workbench Cockpit</h3>
+                        <p>
+                            Built within the Next Experience and Service Operations Workspace, the MIM Workbench provides:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Live Crisis Timeline:</strong> Displays chronological timeline of all activities, child incident spikes, and state changes.</li>
+                            <li><strong>Impacted Services & CIs:</strong> Real-time dependency health widgets showing upstream business offerings affected.</li>
+                            <li><strong>Conference Bridge Coordination:</strong> One-click launch of Microsoft Teams / Zoom bridges with automated dial-in for on-call engineers.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-mim-comms">
+                        <h3>Structured Communications (<code>incident_alert</code>)</h3>
+                        <p>
+                            During an active P1 crisis, technical engineers must focus on restoration rather than answering emails. 
+                            The MIM module uses <strong>Incident Communication Plans (ICP)</strong> to deliver pre-templated updates:
+                        </p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Communication Channel</th>
+                                    <th>Target Audience</th>
+                                    <th>Frequency / Trigger</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Executive Briefing</strong></td>
+                                    <td>C-Level, VP of Infrastructure</td>
+                                    <td>Every 30 minutes during active P1 outage.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Technical Status</strong></td>
+                                    <td>Resolver teams, DBAs, Network Eng</td>
+                                    <td>Continuous live chat & bridge notes.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>User Advisory</strong></td>
+                                    <td>All Employees / Customer Portal Banner</td>
+                                    <td>Initial detection, major update, final resolution.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-mim-pir">
+                        <h3>Post-Incident Review (PIR)</h3>
+                        <p>
+                            Once the major incident resolves, the system generates a structured <strong>PIR Report</strong> capturing:
+                        </p>
+                        <ol>
+                            <li>Total Business Downtime (MTTR - Mean Time to Resolution).</li>
+                            <li>SLA Compliance analysis.</li>
+                            <li>Timeline of key diagnostic breakthroughs and remediation steps.</li>
+                            <li>Associated Problem records and Continual Improvement Initiatives (`sn_cim_register`).</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Incident Tasks & Child Incidents -->
+            <section class="content-section" id="incident-tasks">
+                <h2>Incident Tasks & Child Incidents</h2>
+                <p>
+                    Complex outages require parallel diagnostic investigations across multiple squads without fracturing ticket ownership:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Incident Tasks (<code>incident_task</code>)</h4>
+                        </div>
+                        <p>
+                            Extends <code>task</code>. Used to delegate specific action items to specialized groups 
+                            (e.g., <em>"Network squad: Check firewall dropped packets"</em>, <em>"DBA squad: Check connection pool exhaustion"</em>). 
+                            The parent incident cannot be resolved until all mandatory incident tasks are completed.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Child Incidents & Synchronization</h4>
+                        </div>
+                        <p>
+                            When 500 users report the same outage, tickets are linked via <code>incident.parent_incident</code>. 
+                            Out-of-the-box business rules leverage <code>IncidentUtils</code> to synchronize work notes, 
+                            copy state transitions, and automatically resolve all 500 child tickets when the master parent is resolved.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: On-Call Escalation -->
+            <section class="content-section" id="on-call-escalation">
+                <h2>On-Call Rosters & Automated Paging</h2>
+                <p>
+                    High-priority incidents must reach the correct subject matter expert immediately, regardless of time zone:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">On-Call Escalation Roster Flow</div>
+                    <div class="mermaid">
+                    graph TD
+                        P1[P1 Critical Incident Assigned to 'Database Support'] --> ROTA[Query cmn_rota: Primary On-Call Engineer]
+                        ROTA --> PUSH1[Send Push Notification & SMS via Notify]
+                        PUSH1 --> ACK{Acknowledged within 15 Mins?}
+                        ACK -->|Yes| WORK[Engineer Accepts & Starts Work]
+                        ACK -->|No Response| ESC1[Escalation Tier 2: Secondary On-Call]
+                        ESC1 --> PUSH2[Send SMS & Automated Voice Call]
+                        PUSH2 --> ACK2{Acknowledged?}
+                        ACK2 -->|Yes| WORK
+                        ACK2 -->|No Response| ESC2[Escalation Tier 3: Duty Manager / VP Escalation]
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Key Tables in On-Call Scheduling</div>
+                    <p>
+                        <strong><code>cmn_rota</code>:</strong> Shift schedule for the group (e.g., APAC Day Shift, EMEA Shift, US Shift).<br>
+                        <strong><code>cmn_rota_member</code>:</strong> Engineers assigned to rotation slots.<br>
+                        <strong><code>cmn_schedule_span</code>:</strong> Exact date/time duration blocks of each shift rotation.
+                    </p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,30 +1,19 @@
 <div class="sidebar-section">
     <div class="sidebar-label"><%= moduleLabel %> Pages</div>
     <nav class="sidebar-nav">
-        <% if (module === 'irm') { %>
-            <a href="/irm/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
-            <a href="/irm/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Entity Framework & Data Model</a>
-            <a href="/irm/risk-lifecycle" class="sidebar-link <%= activePage === 'risk-lifecycle' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Risk Management Lifecycle</a>
-            <a href="/irm/policy-compliance" class="sidebar-link <%= activePage === 'policy-compliance' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Policy & Compliance</a>
-            <a href="/irm/audit-regulatory" class="sidebar-link <%= activePage === 'audit-regulatory' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Audit & Regulatory Change</a>
-            <a href="/irm/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
-            <a href="/irm/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
-        <% } else if (module === 'sam') { %>
-            <a href="/sam/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
-            <a href="/sam/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Data Model & Tables</a>
-            <a href="/sam/normalization" class="sidebar-link <%= activePage === 'normalization' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Normalization Process</a>
-            <a href="/sam/reconciliation" class="sidebar-link <%= activePage === 'reconciliation' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Reconciliation Engine</a>
-            <a href="/sam/remediation" class="sidebar-link <%= activePage === 'remediation' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Remediation Options</a>
-            <a href="/sam/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
-            <a href="/sam/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
-        <% } else if (module === 'secops') { %>
-            <a href="/secops/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
-            <a href="/secops/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> SecOps Data Model</a>
-            <a href="/secops/sir-lifecycle" class="sidebar-link <%= activePage === 'sir-lifecycle' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> SIR Lifecycle & Playbooks</a>
-            <a href="/secops/vulnerability-response" class="sidebar-link <%= activePage === 'vulnerability-response' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Vulnerability Response</a>
-            <a href="/secops/threat-intelligence" class="sidebar-link <%= activePage === 'threat-intelligence' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Threat Intelligence</a>
-            <a href="/secops/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns</a>
-            <a href="/secops/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
+        <% if (module === 'itsm') { %>
+            <a href="/itsm/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
+            <a href="/itsm/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Master Data Model & CSDM</a>
+            <a href="/itsm/incident-management" class="sidebar-link <%= activePage === 'incident-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Incident & Major Incident (MIM)</a>
+            <a href="/itsm/problem-management" class="sidebar-link <%= activePage === 'problem-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Problem Management & KEDB</a>
+            <a href="/itsm/change-management" class="sidebar-link <%= activePage === 'change-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Change & Release Management</a>
+            <a href="/itsm/service-catalog" class="sidebar-link <%= activePage === 'service-catalog' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Service Catalog & Requests</a>
+            <a href="/itsm/knowledge-management" class="sidebar-link <%= activePage === 'knowledge-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Knowledge Management (KCS)</a>
+            <a href="/itsm/sla-management" class="sidebar-link <%= activePage === 'sla-management' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Service Level Management (SLA)</a>
+            <a href="/itsm/service-operations-workspace" class="sidebar-link <%= activePage === 'service-operations-workspace' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Service Operations Workspace</a>
+            <a href="/itsm/walkup-and-cim" class="sidebar-link <%= activePage === 'walkup-and-cim' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Walk-up Experience & CIM</a>
+            <a href="/itsm/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
+            <a href="/itsm/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
         <% } else if (module === 'ham') { %>
             <a href="/ham/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
             <a href="/ham/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Asset & CI Data Model</a>
@@ -33,6 +22,30 @@
             <a href="/ham/disposal" class="sidebar-link <%= activePage === 'disposal' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Disposal & Retirement</a>
             <a href="/ham/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
             <a href="/ham/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
+        <% } else if (module === 'sam') { %>
+            <a href="/sam/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
+            <a href="/sam/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Data Model & Tables</a>
+            <a href="/sam/normalization" class="sidebar-link <%= activePage === 'normalization' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Normalization Process</a>
+            <a href="/sam/reconciliation" class="sidebar-link <%= activePage === 'reconciliation' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Reconciliation Engine</a>
+            <a href="/sam/remediation" class="sidebar-link <%= activePage === 'remediation' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Remediation Options</a>
+            <a href="/sam/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
+            <a href="/sam/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
+        <% } else if (module === 'irm') { %>
+            <a href="/irm/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
+            <a href="/irm/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Entity Framework & Data Model</a>
+            <a href="/irm/risk-lifecycle" class="sidebar-link <%= activePage === 'risk-lifecycle' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Risk Management Lifecycle</a>
+            <a href="/irm/policy-compliance" class="sidebar-link <%= activePage === 'policy-compliance' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Policy & Compliance</a>
+            <a href="/irm/audit-regulatory" class="sidebar-link <%= activePage === 'audit-regulatory' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Audit & Regulatory Change</a>
+            <a href="/irm/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns & APIs</a>
+            <a href="/irm/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
+        <% } else if (module === 'secops') { %>
+            <a href="/secops/overview" class="sidebar-link <%= activePage === 'overview' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Overview & Architecture</a>
+            <a href="/secops/data-model" class="sidebar-link <%= activePage === 'data-model' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> SecOps Data Model</a>
+            <a href="/secops/sir-lifecycle" class="sidebar-link <%= activePage === 'sir-lifecycle' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> SIR Lifecycle & Playbooks</a>
+            <a href="/secops/vulnerability-response" class="sidebar-link <%= activePage === 'vulnerability-response' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Vulnerability Response</a>
+            <a href="/secops/threat-intelligence" class="sidebar-link <%= activePage === 'threat-intelligence' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Threat Intelligence</a>
+            <a href="/secops/developer-patterns" class="sidebar-link <%= activePage === 'developer-patterns' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Developer Patterns</a>
+            <a href="/secops/simulator" class="sidebar-link <%= activePage === 'simulator' ? 'active' : '' %>"><span class="sidebar-link-dot"></span> Process Simulator</a>
         <% } %>
     </nav>
 </div>

@@ -1,0 +1,357 @@
+<%- include('../../partials/head', { title: 'Service Catalog & Request Fulfillment — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'service-catalog' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#catalog-mission" class="toc-link">3-Tier Request Architecture</a>
+                    <a href="#item-types" class="toc-link">Catalog Items, Producers & Guides</a>
+                    <a href="#table-schema" class="toc-link">Schema & Data Model</a>
+                    <a href="#variables-and-mrvs" class="toc-link">Variables & Multi-Row Sets (MRVS)</a>
+                    <a href="#user-criteria" class="toc-link">User Criteria Security Engine</a>
+                    <a href="#catalog-scripting" class="toc-link">Client Scripts & UI Policies</a>
+                    <a href="#flow-automation" class="toc-link">Flow Designer Fulfillment Engine</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Service Catalog & Request Fulfillment</span>
+                </div>
+                <h1 class="content-title">Service Catalog & <span class="gradient-text">Request Fulfillment</span></h1>
+                <p class="content-subtitle">
+                    Master the foundational 3-tier Request model (REQ &gt; RITM &gt; SCTASK), variable data modeling, 
+                    Record Producers, Order Guides, User Criteria security, and Flow Designer automation.
+                </p>
+            </div>
+
+            <!-- Section 1: 3-Tier Request Architecture -->
+            <section class="content-section" id="catalog-mission">
+                <h2>The 3-Tier Request Architecture (REQ &gt; RITM &gt; SCTASK)</h2>
+                <p>
+                    ServiceNow implements a structured, 3-tier relational model for handling service requests and goods orders. 
+                    This separation of concerns mirrors modern e-commerce shopping carts:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">3-Tier Request Fulfillment Model & Data Flow</div>
+                    <div class="mermaid">
+                    graph TD
+                        USER["End User in Employee Center / Service Portal"] -->|Submits Shopping Cart| REQ["Tier 1: Request (sc_request)<br>The Cart Envelope (REQ0010042)<br>Tracks Requester, Total Price & Overall Stage"]
+                        
+                        REQ --> RITM1["Tier 2: Requested Item (sc_req_item)<br>Item 1: Developer Laptop (RITM0010042)<br>Executes Item Workflow & Approvals"]
+                        REQ --> RITM2["Tier 2: Requested Item (sc_req_item)<br>Item 2: Corporate VPN Token (RITM0010043)<br>Executes Security Approval Flow"]
+                        
+                        RITM1 --> TASK1["Tier 3: Catalog Task (sc_task)<br>Task 1: IT Asset Procurement<br>Assigned: Hardware Asset Squad"]
+                        RITM1 --> TASK2["Tier 3: Catalog Task (sc_task)<br>Task 2: OS Image & Software Provisioning<br>Assigned: Desktop Support"]
+                        
+                        RITM2 --> TASK3["Tier 3: Catalog Task (sc_task)<br>Task 3: Grant Radius Access Group<br>Assigned: Identity & Access Management"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-tier-req">Tier 1: sc_request (REQ)</button>
+                        <button class="tab-btn" data-tab="tab-tier-ritm">Tier 2: sc_req_item (RITM)</button>
+                        <button class="tab-btn" data-tab="tab-tier-task">Tier 3: sc_task (SCTASK)</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-tier-req">
+                        <h3>Tier 1: Request Envelope (<code>sc_request</code>)</h3>
+                        <p>
+                            Represents the overall order container. If a user orders 3 different items simultaneously, 
+                            only <strong>one</strong> <code>sc_request</code> record is generated.
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Key Columns:</strong> <code>requested_for</code> (User), <code>price</code> (Total order value), <code>stage</code> (Request-level stage), <code>delivery_address</code>.</li>
+                            <li><strong>Request-Level Approvals:</strong> Out-of-the-box, if the total cart price exceeds a threshold (e.g. $1,000), a Request-level financial approval is triggered before child RITMs begin executing.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-tier-ritm">
+                        <h3>Tier 2: Requested Item (<code>sc_req_item</code>)</h3>
+                        <p>
+                            Represents the specific goods or service ordered from the catalog. Each distinct item ordered creates 
+                            its own RITM record child of the parent REQ.
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Key Columns:</strong> <code>request</code> (Parent REQ), <code>cat_item</code> (Catalog item definition), <code>quantity</code>, <code>price</code>, <code>stage</code>.</li>
+                            <li><strong>Workflow Engine:</strong> Each RITM independently initiates its dedicated <strong>Flow Designer Flow</strong> or Workflow, handling item-specific manager approvals and variable capture.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-tier-task">
+                        <h3>Tier 3: Catalog Task (<code>sc_task</code>)</h3>
+                        <p>
+                            Represents discrete units of fulfillment work assigned to technical resolver groups to deliver the requested item.
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Key Columns:</strong> <code>request_item</code> (Parent RITM), <code>request</code> (Top REQ), <code>assignment_group</code>, <code>assigned_to</code>, <code>state</code>.</li>
+                            <li><strong>Task Coordination:</strong> Multiple <code>sc_task</code> records can execute sequentially (Task B waits for Task A) or concurrently in parallel.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Catalog Item Types -->
+            <section class="content-section" id="item-types">
+                <h2>Catalog Item Types & Architectural Usage</h2>
+                <p>
+                    ServiceNow provides four primary catalog item classifications designed for specific user interaction models:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Standard Catalog Item (<code>sc_cat_item</code>)</h4>
+                        </div>
+                        <p>
+                            The core shopping item (e.g. <em>"Standard Developer Laptop"</em>, <em>"Request Database Backup Restore"</em>). 
+                            Follows the full 3-tier Request model and initiates automated Flow Designer fulfillment.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Record Producer (<code>sc_cat_item_producer</code>)</h4>
+                        </div>
+                        <p>
+                            Provides a simplified, user-friendly portal form that creates a record on <strong>any table outside the request hierarchy</strong> 
+                            (e.g., creating an <code>incident</code>, <code>change_request</code>, or <code>facilities_request</code>) with direct variable-to-field mapping.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Order Guide (<code>sc_cat_item_guide</code>)</h4>
+                        </div>
+                        <p>
+                            Guides the user through multi-item bundle onboarding (e.g., <em>"New Employee Onboarding"</em>). 
+                            Uses rule bases to conditionally add items (Laptop, Badge, Desk, Email Account) based on answers to initial questions.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Content Item (<code>sc_cat_item_content</code>)</h4>
+                        </div>
+                        <p>
+                            A catalog link pointing directly to an external URL, internal Knowledge Article, or custom portal page, 
+                            allowing seamless documentation integration in the service taxonomy.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Schema & Data Model -->
+            <section class="content-section" id="table-schema">
+                <h2>Catalog Data Model & Table Registry</h2>
+                <p>
+                    The Service Catalog schema is structured into taxonomy, definitions, and variable containers:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>sc_catalog</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master catalogs (e.g. Service Catalog, Technical Catalog, HR Services).</td>
+                            <td><code>title</code>, <code>description</code>, <code>active</code>, <code>manager</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>sc_category</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Hierarchical category taxonomy tree within a catalog.</td>
+                            <td><code>title</code>, <code>sc_catalog</code> (Ref), <code>parent</code> (Ref to self)</td>
+                        </tr>
+                        <tr>
+                            <td><code>sc_cat_item</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master definitions of catalog items, record producers, and order guides.</td>
+                            <td><code>name</code>, <code>category</code>, <code>price</code>, <code>flow_designer_flow</code>, <code>active</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>item_option_new</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Catalog variable definitions (questions on the form).</td>
+                            <td><code>name</code>, <code>question_text</code>, <code>type</code>, <code>mandatory</code>, <code>order</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>item_option_new_set</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Reusable bundles of variables (Single-row or Multi-row).</td>
+                            <td><code>title</code>, <code>internal_name</code>, <code>type</code> (Single/Multi-row)</td>
+                        </tr>
+                        <tr>
+                            <td><code>sc_item_option</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Stores the actual user answers submitted for a specific RITM.</td>
+                            <td><code>item_option_new</code> (Ref), <code>value</code> (String)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: Variables & MRVS -->
+            <section class="content-section" id="variables-and-mrvs">
+                <h2>Catalog Variables & Multi-Row Variable Sets (MRVS)</h2>
+                <p>
+                    Variables collect dynamic information from requesters. ServiceNow supports over 25 variable data types:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Core Variable Types</h4>
+                        </div>
+                        <p>
+                            • <strong>Single Line / Multi-Line Text:</strong> Freeform string input.<br>
+                            • <strong>Reference:</strong> Dynamically links to platform tables (e.g., <code>sys_user</code>, <code>cmdb_ci</code>).<br>
+                            • <strong>Select Box / Multiple Choice:</strong> Static or scripted choice lists.<br>
+                            • <strong>Container Start / Split / End:</strong> Controls responsive 2-column layout on the portal.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Multi-Row Variable Sets (MRVS)</h4>
+                        </div>
+                        <p>
+                            Allows requesters to add multiple dynamic rows of tabular data (e.g. <em>"Add 5 database user permissions"</em>). 
+                            Stored as a JSON array string in the backend and easily parsed in Flow Designer or script using <code>JSON.parse(current.variables.my_mrvs)</code>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: User Criteria -->
+            <section class="content-section" id="user-criteria">
+                <h2>User Criteria Security Engine (<code>user_criteria</code>)</h2>
+                <p>
+                    <strong>User Criteria</strong> governs catalog visibility, controlling who can view and order specific items, 
+                    categories, or entire catalogs based on platform identity attributes:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Criteria Scope</th>
+                            <th>Matching Mechanism</th>
+                            <th>Example Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Available For (Whitelisting)</strong></td>
+                            <td>Users matching Role, Group, Department, Company, Location, or Script.</td>
+                            <td>Only users in the <em>Engineering</em> department can see the <em>AWS Sandbox</em> item.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Not Available For (Blacklisting)</strong></td>
+                            <td>Explicit exclusion takes absolute precedence over whitelist rules.</td>
+                            <td>Contractor roles (<code>u_contractor</code>) are blocked from ordering corporate credit cards.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scripted User Criteria</strong></td>
+                            <td>Custom JavaScript evaluated dynamically against <code>user_id</code>.</td>
+                            <td>Evaluates whether user has completed annual compliance training before granting server access.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: Client Scripting & UI Policies -->
+            <section class="content-section" id="catalog-scripting">
+                <h2>Catalog Client Scripts & Catalog UI Policies</h2>
+                <p>
+                    Dynamic form behaviors are implemented using client-side rules configured specifically for catalog item contexts:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Catalog UI Policies</h4>
+                        </div>
+                        <p>
+                            No-code conditional logic. Dynamically sets variables to <strong>Mandatory</strong>, <strong>Visible</strong>, 
+                            or <strong>Read-Only</strong> based on choices selected by the requester (e.g., if <em>"Need Laptop Monitor = Yes"</em>, show <em>"Monitor Size"</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Catalog Client Scripts</h4>
+                        </div>
+                        <p>
+                            JavaScript handlers running on <code>onLoad</code>, <code>onChange</code>, and <code>onSubmit</code>. 
+                            Utilizes <code>g_form</code> methods to interact with variables (e.g., <code>g_form.getValue('variables.target_server')</code>) 
+                            and execute asynchronous <code>GlideAjax</code> calls.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Flow Designer Fulfillment -->
+            <section class="content-section" id="flow-automation">
+                <h2>Flow Designer Fulfillment Automation</h2>
+                <p>
+                    Modern ServiceNow implementations execute catalog fulfillment through <strong>Flow Designer</strong>, 
+                    replacing legacy Workflow Editor routines with visual, low-code action pipelines:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Typical RITM Flow Designer Execution Pipeline</div>
+                    <div class="mermaid">
+                    graph TD
+                        TRIG["Trigger: Service Catalog Record Created<br>(sc_req_item inserted)"] --> APP1["Action: Ask for Approval<br>Approver: Manager of requested_for"]
+                        
+                        APP1 --> WAIT1{"Approval Decision"}
+                        WAIT1 -->|Approved| STAGE1["Update Stage: Fulfillment"]
+                        WAIT1 -->|Rejected| REJ["Update Stage: Request Cancelled<br>RITM state = Closed Incomplete (4)"]
+                        
+                        STAGE1 --> TASK1["Action: Create Catalog Task (sc_task)<br>Hardware Provisioning & Asset Allocation"]
+                        TASK1 --> WAIT2["Wait for Task Completion"]
+                        
+                        WAIT2 --> TASK2["Action: Create Catalog Task (sc_task)<br>Shipping & Delivery Confirmation"]
+                        TASK2 --> WAIT3["Wait for Task Completion"]
+                        
+                        WAIT3 --> COMP["Update RITM & REQ: Closed Complete (3)<br>Send Automated Email Notification"]
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/change-management" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Change & Release Management</span>
+                </a>
+                <a href="/itsm/knowledge-management" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Knowledge Management & KCS</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

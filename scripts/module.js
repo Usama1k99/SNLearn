@@ -100,6 +100,258 @@ function initActiveSidebar() {
     });
 }
 
+// -- Diagram Controls: Zoom, Pan & Fullscreen --
+function setupDiagramControls() {
+    document.querySelectorAll('.diagram-block').forEach((block, idx) => {
+        const mermaidContainer = block.querySelector('.mermaid');
+        if (!mermaidContainer || block.querySelector('.diagram-toolbar')) return;
+
+        // Create toolbar
+        const toolbar = document.createElement('div');
+        toolbar.className = 'diagram-toolbar';
+        toolbar.innerHTML = `
+            <div class="diagram-zoom-level" id="zoom-level-${idx}">100%</div>
+            <button class="diagram-btn diagram-btn-zoom-out" title="Zoom Out (Alt + -)" aria-label="Zoom Out">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            </button>
+            <button class="diagram-btn diagram-btn-reset" title="Reset Zoom" aria-label="Reset Zoom">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            </button>
+            <button class="diagram-btn diagram-btn-zoom-in" title="Zoom In (Alt + +)" aria-label="Zoom In">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            </button>
+            <button class="diagram-btn diagram-btn-fullscreen" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+            </button>
+        `;
+
+        const titleEl = block.querySelector('.diagram-title');
+        if (titleEl) {
+            const headerWrapper = document.createElement('div');
+            headerWrapper.className = 'diagram-header-row';
+            titleEl.parentNode.insertBefore(headerWrapper, titleEl);
+            headerWrapper.appendChild(titleEl);
+            headerWrapper.appendChild(toolbar);
+        } else {
+            block.insertBefore(toolbar, mermaidContainer);
+        }
+
+        let zoom = 1.0;
+        const zoomLevelEl = block.querySelector(`#zoom-level-${idx}`);
+
+        function applyZoom(newZoom) {
+            zoom = Math.max(0.2, Math.min(2.5, Math.round(newZoom * 10) / 10));
+            const svg = mermaidContainer.querySelector('svg');
+            if (svg) {
+                svg.style.transform = `scale(${zoom})`;
+                svg.style.transformOrigin = 'top center';
+            }
+            if (zoomLevelEl) {
+                zoomLevelEl.textContent = `${Math.round(zoom * 100)}%`;
+            }
+            if (zoom > 1.05) {
+                mermaidContainer.classList.add('is-zoomed');
+            } else {
+                mermaidContainer.classList.remove('is-zoomed');
+            }
+        }
+
+        toolbar.querySelector('.diagram-btn-zoom-in')?.addEventListener('click', () => applyZoom(zoom + 0.1));
+        toolbar.querySelector('.diagram-btn-zoom-out')?.addEventListener('click', () => applyZoom(zoom - 0.1));
+        toolbar.querySelector('.diagram-btn-reset')?.addEventListener('click', () => applyZoom(1.0));
+
+        const fullscreenBtn = toolbar.querySelector('.diagram-btn-fullscreen');
+        const EXPAND_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+        const CLOSE_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+        function toggleFullscreen() {
+            const isFullscreen = block.classList.toggle('diagram-fullscreen');
+            document.body.classList.toggle('diagram-modal-open', isFullscreen);
+
+            if (fullscreenBtn) {
+                fullscreenBtn.innerHTML = isFullscreen ? CLOSE_ICON : EXPAND_ICON;
+                fullscreenBtn.title = isFullscreen ? 'Close Fullscreen (Esc)' : 'Toggle Fullscreen';
+                fullscreenBtn.setAttribute('aria-label', isFullscreen ? 'Close Fullscreen' : 'Toggle Fullscreen');
+            }
+
+            applyZoom(1.0);
+        }
+
+        fullscreenBtn?.addEventListener('click', toggleFullscreen);
+
+        // Escape key listener to close fullscreen
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && block.classList.contains('diagram-fullscreen')) {
+                toggleFullscreen();
+            }
+        });
+
+        // Mouse drag panning when zoomed
+        let isDragging = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        mermaidContainer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+            isDragging = true;
+            mermaidContainer.classList.add('is-dragging');
+            startX = e.pageX - mermaidContainer.offsetLeft;
+            startY = e.pageY - mermaidContainer.offsetTop;
+            scrollLeft = mermaidContainer.scrollLeft;
+            scrollTop = mermaidContainer.scrollTop;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            mermaidContainer.classList.remove('is-dragging');
+        });
+
+        mermaidContainer.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - mermaidContainer.offsetLeft;
+            const y = e.pageY - mermaidContainer.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            mermaidContainer.scrollLeft = scrollLeft - walkX;
+            mermaidContainer.scrollTop = scrollTop - walkY;
+        });
+    });
+}
+
+// -- Load and initialize Mermaid cleanly via dynamic ES import --
+async function initMermaid() {
+    if (document.querySelectorAll('.mermaid').length === 0) return;
+
+    try {
+        const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs');
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                edgeLabelBackground: 'transparent',
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+                fontSize: '14px',
+                actorFontSize: '14px',
+                messageFontSize: '13px'
+            },
+            sequence: {
+                useMaxWidth: false,
+                actorFontSize: 14,
+                messageFontSize: 13,
+                noteFontSize: 13,
+                width: 170,
+                boxMargin: 12,
+                mirrorActors: false
+            },
+            er: {
+                useMaxWidth: false,
+                fontSize: 14
+            },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Explicitly trigger Mermaid rendering for all .mermaid elements
+        await mermaid.run({
+            querySelector: '.mermaid'
+        });
+
+        // Setup diagram toolbar controls and post-render styling
+        setupDiagramControls();
+
+        // 1) Force rounded corners on ALL rects
+        document.querySelectorAll('.mermaid svg rect').forEach(r => {
+            if (!r.closest('.cluster')) {
+                r.setAttribute('rx', '8');
+                r.setAttribute('ry', '8');
+            }
+        });
+
+        // 2) Make cluster rects invisible
+        document.querySelectorAll('.mermaid svg .cluster rect').forEach(r => {
+            r.style.fill = 'transparent';
+            r.style.stroke = 'transparent';
+        });
+
+        // 3) Interactive "to" and "from" node glow on hover + Enhanced Hitboxes
+        document.querySelectorAll('.mermaid svg').forEach(svg => {
+            const nodes = svg.querySelectorAll('.node');
+            let edges = svg.querySelectorAll('.edgePath');
+
+            if (nodes.length === 0 && edges.length === 0) return;
+
+            // Create invisible hitboxes for easier hovering
+            edges.forEach(edge => {
+                const path = edge.querySelector('.path');
+                if (path && !edge.querySelector('.hitbox')) {
+                    const hitbox = path.cloneNode(true);
+                    hitbox.classList.add('hitbox');
+                    hitbox.style.stroke = 'transparent';
+                    hitbox.style.strokeWidth = '24px';
+                    hitbox.style.fill = 'none';
+                    hitbox.style.cursor = 'pointer';
+                    hitbox.style.pointerEvents = 'stroke';
+                    hitbox.removeAttribute('id');
+                    if (path.hasAttribute('marker-end')) hitbox.removeAttribute('marker-end');
+                    edge.appendChild(hitbox);
+                }
+            });
+
+            nodes.forEach(node => {
+                node.addEventListener('mouseenter', () => {
+                    const nodeId = node.id || '';
+                    const cleanId = nodeId.replace(/^flowchart-/, '').replace(/-\d+$/, '');
+                    if (!cleanId) return;
+
+                    node.classList.add('active-glow');
+
+                    edges.forEach(edge => {
+                        const cls = edge.className ? (edge.className.baseVal || '') : '';
+                        if (cls.includes('LS-' + cleanId) || cls.includes('LE-' + cleanId)) {
+                            edge.classList.add('active-glow');
+
+                            nodes.forEach(other => {
+                                const otherId = (other.id || '').replace(/^flowchart-/, '').replace(/-\d+$/, '');
+                                if (otherId && otherId !== cleanId &&
+                                    (cls.includes('LS-' + otherId) || cls.includes('LE-' + otherId))) {
+                                    other.classList.add('active-glow');
+                                }
+                            });
+                        }
+                    });
+                });
+
+                node.addEventListener('mouseleave', () => {
+                    svg.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
+                });
+            });
+
+            edges.forEach(edge => {
+                edge.addEventListener('mouseenter', () => {
+                    const cls = edge.className ? (edge.className.baseVal || '') : '';
+                    edge.classList.add('active-glow');
+                    nodes.forEach(node => {
+                        const cleanId = (node.id || '').replace(/^flowchart-/, '').replace(/-\d+$/, '');
+                        if (cleanId && (cls.includes('LS-' + cleanId) || cls.includes('LE-' + cleanId))) {
+                            node.classList.add('active-glow');
+                        }
+                    });
+                });
+
+                edge.addEventListener('mouseleave', () => {
+                    svg.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
+                });
+            });
+        });
+    } catch (err) {
+        console.error('Error loading Mermaid library:', err);
+    }
+}
+
 // Initialize all
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -107,111 +359,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeCopy();
     initTocTracking();
     initActiveSidebar();
-
-    // Dynamically load Mermaid & setup global interactive graph effects
-    if (document.querySelectorAll('.mermaid').length > 0) {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.innerHTML = `
-            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-            mermaid.initialize({ 
-                startOnLoad: true, 
-                theme: 'dark',
-                themeVariables: {
-                    edgeLabelBackground: 'transparent'
-                }
-            });
-            
-            // Post-render: rounded corners + interactive glow
-            setTimeout(() => {
-                // 1) Force rounded corners on ALL rects (catches sequence diagram actors)
-                document.querySelectorAll('.mermaid svg rect').forEach(r => {
-                    if (!r.closest('.cluster')) {
-                        r.setAttribute('rx', '8');
-                        r.setAttribute('ry', '8');
-                    }
-                });
-                
-                // 2) Make cluster rects invisible (backup for CSS)
-                document.querySelectorAll('.mermaid svg .cluster rect').forEach(r => {
-                    r.style.fill = 'transparent';
-                    r.style.stroke = 'transparent';
-                });
-                
-                // 3) Interactive "to" and "from" node glow on hover + Enhanced Hitboxes
-                document.querySelectorAll('.mermaid svg').forEach(svg => {
-                    const nodes = svg.querySelectorAll('.node');
-                    let edges = svg.querySelectorAll('.edgePath');
-                    
-                    if (nodes.length === 0 && edges.length === 0) return;
-                    
-                    // Create invisible hitboxes for easier hovering
-                    edges.forEach(edge => {
-                        const path = edge.querySelector('.path');
-                        if (path && !edge.querySelector('.hitbox')) {
-                            const hitbox = path.cloneNode(true);
-                            hitbox.classList.add('hitbox');
-                            hitbox.style.stroke = 'transparent';
-                            hitbox.style.strokeWidth = '24px';
-                            hitbox.style.fill = 'none';
-                            hitbox.style.cursor = 'pointer';
-                            hitbox.style.pointerEvents = 'stroke';
-                            // Ensure hitbox doesn't have the visible styling
-                            hitbox.removeAttribute('id');
-                            if(path.hasAttribute('marker-end')) hitbox.removeAttribute('marker-end');
-                            edge.appendChild(hitbox);
-                        }
-                    });
-
-                    nodes.forEach(node => {
-                        node.addEventListener('mouseenter', () => {
-                            const nodeId = node.id || '';
-                            const cleanId = nodeId.replace(/^flowchart-/, '').replace(/-\\d+$/, '');
-                            if (!cleanId) return;
-                            
-                            node.classList.add('active-glow');
-                            
-                            edges.forEach(edge => {
-                                const cls = edge.className ? (edge.className.baseVal || '') : '';
-                                if (cls.includes('LS-' + cleanId) || cls.includes('LE-' + cleanId)) {
-                                    edge.classList.add('active-glow');
-                                    
-                                    // Find the OTHER node connected by this edge
-                                    nodes.forEach(other => {
-                                        const otherId = (other.id || '').replace(/^flowchart-/, '').replace(/-\\d+$/, '');
-                                        if (otherId && otherId !== cleanId && 
-                                            (cls.includes('LS-' + otherId) || cls.includes('LE-' + otherId))) {
-                                            other.classList.add('active-glow');
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                        
-                        node.addEventListener('mouseleave', () => {
-                            svg.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
-                        });
-                    });
-                    
-                    edges.forEach(edge => {
-                        edge.addEventListener('mouseenter', () => {
-                            const cls = edge.className ? (edge.className.baseVal || '') : '';
-                            edge.classList.add('active-glow');
-                            nodes.forEach(node => {
-                                const cleanId = (node.id || '').replace(/^flowchart-/, '').replace(/-\\d+$/, '');
-                                if (cleanId && (cls.includes('LS-' + cleanId) || cls.includes('LE-' + cleanId))) {
-                                    node.classList.add('active-glow');
-                                }
-                            });
-                        });
-                        
-                        edge.addEventListener('mouseleave', () => {
-                            svg.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
-                        });
-                    });
-                });
-            }, 1200);
-        `;
-        document.body.appendChild(script);
-    }
+    initMermaid();
 });

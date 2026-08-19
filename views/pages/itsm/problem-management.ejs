@@ -1,0 +1,421 @@
+<%- include('../../partials/head', { title: 'Problem Management & KEDB — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'problem-management' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#problem-mission" class="toc-link">Core Mission & Reactive vs Proactive</a>
+                    <a href="#table-schema" class="toc-link">Table Architecture & Schema</a>
+                    <a href="#state-lifecycle" class="toc-link">State Model & Lifecycle Engine</a>
+                    <a href="#problem-tasks" class="toc-link">Problem Task Decomposition (PTASK)</a>
+                    <a href="#kedb-management" class="toc-link">Known Error Database (KEDB)</a>
+                    <a href="#cascade-sync" class="toc-link">Incident Cascade & Workaround Sync</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Problem Management & KEDB</span>
+                </div>
+                <h1 class="content-title">Problem Management & <span class="gradient-text">KEDB</span></h1>
+                <p class="content-subtitle">
+                    Master root-cause analysis (RCA), structured problem task decomposition, Known Error Database (KEDB) publishing, 
+                    and automated incident workaround propagation in ServiceNow.
+                </p>
+            </div>
+
+            <!-- Section 1: Mission & ITIL Alignment -->
+            <section class="content-section" id="problem-mission">
+                <h2>Core Mission & Reactive vs Proactive Problem Management</h2>
+                <p>
+                    According to ITIL v4, the primary purpose of <strong>Problem Management</strong> is to 
+                    <em>"reduce the likelihood and impact of incidents by identifying actual and potential causes of incidents, 
+                    and managing workarounds and known errors."</em>
+                </p>
+                <p>
+                    While Incident Management focuses strictly on restoration speed, Problem Management performs the deep engineering 
+                    forensics required to permanently eradicate recurring disruptions or architect permanent structural workarounds.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Reactive Problem Management</h4>
+                        </div>
+                        <p>
+                            Triggered immediately following high-severity incidents (P1/P2 Major Incidents) or repeated ticket thresholds 
+                            on the same Configuration Item (CI). Focuses on diagnosing the immediate root cause, formulating emergency workarounds, 
+                            and initiating permanent Change Requests (RFCs).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Proactive Problem Management</h4>
+                        </div>
+                        <p>
+                            Leverages Performance Analytics, machine learning (Predictive Intelligence), and trend analysis across historical 
+                            telemetry and incident logs to detect systemic vulnerabilities, capacity bottlenecks, or software degradation before 
+                            outages manifest to end users.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Process Boundary: Incident vs. Problem vs. Change</div>
+                    <p>
+                        <strong>Incident:</strong> Restores service operation rapidly (e.g., restart service, failover database).<br>
+                        <strong>Problem:</strong> Identifies underlying root cause and designs permanent fix (e.g., buffer overflow in library v2.1).<br>
+                        <strong>Change:</strong> Safely authorizes and implements the permanent software patch in production.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: Table Architecture & Schema -->
+            <section class="content-section" id="table-schema">
+                <h2>Table Architecture & Key Fields</h2>
+                <p>
+                    Problem Management extends the foundational <code>task</code> table, maintaining direct foreign-key relationships 
+                    with Incidents, Configuration Items (CIs), Knowledge Articles, and Change Requests:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Dictionary Columns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>problem</code></td>
+                            <td><code>task</code></td>
+                            <td>Master Problem investigation record.</td>
+                            <td>
+                                <code>first_reported_by_task</code> (Ref), <code>workaround</code> (HTML/String), 
+                                <code>cause_notes</code> (String), <code>resolution_code</code> (Choice), 
+                                <code>known_error</code> (Boolean), <code>confirmed_at</code> (DateTime), <code>duplicate_of</code> (Ref)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>problem_task</code></td>
+                            <td><code>task</code></td>
+                            <td>Decomposed diagnostic work packages assigned to technical teams.</td>
+                            <td>
+                                <code>problem</code> (Ref to parent), <code>problem_task_type</code> (Choice: General, Root Cause Analysis, Workaround), 
+                                <code>state</code> (Choice), <code>started_at</code> (DateTime)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>m2m_incident_problem</code></td>
+                            <td>None (Base M2M)</td>
+                            <td>Many-to-many link between multiple incidents and problems.</td>
+                            <td>
+                                <code>incident</code> (Ref to <code>incident</code>), <code>problem</code> (Ref to <code>problem</code>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_knowledge</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Central repository housing Known Error Articles.</td>
+                            <td>
+                                <code>kb_knowledge_base</code>, <code>article_type</code>, <code>workflow_state</code>, <code>source</code>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: State Model & Lifecycle -->
+            <section class="content-section" id="state-lifecycle">
+                <h2>Problem State Model Lifecycle</h2>
+                <p>
+                    Out-of-the-box ServiceNow Problem Management utilizes a state model designed to enforce 
+                    proper stage gates from initial logging through root cause discovery, workaround documentation, and fix verification:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Problem Management State Flow Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        NEW["New (101)<br>Problem record logged from Incident or Trend Analysis"] --> ASSESS["Assess (102)<br>Problem Coordinator validates scope, priority & assignment"]
+                        ASSESS --> RCA["Root Cause Analysis (103)<br>Technical resolver squads investigate underlying failure"]
+                        
+                        RCA -->|Workaround Identified| KEDB["Publish Known Error & Workaround<br>(known_error = true)"]
+                        RCA --> FIX["Fix in Progress (104)<br>Permanent fix engineered or Change Request (RFC) submitted"]
+                        
+                        FIX --> RESOLV["Resolved (106)<br>Fix verified & operational health stabilized"]
+                        RESOLV --> CLOSED["Closed (107)<br>Permanent solution validated & closed complete"]
+                        
+                        ASSESS -->|Invalid / Duplicate| CANCEL["Canceled (108)<br>Marked duplicate or not reproducible"]
+                        RCA -->|Risk Accepted / No Fix| ACCRISK["Closed (107) - Risk Accepted<br>Resolution code: Closed Risk Accepted"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-states">Problem State Integers</button>
+                        <button class="tab-btn" data-tab="tab-resolutions">Resolution Codes</button>
+                        <button class="tab-btn" data-tab="tab-reopen">Reopen & Re-evaluation Policy</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-states">
+                        <h3>Problem Lifecycle State Definitions</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>State Label</th>
+                                    <th>Integer Value</th>
+                                    <th>Stage Gate Description & Criteria</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>New</strong></td>
+                                    <td><code>101</code></td>
+                                    <td>Problem created but unassigned or awaiting assessment by Problem Management coordinator.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Assess</strong></td>
+                                    <td><code>102</code></td>
+                                    <td>Coordinator validates whether problem investigation is justified and assigns owner group.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Root Cause Analysis</strong></td>
+                                    <td><code>103</code></td>
+                                    <td>Technical teams execute diagnostic tasks (PTASKs) to determine cause and identify workarounds.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fix in Progress</strong></td>
+                                    <td><code>104</code></td>
+                                    <td>Root cause identified. A permanent fix is being coded or a Change Request (RFC) is scheduled.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resolved</strong></td>
+                                    <td><code>106</code></td>
+                                    <td>Permanent fix has been deployed or permanent workaround established. Mandatory resolution code required.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Closed</strong></td>
+                                    <td><code>107</code></td>
+                                    <td>Final read-only state. Solution validated over evaluation period.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Canceled</strong></td>
+                                    <td><code>108</code></td>
+                                    <td>Record canceled due to duplicate logging or invalid technical assessment.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-resolutions">
+                        <h3>Resolution Codes (<code>resolution_code</code>)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Resolution Code Label</th>
+                                    <th>Integer Choice</th>
+                                    <th>Operational Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Solved (Permanently)</code></td>
+                                    <td><code>101</code></td>
+                                    <td>Underlying defect eradicated via software release, firmware patch, or architectural replacement.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Solved (Workaround)</code></td>
+                                    <td><code>102</code></td>
+                                    <td>Permanent fix not feasible or too costly; approved workaround documented and active in KEDB.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Canceled (Duplicate)</code></td>
+                                    <td><code>103</code></td>
+                                    <td>Problem is a duplicate of an existing active problem record (linked via <code>duplicate_of</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Closed Risk Accepted</code></td>
+                                    <td><code>104</code></td>
+                                    <td>Business and Architecture leadership formally approve accepting residual risk without fixing.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-reopen">
+                        <h3>Reopening & Governance Rules</h3>
+                        <p>
+                            ServiceNow enforces strict governance over closed problem tickets:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Resolved Tickets:</strong> Can be returned to <em>Root Cause Analysis (103)</em> if post-deployment monitoring indicates the recurrence of symptoms.</li>
+                            <li><strong>Closed Tickets:</strong> Once transitioned to <code>Closed (107)</code>, records become strictly read-only. If a recurrence occurs later, a new Problem must be created referencing the previous sys_id.</li>
+                            <li><strong>Mandatory Fields:</strong> Moving to <em>Resolved</em> mandates completing <code>cause_notes</code> and <code>resolution_code</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Problem Tasks (PTASK) -->
+            <section class="content-section" id="problem-tasks">
+                <h2>Problem Task Decomposition (<code>problem_task</code>)</h2>
+                <p>
+                    Complex infrastructure and application problems require coordinated investigation across multiple disciplines. 
+                    Rather than reassigning the master problem record back and forth, Problem Coordinators spawn parallel 
+                    <strong>Problem Tasks (PTASKs)</strong> assigned to specialized teams:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Parallel Problem Task (PTASK) Decomposition</div>
+                    <div class="mermaid">
+                    graph TD
+                        PRB["Master Problem (PRB0010042)<br>VPN Gateway Disconnections During Peak Hours"]
+                        
+                        PRB --> PTASK1["PTASK0001: Root Cause Analysis<br>Assignment: Network Engineering<br>Action: Analyze firewall drop tables & packet MTU"]
+                        PRB --> PTASK2["PTASK0002: Root Cause Analysis<br>Assignment: Cloud Platform Team<br>Action: Check AWS Transit Gateway throughput limits"]
+                        PRB --> PTASK3["PTASK0003: Workaround Generation<br>Assignment: Service Desk Level 2<br>Action: Create user script to route through Secondary Tunnel"]
+                        
+                        PTASK1 --> SYNTH["Problem Coordinator Synthesizes Findings"]
+                        PTASK2 --> SYNTH
+                        PTASK3 --> SYNTH
+                        
+                        SYNTH --> RFC["Submit Normal Change Request (CHG)<br>Upgrade Gateway Firmware to v5.1.2"]
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Problem Task Type</th>
+                            <th>Choice Value</th>
+                            <th>Description & Assigned Responsibility</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Root Cause Analysis</code></td>
+                            <td><code>rca</code></td>
+                            <td>Technical investigation to determine the exact failure mechanism, hardware flaw, or bug.</td>
+                        </tr>
+                        <tr>
+                            <td><code>Workaround</code></td>
+                            <td><code>workaround</code></td>
+                            <td>Tasked specifically with discovering, testing, and documenting a temporary operational workaround.</td>
+                        </tr>
+                        <tr>
+                            <td><code>General</code></td>
+                            <td><code>general</code></td>
+                            <td>Follow-up administrative, vendor escalation, or audit tasks related to the problem record.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 5: Known Error Database (KEDB) -->
+            <section class="content-section" id="kedb-management">
+                <h2>Known Error Database (KEDB) & Workarounds</h2>
+                <p>
+                    A <strong>Known Error</strong> is a problem that has a documented root cause and an approved workaround. 
+                    Publishing Known Errors to the Knowledge Base (KEDB) empowers Service Desk resolvers to restore user incidents 
+                    in minutes without waiting for permanent code deployment.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Known Error Article Generation</h4>
+                        </div>
+                        <p>
+                            Clicking <em>"Create Known Error article"</em> on a problem record populates a standardized 
+                            KEDB article template directly in <code>kb_knowledge</code>, automatically mapping:
+                            <strong>Problem Statement</strong>, <strong>Root Cause Analysis</strong>, and <strong>Step-by-Step Workaround</strong>.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Contextual Search Integration</h4>
+                        </div>
+                        <p>
+                            When a Service Desk agent types an issue into an Incident's <em>Short Description</em>, 
+                            Contextual Search automatically surfaces matching Known Error articles, enabling one-click attachment 
+                            and resolution copying.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Retiring Known Errors Post-Fix</div>
+                    <p>
+                        When the permanent Change Request is deployed and the Problem moves to <code>Closed Complete (107)</code>, 
+                        the associated Known Error article in <code>kb_knowledge</code> is automatically updated or scheduled 
+                        for retirement so agents do not apply obsolete workarounds.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 6: Cascade Sync -->
+            <section class="content-section" id="cascade-sync">
+                <h2>Incident Cascade & Workaround Synchronization</h2>
+                <p>
+                    When multiple Incidents are linked to a single master Problem (via <code>incident.problem_id</code> or 
+                    <code>m2m_incident_problem</code>), ServiceNow provides out-of-the-box business rules that synchronize communications 
+                    across all active records:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Communicate Workaround Action</h4>
+                        </div>
+                        <p>
+                            When a Problem Coordinator updates the <code>workaround</code> field and triggers <em>"Communicate Workaround"</em>, 
+                            a business rule executes <code>IncidentUtils.copyProblemWorkaround()</code> to append the workaround into the 
+                            <em>Work Notes</em> of all open linked incidents.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Automated Cascade Resolution</h4>
+                        </div>
+                        <p>
+                            When a Problem record transitions to <code>Resolved (106)</code>, the system prompts the coordinator whether to 
+                            cascade resolution to all linked incidents. If confirmed, child incidents update to <code>Resolved (6)</code> 
+                            with identical close codes and notes.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/incident-management" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Incident & Major Incident (MIM)</span>
+                </a>
+                <a href="/itsm/change-management" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Change & Release Management</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

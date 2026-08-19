@@ -1,0 +1,396 @@
+<%- include('../../partials/head', { title: 'Service Level Management (SLA) — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'sla-management' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#sla-mission" class="toc-link">SLA vs OLA vs Underpinning Contract</a>
+                    <a href="#table-schema" class="toc-link">Table Architecture & Schema</a>
+                    <a href="#condition-engine" class="toc-link">The 5-Stage SLA Condition Engine</a>
+                    <a href="#schedules-and-time" class="toc-link">Schedules & Elapsed Calculations</a>
+                    <a href="#retroactive-start" class="toc-link">Retroactive Start & Time Anchors</a>
+                    <a href="#escalation-workflow" class="toc-link">Milestone Escalations & Breaches</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Service Level Management (SLA)</span>
+                </div>
+                <h1 class="content-title">Service Level <span class="gradient-text">Management (SLA)</span></h1>
+                <p class="content-subtitle">
+                    Master the ServiceNow SLA engine — SLAs, OLAs, and Underpinning Contracts (UCs), 
+                    the 5-stage condition lifecycle, business schedule calculations, retroactive starts, and automated breach notifications.
+                </p>
+            </div>
+
+            <!-- Section 1: SLA vs OLA vs UC -->
+            <section class="content-section" id="sla-mission">
+                <h2>Service Level Taxonomy: SLA vs. OLA vs. Underpinning Contract</h2>
+                <p>
+                    <strong>Service Level Management (SLM)</strong> provides visibility and contractual governance over 
+                    service delivery commitments. ServiceNow models three distinct contractual commitments within the same engine:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Service Level Agreement (SLA)</h4>
+                        </div>
+                        <p>
+                            <strong>External commitment with the business customer.</strong> Defines expected service availability 
+                            and resolution speed (e.g. <em>"P1 Critical incidents must be resolved within 4 hours for Banking Operations"</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Operational Level Agreement (OLA)</h4>
+                        </div>
+                        <p>
+                            <strong>Internal agreement between internal IT groups.</strong> Tracks handoffs between resolver squads 
+                            (e.g., <em>"Network Engineering commits to diagnosing Tier-2 firewall routing tasks within 45 minutes"</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Underpinning Contract (UC)</h4>
+                        </div>
+                        <p>
+                            <strong>Legally binding agreement with an external vendor.</strong> Governs supplier obligations 
+                            (e.g., <em>"Hardware vendor commits to onsite chassis replacement within 2 hours of dispatch"</em>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Table Architecture & Schema -->
+            <section class="content-section" id="table-schema">
+                <h2>Table Architecture & Key Fields</h2>
+                <p>
+                    The SLA engine is split cleanly between <strong>Definitions</strong> (the master rules) and <strong>Task SLA Instances</strong> 
+                    (the running timers attached to individual operational tickets):
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns & Data Types</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>contract_sla</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master SLA Definition rules and conditions.</td>
+                            <td>
+                                <code>name</code>, <code>target</code> (Choice: Response, Resolution), <code>type</code> (Choice: SLA, OLA, UC), 
+                                <code>table</code> (Table Name), <code>duration</code> (Timer), <code>schedule</code> (Ref to <code>cmn_schedule</code>), 
+                                <code>timezone</code>, <code>start_condition</code>, <code>pause_condition</code>, <code>stop_condition</code>, 
+                                <code>retroactive</code> (Boolean), <code>set_start_to</code> (Field Ref)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>task_sla</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Active running timer attached to an individual ticket.</td>
+                            <td>
+                                <code>task</code> (Ref to <code>task</code>), <code>sla</code> (Ref to <code>contract_sla</code>), 
+                                <code>stage</code> (Choice: In progress, Paused, Completed, Breached, Cancelled), 
+                                <code>has_breached</code> (Boolean), <code>percentage</code> (Decimal), <code>business_percentage</code>, 
+                                <code>duration</code>, <code>business_duration</code>, <code>planned_end_time</code> (DateTime)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>cmn_schedule</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master business calendar schedule definitions.</td>
+                            <td><code>name</code>, <code>type</code>, <code>time_zone</code>, <code>document</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>cmn_schedule_span</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Working time blocks and recurring holiday exclusion spans.</td>
+                            <td><code>schedule</code> (Ref), <code>type</code> (Include/Exclude), <code>start_date_time</code>, <code>end_date_time</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: The 5-Stage SLA Condition Engine -->
+            <section class="content-section" id="condition-engine">
+                <h2>The 5-Stage SLA Condition Engine</h2>
+                <p>
+                    Whenever a task record is created or updated, the SLA Engine evaluates five conditional rule sets 
+                    to determine timer behavior:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">SLA Engine 5-Stage Condition Evaluation Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        EVENT["Ticket Insert / Update Event (e.g., Incident updated)"] --> EVAL["SLA Engine Evaluates Conditions"]
+                        
+                        EVAL --> START["1. Start Condition Met?<br>Example: active = true ^ priority = 1"]
+                        START -->|Yes| RUN["Stage: In Progress<br>Timer begins counting elapsed time"]
+                        
+                        RUN --> PAUSE["2. Pause Condition Met?<br>Example: incident_state = 3 (On Hold) ^ hold_reason = 1 (Awaiting Caller)"]
+                        PAUSE -->|Yes| PAUSED["Stage: Paused<br>Timer frozen; elapsed business time paused"]
+                        PAUSED -->|Pause Condition Cleared| RUN
+                        
+                        RUN --> STOP["3. Stop Condition Met?<br>Example: incident_state = 6 (Resolved)"]
+                        STOP -->|Yes & Within Planned End Time| COMP["Stage: Completed (SLA Achieved)"]
+                        
+                        RUN -->|Exceeds 100% Planned End Time| BREACH["Stage: Breached (has_breached = true)<br>Timer continues running until stopped"]
+                        BREACH --> STOP
+                        
+                        RUN --> CANCEL["4. Cancel Condition Met?<br>Example: Ticket Canceled or Priority Demoted"]
+                        CANCEL -->|Yes| CANC["Stage: Cancelled"]
+                        
+                        RUN --> RESET["5. Reset Condition Met?<br>Example: Major Incident Scope Escalated"]
+                        RESET -->|Yes| RES["Cancel current task_sla & attach fresh new task_sla"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-condition-types">Condition Types</button>
+                        <button class="tab-btn" data-tab="tab-target-types">Target Types (Response vs Resolution)</button>
+                        <button class="tab-btn" data-tab="tab-sla-stages">Task SLA Stages</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-condition-types">
+                        <h3>Condition Block Definitions</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Condition Block</th>
+                                    <th>Trigger Rule & Operational Evaluation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Start Condition</strong></td>
+                                    <td>Initial qualification criteria. Attaches a new <code>task_sla</code> instance to the record.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pause Condition</strong></td>
+                                    <td>Freezes the SLA timer. Prevents penalizing technical resolvers when waiting on callers, external vendors, or change windows.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stop Condition</strong></td>
+                                    <td>Successfully halts the timer and evaluates whether the ticket was completed before or after the deadline.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cancel Condition</strong></td>
+                                    <td>Invalidates the SLA instance without registering a contract breach (e.g. ticket closed as duplicate).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reset Condition</strong></td>
+                                    <td>Closes the current timer and initiates a brand new SLA timer with a fresh duration allocation.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-target-types">
+                        <h3>Target Types: Response SLA vs. Resolution SLA</h3>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <div class="feature-card-header">
+                                    <h4>Response SLA</h4>
+                                </div>
+                                <p>
+                                    Measures time to initial engagement.
+                                    <br>• <strong>Start:</strong> <code>state = 1 (New)</code>
+                                    <br>• <strong>Stop:</strong> <code>state = 2 (In Progress)</code> OR <code>assigned_to IS NOT EMPTY</code>
+                                </p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-card-header">
+                                    <h4>Resolution SLA</h4>
+                                </div>
+                                <p>
+                                    Measures time to full operational service restoration.
+                                    <br>• <strong>Start:</strong> <code>active = true</code>
+                                    <br>• <strong>Stop:</strong> <code>state = 6 (Resolved)</code> OR <code>state = 7 (Closed)</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-sla-stages">
+                        <h3>Task SLA Instance Stages (<code>task_sla.stage</code>)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Stage Label</th>
+                                    <th>Operational Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>In progress</code></td>
+                                    <td>Active timer ticking. Less than 100% of duration elapsed.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Paused</code></td>
+                                    <td>Timer frozen due to Pause Condition match.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Completed</code></td>
+                                    <td>Stop Condition met prior to deadline (<code>has_breached = false</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Breached</code></td>
+                                    <td>Elapsed duration exceeded 100% before Stop Condition was met (<code>has_breached = true</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Cancelled</code></td>
+                                    <td>Cancel Condition met or record invalidated.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Schedules & Calculations -->
+            <section class="content-section" id="schedules-and-time">
+                <h2>Business Schedules & Elapsed Calculations</h2>
+                <p>
+                    ServiceNow accurately calculates contract compliance by applying <strong>Schedules (<code>cmn_schedule</code>)</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>24x7 Continuous Schedule</h4>
+                        </div>
+                        <p>
+                            Applied to P1 Critical incidents. The clock ticks continuously 24 hours a day, 7 days a week, 
+                            including holidays and weekends.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>8x5 Business Weekdays Schedule</h4>
+                        </div>
+                        <p>
+                            Applied to standard requests and P3/P4 tickets. The clock only ticks Monday through Friday, 8:00 AM to 5:00 PM, 
+                            pausing automatically overnight, across weekends, and on corporate holidays.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Actual Duration vs. Business Duration</div>
+                    <p>
+                        Every <code>task_sla</code> record calculates two distinct metrics simultaneously:
+                        <br>• <strong>Actual Elapsed Time (<code>duration</code>):</strong> Real-world wall-clock time that has passed.
+                        <br>• <strong>Business Elapsed Time (<code>business_duration</code>):</strong> The actual operational hours elapsed within the assigned schedule window.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 5: Retroactive Start -->
+            <section class="content-section" id="retroactive-start">
+                <h2>Retroactive Start & Time Anchors</h2>
+                <p>
+                    A common operational challenge occurs when a caller logs a ticket as P3, but 3 hours later the incident is escalated 
+                    to a P1 Critical outage. If the P1 SLA started counting only from the moment of escalation, the business commitment 
+                    would be inaccurate.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Retroactive Calculation Mechanism</h4>
+                        </div>
+                        <p>
+                            Enabling <strong>Retroactive Start (<code>retroactive = true</code>)</strong> instructs the SLA engine 
+                            to anchor the start timestamp back to a specified field on the ticket (e.g. <code>set_start_to = opened_at</code>). 
+                            The engine calculates elapsed time from the moment the user first logged the ticket, preventing SLA gaming.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Retroactive Pause</h4>
+                        </div>
+                        <p>
+                            Re-evaluates historical state changes from the activity metric journal (`sys_audit`) to accurately credit 
+                            any previous On-Hold periods that occurred before the retroactive SLA was attached.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Escalation Workflow -->
+            <section class="content-section" id="escalation-workflow">
+                <h2>Milestone Escalations & Breach Notifications</h2>
+                <p>
+                    To prevent breaches before they occur, SLA Definitions attach to workflows or Flow Designer triggers 
+                    broadcasting proactive alerts at elapsed percentage thresholds:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Elapsed Milestone</th>
+                            <th>Automated Escalation Action</th>
+                            <th>Target Audience</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>50% Elapsed</code></td>
+                            <td>Initial Warning Notification. Color badge shifts to Yellow in Service Operations Workspace.</td>
+                            <td>Assigned Resolver Engineer</td>
+                        </tr>
+                        <tr>
+                            <td><code>75% Elapsed</code></td>
+                            <td>Urgent Escalation. Automatic SMS / Push Alert dispatched via Notify.</td>
+                            <td>Resolver Group Lead / Duty Manager</td>
+                        </tr>
+                        <tr>
+                            <td><code>100% Elapsed (Breach)</code></td>
+                            <td>SLA Breach Logged (<code>has_breached = true</code>). Incident highlighted in Red across all dashboards.</td>
+                            <td>IT Service Delivery Director & Incident Manager</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/knowledge-management" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Knowledge Management & KCS</span>
+                </a>
+                <a href="/itsm/service-operations-workspace" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Service Operations Workspace (SOW)</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,0 +1,69 @@
+<%- include('../../partials/head', { title: 'Process Simulator — ITSM | SN Learn', styles: ['/styles/module-layout.css', '/styles/simulator.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'simulator' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#how-to-use" class="toc-link">How to Use</a>
+                    <a href="#simulator" class="toc-link">Record Simulator</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Process Simulator</span>
+                </div>
+                <h1 class="content-title">ITSM Process <span class="gradient-text">Simulator</span></h1>
+                <p class="content-subtitle">
+                    Explore realistic sample records across the entire ServiceNow ITSM suite — Incidents, MIM Tasks, 
+                    Problems, KEDB, Normal/Standard/Emergency Change Requests, Service Catalog RITMs, SCTASKs, and running SLA timers.
+                </p>
+            </div>
+
+            <section class="content-section" id="how-to-use">
+                <h2>How to Use This Simulator</h2>
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Interactive Guide</div>
+                    <p>
+                        <strong>Click any record</strong> to expand its full ServiceNow form view with live fields.<br>
+                        <strong>Choice &amp; State dropdowns</strong> allow testing lifecycle transitions directly.<br>
+                        <strong>Reference fields</strong> highlight foreign key mappings across the platform.<br>
+                        Tabs are sequenced by the ITIL v4 <strong>service value stream</strong> — from initial disruption to root-cause diagnosis, change release, and request fulfillment.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="simulator">
+                <h2>ITSM Record Explorer</h2>
+                <div class="sim-tabs-header" id="sim-tabs-header"></div>
+                <div class="sim-tabs-content" id="sim-tabs-content"></div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/developer-patterns" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">ITSM Developer Patterns & APIs</span>
+                </a>
+                <a href="/itsm/overview" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Return to Start →</span>
+                    <span class="page-nav-title">Overview & Architecture</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js', '/scripts/itsm-simulator.js', '/scripts/simulator-core.js'] }) %>

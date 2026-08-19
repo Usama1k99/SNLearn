@@ -1,0 +1,381 @@
+<%- include('../../partials/head', { title: 'Knowledge Management & KCS — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'knowledge-management' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#km-mission" class="toc-link">KCS Methodology & Mission</a>
+                    <a href="#table-schema" class="toc-link">Table Architecture & Schema</a>
+                    <a href="#article-lifecycle" class="toc-link">Publishing & Versioning Lifecycle</a>
+                    <a href="#article-templates" class="toc-link">Standardized Article Templates</a>
+                    <a href="#user-criteria" class="toc-link">User Criteria Security Model</a>
+                    <a href="#kcs-integration" class="toc-link">KCS in Incident & Problem Workflow</a>
+                    <a href="#ai-search" class="toc-link">AI Search & Contextual Surfacing</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Knowledge Management & KCS</span>
+                </div>
+                <h1 class="content-title">Knowledge Management & <span class="gradient-text">KCS</span></h1>
+                <p class="content-subtitle">
+                    Master Knowledge-Centered Service (KCS v6) in ServiceNow — article authoring lifecycles, 
+                    multi-tier User Criteria security, structured templates, automated KCS harvesting, and AI Search integration.
+                </p>
+            </div>
+
+            <!-- Section 1: KCS Mission -->
+            <section class="content-section" id="km-mission">
+                <h2>Knowledge-Centered Service (KCS v6) Methodology</h2>
+                <p>
+                    <strong>Knowledge-Centered Service (KCS)</strong> is an operational framework that focuses on knowledge 
+                    as a natural byproduct of resolving issues. Rather than treating technical documentation as an afterthought, 
+                    resolvers capture, structure, and refine reusable knowledge directly in the flow of incident and problem resolution.
+                </p>
+                <p>
+                    Effective Knowledge Management drives <strong>Shift-Left Resolution</strong>: moving technical resolutions 
+                    from Tier 3 engineering $\rightarrow$ Tier 1 Service Desk $\rightarrow$ Tier 0 End-User Self-Service on the Employee Center.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Capture in the Flow</h4>
+                        </div>
+                        <p>
+                            Knowledge is authored directly during ticket resolution using the customer's exact terminology and symptoms, 
+                            ensuring high search relevance for future requesters.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Reuse & Evolve</h4>
+                        </div>
+                        <p>
+                            Resolvers search before creating. Articles are flagged, rated, and continuously updated with new edge cases 
+                            every time they are attached to an active operational task.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Collective Ownership</h4>
+                        </div>
+                        <p>
+                            Knowledge bases are governed by technical communities rather than isolated technical writers, 
+                            ensuring real-time technical accuracy across enterprise disciplines.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Table Architecture -->
+            <section class="content-section" id="table-schema">
+                <h2>Table Architecture & Key Fields</h2>
+                <p>
+                    Knowledge Management utilizes a specialized table hierarchy governing knowledge bases, categories, 
+                    versioned articles, usage telemetry, and customer feedback:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns & Data Types</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>kb_knowledge_base</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master knowledge containers (e.g. IT Knowledge Base, Customer Self-Service, HR Portal).</td>
+                            <td><code>title</code>, <code>description</code>, <code>owner</code>, <code>managers</code>, <code>active</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_category</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Hierarchical category taxonomy within a specific knowledge base.</td>
+                            <td><code>label</code>, <code>parent_id</code> (Ref), <code>parent_table</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_knowledge</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Master article repository across all knowledge bases.</td>
+                            <td>
+                                <code>number</code> (KB0010042), <code>short_description</code>, <code>text</code> (HTML), 
+                                <code>workflow_state</code> (Choice), <code>valid_to</code> (Date), <code>author</code> (Ref), 
+                                <code>article_type</code>, <code>rating</code> (Decimal), <code>sys_view_count</code> (Integer)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_template</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Base table for specialized article layouts (FAQ, KCS, Known Error, How-To).</td>
+                            <td><code>title</code>, <code>table_name</code>, <code>active</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_use</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Tracks every instance an article is viewed or attached to an Incident/Task.</td>
+                            <td><code>article</code> (Ref), <code>user</code> (Ref), <code>task</code> (Ref), <code>used</code> (Boolean)</td>
+                        </tr>
+                        <tr>
+                            <td><code>kb_feedback</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Captures 1-5 star ratings, helpfulness votes (Yes/No), and flagged comments.</td>
+                            <td><code>article</code> (Ref), <code>rating</code> (Integer), <code>useful</code> (Choice), <code>comments</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: Publishing & Versioning Lifecycle -->
+            <section class="content-section" id="article-lifecycle">
+                <h2>Publishing & Versioning Lifecycle</h2>
+                <p>
+                    Articles transition through sequential workflow states governed by automated approval engines:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Knowledge Article Publishing & Revision Flow</div>
+                    <div class="mermaid">
+                    graph TD
+                        DRAFT["Draft<br>Author creates or edits article content"] --> REV["Review<br>Submitted for Technical Quality & Peer Review"]
+                        REV -->|KB Manager Approved| PUB["Published<br>Searchable on Portals & Service Operations Workspace"]
+                        REV -->|Rejected| DRAFT
+                        
+                        PUB -->|Checkout New Version| V2["Draft (Version 2.0)<br>Version 1.0 remains live while 2.0 is drafted"]
+                        V2 --> REV2["Review (Version 2.0)"]
+                        REV2 -->|Approved| PUB2["Published (Version 2.0)<br>Replaces Version 1.0 seamlessly"]
+                        
+                        PUB -->|End of Life / Valid To Expired| RET["Pending Retirement"]
+                        RET --> RETIRED["Retired<br>Archived from search indexes"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-workflow-states">Workflow States</button>
+                        <button class="tab-btn" data-tab="tab-versioning">Article Versioning Engine</button>
+                        <button class="tab-btn" data-tab="tab-workflows">Out-of-the-Box Workflows</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-workflow-states">
+                        <h3>Knowledge Workflow States (<code>workflow_state</code>)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>State Label</th>
+                                    <th>Operational Meaning & System Behavior</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Draft</strong></td>
+                                    <td>Under active drafting. Only visible to author and KB contributors. Not indexed by search.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Review</strong></td>
+                                    <td>Approval records generated for KB Managers or Subject Matter Experts (SMEs).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Published</strong></td>
+                                    <td>Active and searchable across portals, agent workspaces, and virtual agents.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pending Retirement</strong></td>
+                                    <td>Flagged for deprecation or undergoing retirement review.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Retired</strong></td>
+                                    <td>Read-only archive state. Excluded from live search queries.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-versioning">
+                        <h3>Article Versioning & Revision History</h3>
+                        <p>
+                            When an author clicks <em>"Checkout"</em> on an active published article:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>The current published version (e.g. <code>v1.0</code>) remains live and searchable for users with zero downtime.</li>
+                            <li>A new draft revision (e.g. <code>v2.0</code>) is created for editing.</li>
+                            <li>The <strong>Version Comparison Tool</strong> provides side-by-side diff highlighting of modified text blocks before publication.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-workflows">
+                        <h3>Configurable Publishing Workflows</h3>
+                        <p>Knowledge Bases select from pre-configured workflow engines:</p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Knowledge - Approval Publish:</strong> Requires explicit sign-off from designated KB Managers.</li>
+                            <li><strong>Knowledge - Instant Publish:</strong> Moves straight to <em>Published</em> upon author submission (ideal for trusted engineering teams).</li>
+                            <li><strong>Knowledge - Approval Retire:</strong> Requires manager authorization before taking high-impact documentation offline.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Article Templates -->
+            <section class="content-section" id="article-templates">
+                <h2>Standardized Article Templates</h2>
+                <p>
+                    Rather than blank text areas, ServiceNow utilizes specialized templates extending <code>kb_template</code> 
+                    to enforce structured technical writing:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>KCS Article (<code>kb_template_kcs_article</code>)</h4>
+                        </div>
+                        <p>
+                            Structures content into 4 mandatory sections:
+                            <br>• <strong>Issue:</strong> User's exact symptoms and error codes.
+                            <br>• <strong>Environment:</strong> Hardware model, OS version, software build.
+                            <br>• <strong>Cause:</strong> Technical reason for failure.
+                            <br>• <strong>Resolution:</strong> Step-by-step instructions to fix.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Known Error Article (<code>kb_template_known_error_article</code>)</h4>
+                        </div>
+                        <p>
+                            Published directly from Problem records:
+                            <br>• <strong>Problem Statement:</strong> Overview of ongoing defect.
+                            <br>• <strong>Workaround:</strong> Temporary operational bypass.
+                            <br>• <strong>Root Cause:</strong> Underlying technical defect under investigation.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>FAQ & How-To Articles</h4>
+                        </div>
+                        <p>
+                            • <strong>FAQ (<code>kb_template_faq</code>):</strong> Direct Question & Answer layout for end users.
+                            <br>• <strong>How-To (<code>kb_template_how_to</code>):</strong> Prerequisites, sequential execution steps, and post-verification checks.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: User Criteria Security -->
+            <section class="content-section" id="user-criteria">
+                <h2>User Criteria Security Model</h2>
+                <p>
+                    Access to knowledge bases and sensitive operational documentation is governed by <strong>User Criteria</strong>:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Security Dimension</th>
+                            <th>Evaluation Rule</th>
+                            <th>Operational Scope</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Can Read</code></td>
+                            <td>Whitelists users, roles, groups, or departments authorized to view articles.</td>
+                            <td>General employees can view public IT policies; only ITIL agents can view internal diagnostic runbooks.</td>
+                        </tr>
+                        <tr>
+                            <td><code>Cannot Read</code></td>
+                            <td>Blacklists specific criteria. Takes absolute precedence over Can Read.</td>
+                            <td>Blocks contractor accounts from reading proprietary enterprise architecture designs.</td>
+                        </tr>
+                        <tr>
+                            <td><code>Can Contribute</code></td>
+                            <td>Authorizes users to draft, edit, and retire articles within the Knowledge Base.</td>
+                            <td>Restricted to Level 2/3 engineering leads and certified KCS contributors.</td>
+                        </tr>
+                        <tr>
+                            <td><code>Cannot Contribute</code></td>
+                            <td>Explicitly revokes authoring permissions regardless of role inheritance.</td>
+                            <td>Prevents specific user segments from modifying production documentation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: KCS in Incidents -->
+            <section class="content-section" id="kcs-integration">
+                <h2>KCS Integration in Incident & Problem Management</h2>
+                <p>
+                    When resolving tickets, ServiceNow embeds automated knowledge harvesting directly into resolver workflows:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Create Knowledge Checkbox / UI Action</h4>
+                        </div>
+                        <p>
+                            Checking <em>"Knowledge"</em> on an incident form or clicking <em>"Create Knowledge"</em> on a Problem record 
+                            automatically populates a new KCS article draft with the ticket's Short Description, Caller Symptoms, 
+                            and Close Notes.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Attach to Task & Telemetry (kb_use)</h4>
+                        </div>
+                        <p>
+                            Clicking <em>"Attach"</em> on a search result pastes the article link directly into the ticket's comments 
+                            and logs a record in <code>kb_use</code>, measuring which articles resolve the highest volume of enterprise outages.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: AI Search -->
+            <section class="content-section" id="ai-search">
+                <h2>AI Search & Contextual Surfacing</h2>
+                <p>
+                    Modern ServiceNow implementations utilize <strong>AI Search</strong> (Natural Language Understanding & Machine Learning):
+                </p>
+                <ul class="feature-bullet-list">
+                    <li><strong>Genius Results:</strong> Instantly displays Q&A direct answers and action cards at the top of the search results page.</li>
+                    <li><strong>Semantic Search:</strong> Understands user intent (e.g., searching <em>"my screen is flickering"</em> matches articles titled <em>"Display Driver Troubleshooting"</em>).</li>
+                    <li><strong>Contextual Agent Assist:</strong> As resolvers type in Service Operations Workspace, AI Search continuously updates recommended articles in real-time.</li>
+                </ul>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/service-catalog" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Service Catalog & Request Fulfillment</span>
+                </a>
+                <a href="/itsm/sla-management" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Service Level Management (SLA)</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

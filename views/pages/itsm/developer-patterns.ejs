@@ -1,0 +1,314 @@
+<%- include('../../partials/head', { title: 'ITSM Developer Patterns & APIs — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'developer-patterns' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#dev-architecture" class="toc-link">Scripting Architecture & SNC Pattern</a>
+                    <a href="#script-includes" class="toc-link">Core Script Includes & APIs</a>
+                    <a href="#cartjs-api" class="toc-link">CartJS Programmatic Ordering</a>
+                    <a href="#business-rules" class="toc-link">Business Rule Patterns (Before/After/Async)</a>
+                    <a href="#code-examples" class="toc-link">Production Code Recipes</a>
+                    <a href="#best-practices" class="toc-link">Best Practices & Anti-Patterns</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>ITSM Developer Patterns & APIs</span>
+                </div>
+                <h1 class="content-title">ITSM Developer Patterns &amp; <span class="gradient-text">APIs</span></h1>
+                <p class="content-subtitle">
+                    Master technical development in ServiceNow ITSM — the SNC extension pattern, core Script Includes 
+                    (IncidentUtils, ChangeUtils, ProblemUtils), CartJS catalog APIs, and high-performance server script recipes.
+                </p>
+            </div>
+
+            <!-- Section 1: SNC Extension Pattern -->
+            <section class="content-section" id="dev-architecture">
+                <h2>The SNC Script Include Extension Pattern</h2>
+                <p>
+                    Out-of-the-box ServiceNow ITSM applications utilize the <strong>SNC Extension Pattern</strong> for Script Includes. 
+                    This pattern separates read-only base platform code from customer customizations:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">SNC Script Include Inheritance Architecture</div>
+                    <div class="mermaid">
+                    classDiagram
+                        class IncidentUtilsSNC {
+                            +Boolean isMajorIncident(incidentGr)
+                            +Void copyProblemWorkaround(problemGr)
+                            +Void syncChildIncidents(parentGr)
+                            #Read-Only Out-of-the-Box Core
+                        }
+                        
+                        class IncidentUtils {
+                            +CustomOverrideMethods()
+                            #Customer Editable Override Layer
+                        }
+                        
+                        IncidentUtilsSNC <|-- IncidentUtils : Extends via Prototype
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Development Rule: Never Edit *SNC Script Includes</div>
+                    <p>
+                        Script Includes ending in <code>*SNC</code> (e.g. <code>IncidentUtilsSNC</code>, <code>ChangeUtilsSNC</code>) are read-only 
+                        and updated automatically during family upgrades (e.g. Washington $\rightarrow$ Xanadu). 
+                        To customize or override a method, add your custom implementation to the child Script Include (e.g. <code>IncidentUtils</code>).
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: Core Script Includes & APIs -->
+            <section class="content-section" id="script-includes">
+                <h2>Core ITSM Script Includes &amp; APIs</h2>
+                <p>
+                    Enterprise developers interact with high-level platform helper classes to execute business logic:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Script Include / API</th>
+                            <th>Scope / Access</th>
+                            <th>Key Methods &amp; Capabilities</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>IncidentUtils</code></td>
+                            <td>Global / Server</td>
+                            <td>
+                                <code>copyProblemWorkaround(problemGr)</code>, <code>syncChildIncidents(parentGr)</code>, 
+                                <code>isMajorIncident(incidentGr)</code>, <code>canReopenIncident(incidentGr)</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>ChangeUtils</code></td>
+                            <td>Global / Server</td>
+                            <td>
+                                <code>calculateRisk(changeGr)</code>, <code>checkConflicts(changeGr)</code>, 
+                                <code>isStandardChange(changeGr)</code>, <code>getNextStates(changeGr)</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>ProblemUtils</code></td>
+                            <td>Global / Server</td>
+                            <td>
+                                <code>createKnownError(problemGr)</code>, <code>cascadeResolution(problemGr)</code>, 
+                                <code>canCancel(problemGr)</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>sn_sc.CartJS</code></td>
+                            <td>Scoped / Global</td>
+                            <td>
+                                <code>addItem(itemData)</code>, <code>setVariable(name, val)</code>, 
+                                <code>checkoutCart()</code>, <code>orderNow(itemData)</code>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: CartJS API -->
+            <section class="content-section" id="cartjs-api">
+                <h2>Programmatic Catalog Ordering via <code>CartJS</code> API</h2>
+                <p>
+                    When building backend integrations (e.g. automated onboarding via HR webhooks), developers utilize 
+                    the <code>sn_sc.CartJS</code> API to submit catalog requests programmatically:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (Server Script Include / REST Scripted API)</span>
+                        <button class="code-copy">Copy</button>
+                    </div>
+                    <div class="code-body">
+<pre><code>// Initialize CartJS instance for target user
+var cart = new sn_sc.CartJS();
+cart.setRequestedFor('6816f79cc0a8016401c5a33be04be441'); // sys_id of employee
+
+// Define Catalog Item Payload with Variables
+var itemPayload = {
+    'sysparm_id': '060e38d1371d320054b6a35493990e62', // Developer Laptop cat_item sys_id
+    'sysparm_quantity': '1',
+    'variables': {
+        'laptop_os': 'Linux Ubuntu 24.04',
+        'ram_upgrade': '64GB',
+        'cost_center': 'CC-ENG-4402'
+    }
+};
+
+// Add item to cart and trigger immediate checkout
+var cartItem = cart.addToCart(itemPayload);
+var checkoutResponse = cart.checkoutCart();
+
+gs.info('Submitted REQ: ' + checkoutResponse.request_number + ' (sys_id: ' + checkoutResponse.request_id + ')');</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Business Rule Patterns -->
+            <section class="content-section" id="business-rules">
+                <h2>Advanced Business Rule Execution Patterns</h2>
+                <p>
+                    Choosing the correct Business Rule execution timing is critical for performance and data integrity:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>before (Insert / Update)</h4>
+                        </div>
+                        <p>
+                            • <strong>Purpose:</strong> Validations, field overrides, and priority calculations.<br>
+                            • <strong>Rule:</strong> Modifies <code>current</code> directly without calling <code>current.update()</code>.<br>
+                            • <strong>Execution:</strong> Synchronous, runs in the same DB transaction before SQL commit.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>after (Insert / Update)</h4>
+                        </div>
+                        <p>
+                            • <strong>Purpose:</strong> Cascade updates to related records and event generation.<br>
+                            • <strong>Example:</strong> Propagating work notes to child incidents or triggering <code>gs.eventQueue()</code>.<br>
+                            • <strong>Execution:</strong> Synchronous, runs immediately after DB insert/update.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>async (Insert / Update)</h4>
+                        </div>
+                        <p>
+                            • <strong>Purpose:</strong> Heavy metrics calculations, external REST webhooks, and analytics rollups.<br>
+                            • <strong>Benefit:</strong> Non-blocking. Queued via the ServiceNow Scheduler (<code>sys_trigger</code>), returning the browser UI to the agent in milliseconds.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Production Code Recipes -->
+            <section class="content-section" id="code-examples">
+                <h2>Production Code Recipes</h2>
+
+                <h3>1. Child Incident Work Notes Synchronization (`after update` Business Rule)</h3>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (Business Rule on `incident`)</span>
+                        <button class="code-copy">Copy</button>
+                    </div>
+                    <div class="code-body">
+<pre><code>(function executeRule(current, previous /*null when async*/) {
+    // Check if work_notes was updated on parent incident
+    if (!current.work_notes.changes()) return;
+
+    var childInc = new GlideRecord('incident');
+    childInc.addQuery('parent_incident', current.getUniqueValue());
+    childInc.addQuery('active', true);
+    childInc.query();
+
+    var latestNote = current.work_notes.getJournalEntry(1);
+
+    while (childInc.next()) {
+        childInc.work_notes = 'Synchronized update from Parent (' + current.number + '):\n' + latestNote;
+        childInc.update();
+    }
+})(current, previous);</code></pre>
+                    </div>
+                </div>
+
+                <h3>2. Programmatic Normal Change Creation with Child Change Tasks</h3>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (Server Script Include / Flow Script)</span>
+                        <button class="code-copy">Copy</button>
+                    </div>
+                    <div class="code-body">
+<pre><code>function createNormalChangeWithTasks(ciSysId, shortDesc, startDate, endDate) {
+    var chg = new GlideRecord('change_request');
+    chg.initialize();
+    chg.type = 'Normal';
+    chg.short_description = shortDesc;
+    chg.cmdb_ci = ciSysId;
+    chg.start_date = startDate;
+    chg.end_date = endDate;
+    chg.cab_required = true;
+    chg.state = -5; // New state
+    var chgSysId = chg.insert();
+
+    // Spawn Sequential Implementation Task
+    var ctask = new GlideRecord('change_task');
+    ctask.initialize();
+    ctask.change_request = chgSysId;
+    ctask.change_task_type = 'Implementation';
+    ctask.short_description = 'Execute DB Schema Migration';
+    ctask.planned_start_date = startDate;
+    ctask.planned_end_date = endDate;
+    ctask.insert();
+
+    return chgSysId;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Best Practices -->
+            <section class="content-section" id="best-practices">
+                <h2>Best Practices &amp; Anti-Patterns</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Anti-Pattern: current.update() in Business Rules</h4>
+                        </div>
+                        <p>
+                            Calling <code>current.update()</code> inside a <code>before</code> or <code>after</code> Business Rule 
+                            triggers recursive execution loops, crashing the thread engine and locking the database.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Best Practice: GlideAggregate vs GlideRecord</h4>
+                        </div>
+                        <p>
+                            Never call <code>gr.getRowCount()</code> on large operational tables like <code>task</code> or <code>sys_audit</code>. 
+                            Always use <code>GlideAggregate</code> with <code>addAggregate('COUNT')</code> for blazing-fast database performance.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/walkup-and-cim" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Walk-up Experience & CIM</span>
+                </a>
+                <a href="/itsm/simulator" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Interactive Process Simulator</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

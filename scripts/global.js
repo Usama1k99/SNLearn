@@ -545,7 +545,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             cursor.style.borderRadius = computedStyle.borderRadius !== '0px' ? computedStyle.borderRadius : '8px';
 
             // 3D Card Tilt check for encompassed cards
-            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card');
+            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card');
             if (cardEl) {
                 const cRect = cardEl.getBoundingClientRect();
                 const relX = mouseX - cRect.left;
@@ -1742,7 +1742,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     document.addEventListener('mousemove', (e) => {
         // Target top-level outer card containers
         const cardTarget = e.target.closest(
-            '.module-card-horizontal, .page-card, .module-card, .feature-card, .bento-card, .stat-card'
+            '.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card'
         );
 
         if (!cardTarget) {

@@ -1,0 +1,495 @@
+<%- include('../../partials/head', { title: 'Master Data Model & CSDM — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'data-model' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#task-inheritance" class="toc-link">The task Super-Table Hierarchy</a>
+                    <a href="#polymorphic-fields" class="toc-link">Inherited Fields & Dictionary Overrides</a>
+                    <a href="#erd-architecture" class="toc-link">Entity Relationship Diagrams</a>
+                    <a href="#csdm-alignment" class="toc-link">CSDM 4.0 in ITSM Operations</a>
+                    <a href="#m2m-intersections" class="toc-link">M2M Intersection Tables</a>
+                    <a href="#table-breakdown" class="toc-link">Core Table Registry</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Master Data Model & CSDM</span>
+                </div>
+                <h1 class="content-title">Master Data Model & <span class="gradient-text">CSDM 4.0</span></h1>
+                <p class="content-subtitle">
+                    Master the foundational relational schema of ServiceNow ITSM — the polymorphic `task` table 
+                    inheritance model, database flattening, many-to-many intersections, and CSDM 4.0 service mapping.
+                </p>
+            </div>
+
+            <!-- Section 1: The task Hierarchy -->
+            <section class="content-section" id="task-inheritance">
+                <h2>The <code>task</code> Super-Table Hierarchy</h2>
+                <p>
+                    The architectural cornerstone of ServiceNow ITSM is the <strong><code>task</code></strong> table. 
+                    Nearly every operational ITSM record — including Incidents, Problems, Change Requests, and Service Requests — 
+                    is an extended child table inheriting structure and business logic from <code>task</code>.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ITSM Task Table Inheritance Tree</div>
+                    <div class="mermaid">
+                    classDiagram
+                        class task {
+                            +GUID sys_id
+                            +String number
+                            +String short_description
+                            +String description
+                            +Integer state
+                            +Integer priority
+                            +Integer urgency
+                            +Integer impact
+                            +Reference assignment_group
+                            +Reference assigned_to
+                            +Reference cmdb_ci
+                            +DateTime opened_at
+                            +DateTime closed_at
+                        }
+
+                        class incident {
+                            +Reference caller_id
+                            +Reference problem_id
+                            +Reference rfc
+                            +Reference parent_incident
+                            +Choice hold_reason
+                            +Choice close_code
+                            +String close_notes
+                            +Choice major_incident_state
+                        }
+
+                        class problem {
+                            +Reference first_reported_by_task
+                            +String workaround
+                            +String cause_notes
+                            +Choice resolution_code
+                            +Boolean known_error
+                        }
+
+                        class change_request {
+                            +Choice type
+                            +Reference chg_model
+                            +Choice risk
+                            +Choice scope
+                            +DateTime start_date
+                            +DateTime end_date
+                            +Choice review_status
+                            +Boolean cab_required
+                        }
+
+                        class sc_request {
+                            +Reference requested_for
+                            +Currency price
+                            +Choice stage
+                            +Choice approval
+                        }
+
+                        class sc_req_item {
+                            +Reference request
+                            +Reference cat_item
+                            +Currency price
+                            +Integer quantity
+                            +Choice stage
+                        }
+
+                        class sc_task {
+                            +Reference request_item
+                            +Reference request
+                            +Choice state
+                        }
+
+                        task <|-- incident
+                        task <|-- problem
+                        task <|-- change_request
+                        task <|-- sc_request
+                        task <|-- sc_req_item
+                        task <|-- sc_task
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Database Storage & Task Splitting</div>
+                    <p>
+                        In the underlying relational database (MariaDB / MySQL), ServiceNow uses <strong>Table Flattening</strong> 
+                        (storing base fields in a consolidated physical table) combined with <strong>Task Splitting</strong> for ultra-high-volume tables. 
+                        This architectural design ensures blazing fast polymorphic queries (e.g., <em>"Show all open tasks assigned to Network Group"</em> across incidents, problems, and changes with a single SQL query).
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: Polymorphic Fields & Dictionary Overrides -->
+            <section class="content-section" id="polymorphic-fields">
+                <h2>Inherited Fields & Dictionary Overrides</h2>
+                <p>
+                    Because child tables inherit all dictionary columns from <code>task</code>, ServiceNow utilizes 
+                    <strong>Dictionary Overrides (<code>sys_dictionary_override</code>)</strong> to customize field behavior 
+                    per child table without affecting the base <code>task</code> table or sibling modules.
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Field Name</th>
+                            <th>Base <code>task</code> Definition</th>
+                            <th><code>incident</code> Override</th>
+                            <th><code>change_request</code> Override</th>
+                            <th><code>sc_req_item</code> Override</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>state</code></td>
+                            <td>Choice (Default: 1 - Open)</td>
+                            <td>Values: 1(New), 2(In Progress), 3(On Hold), 6(Resolved), 7(Closed), 8(Canceled)</td>
+                            <td>Values: -5(New), -4(Assess), -3(Authorize), -2(Scheduled), -1(Implement), 0(Review), 3(Closed), 4(Canceled)</td>
+                            <td>Stage-driven states (1-Pending, 2-Open, 3-Closed Complete, 4-Closed Incomplete)</td>
+                        </tr>
+                        <tr>
+                            <td><code>assigned_to</code></td>
+                            <td>Optional Reference to <code>sys_user</code></td>
+                            <td>Reference qual: dependent on <code>assignment_group</code></td>
+                            <td>Mandatory in 'Implement' state</td>
+                            <td>Assigned to technician fulfilling catalog task</td>
+                        </tr>
+                        <tr>
+                            <td><code>close_notes</code></td>
+                            <td>Optional String field</td>
+                            <td>Mandatory upon moving to 'Resolved'</td>
+                            <td>Mandatory during Post-Implementation Review (PIR)</td>
+                            <td>Mandatory if Closed Incomplete</td>
+                        </tr>
+                        <tr>
+                            <td><code>priority</code></td>
+                            <td>Read-write Integer</td>
+                            <td>Read-only (calculated by Data Lookup: Impact x Urgency)</td>
+                            <td>Calculated via Risk Assessment & Priority matrix</td>
+                            <td>Inherited from catalog item default</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: ERD Architecture -->
+            <section class="content-section" id="erd-architecture">
+                <h2>Entity Relationship Diagrams (ERD)</h2>
+                <p>
+                    Understanding how core operational tables interact with CMDB CIs, Knowledge Articles, and SLAs 
+                    is essential for enterprise configuration and reporting:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ITSM Core Entity Relationships</div>
+                    <div class="mermaid">
+                    erDiagram
+                        task ||--o{ task_sla : "tracked by"
+                        contract_sla ||--o{ task_sla : "defines rules for"
+                        
+                        incident ||--o{ incident_task : "delegates work to"
+                        incident }o--o| problem : "investigated by"
+                        problem ||--o{ problem_task : "decomposes into"
+                        problem }o--o| change_request : "remediated by"
+                        
+                        incident }o--o| change_request : "caused by / resolves"
+                        change_request ||--o{ change_task : "executes through"
+                        
+                        sc_request ||--|{ sc_req_item : "contains ordered items"
+                        sc_req_item ||--|{ sc_task : "triggers fulfillment"
+                        
+                        task }o--o{ task_ci : "associates affected CIs"
+                        task_ci }o--|| cmdb_ci : "points to"
+                        
+                        task }o--o{ task_cmdb_ci_service : "associates impacted services"
+                        task_cmdb_ci_service }o--|| service_offering : "points to"
+                        
+                        problem ||--o{ kb_knowledge : "publishes Known Error"
+                        incident ||--o{ kb_knowledge : "creates KCS Article"
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: CSDM 4.0 in ITSM -->
+            <section class="content-section" id="csdm-alignment">
+                <h2>CSDM 4.0 in ITSM Operations</h2>
+                <p>
+                    The <strong>Common Service Data Model (CSDM 4.0)</strong> provides a prescriptive framework for 
+                    connecting ITSM processes directly to business value and infrastructure topology across 4 core domains:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">CSDM 4.0 Mapping to ITSM Tickets</div>
+                    <div class="mermaid">
+                    graph LR
+                        subgraph SellConsume["1. Sell / Consume Domain"]
+                            BS["Business Service<br>(cmdb_ci_service_business)"]
+                            BSO["Business Service Offering<br>(service_offering)"]
+                        end
+
+                        subgraph ManageTechnical["2. Manage Technical Services Domain"]
+                            TS["Technical Service<br>(cmdb_ci_service_technical)"]
+                            TSO["Technical Service Offering<br>(service_offering)"]
+                            DCG["Dynamic CI Group<br>(cmdb_ci_query_based_service)"]
+                            APP["Application Service<br>(cmdb_ci_service_discovered)"]
+                            INFRA["Infrastructure CIs<br>(cmdb_ci_server / db / router)"]
+                        end
+
+                        BS --> BSO
+                        BSO -.-> APP
+                        TS --> TSO
+                        TSO --> DCG
+                        TSO --> APP
+                        APP --> INFRA
+
+                        INC_RECORD["Incident Ticket<br>cmdb_ci = Linux Server 01<br>service_offering = SAP Gold Tier"] -.-> INFRA
+                        INC_RECORD -.-> BSO
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-csdm-fields">ITSM Form CSDM Fields</button>
+                        <button class="tab-btn" data-tab="tab-csdm-impact">Automated Impact Calculation</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-csdm-fields">
+                        <h3>Key CSDM Fields on Task / Incident / Change Forms</h3>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Configuration Item (<code>cmdb_ci</code>):</strong> The specific physical or logical component malfunctioning (e.g., <code>lnx-db-prod-04</code>).</li>
+                            <li><strong>Business Service / Service (<code>business_service</code>):</strong> The overarching business capability being delivered (e.g., <em>Global Payroll Processing</em>).</li>
+                            <li><strong>Service Offering (<code>service_offering</code>):</strong> The specific tier, region, or SLA variation of the service consumed by the user (e.g., <em>Payroll - North America - Platinum Tier</em>).</li>
+                            <li><strong>Dynamic CI Group (<code>cmdb_ci_query_based_service</code>):</strong> A query-driven collection of infrastructure CIs (e.g., <em>All Web Tier Servers in AWS US-East</em>).</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-csdm-impact">
+                        <h3>Automated Service Impact & Criticality Traversal</h3>
+                        <p>
+                            When an agent selects a <code>cmdb_ci</code> on an incident, ServiceNow executes relationship 
+                            traversal scripts against the <code>cmdb_rel_ci</code> table. The system automatically:
+                        </p>
+                        <ol>
+                            <li>Identifies all upstream Application Services and Business Service Offerings relying on that CI.</li>
+                            <li>Populates the <strong>Impacted Services</strong> related list (<code>task_cmdb_ci_service</code>).</li>
+                            <li>Calculates the maximum <strong>Business Criticality</strong> score to alert the Major Incident team if mission-critical revenue services are at risk.</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: M2M Intersection Tables -->
+            <section class="content-section" id="m2m-intersections">
+                <h2>Many-to-Many (M2M) Intersection Tables</h2>
+                <p>
+                    Enterprise outages rarely affect a single server. ServiceNow uses normalized intersection tables 
+                    to associate multiple assets, services, and outages with a single ITSM task:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Intersection Table</th>
+                            <th>Referenced Table A</th>
+                            <th>Referenced Table B</th>
+                            <th>Operational Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>task_ci</code></td>
+                            <td><code>task</code> (Incident / Change)</td>
+                            <td><code>cmdb_ci</code></td>
+                            <td>Tracks multiple affected infrastructure assets (e.g., 10 cluster nodes patched during one change).</td>
+                        </tr>
+                        <tr>
+                            <td><code>task_cmdb_ci_service</code></td>
+                            <td><code>task</code></td>
+                            <td><code>cmdb_ci_service</code> / <code>service_offering</code></td>
+                            <td>Records all business services impacted by an incident or planned change for stakeholder notifications.</td>
+                        </tr>
+                        <tr>
+                            <td><code>task_sla</code></td>
+                            <td><code>task</code></td>
+                            <td><code>contract_sla</code></td>
+                            <td>Tracks each running SLA/OLA timer, pause time, and breach condition for the task.</td>
+                        </tr>
+                        <tr>
+                            <td><code>cmdb_ci_outage</code></td>
+                            <td><code>task</code> (Incident / Change)</td>
+                            <td><code>cmdb_ci</code> / <code>cmdb_ci_service</code></td>
+                            <td>Logs official service downtime, planned maintenance duration, or performance degradation periods.</td>
+                        </tr>
+                        <tr>
+                            <td><code>sc_item_option_mtom</code></td>
+                            <td><code>sc_req_item</code></td>
+                            <td><code>sc_item_option</code></td>
+                            <td>Stores submitted form variable questions and user answers for a requested catalog item.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: Core Table Breakdown -->
+            <section class="content-section" id="table-breakdown">
+                <h2>Core ITSM Table Registry</h2>
+                <p>A reference guide to the primary data tables powering ServiceNow ITSM:</p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-incident-tables">Incident Tables</button>
+                        <button class="tab-btn" data-tab="tab-problem-tables">Problem Tables</button>
+                        <button class="tab-btn" data-tab="tab-change-tables">Change Tables</button>
+                        <button class="tab-btn" data-tab="tab-request-tables">Request Tables</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-incident-tables">
+                        <h3>Incident Management Tables</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Extends</th>
+                                    <th>Key Columns</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>incident</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>caller_id</code>, <code>category</code>, <code>subcategory</code>, <code>hold_reason</code>, <code>close_code</code>, <code>close_notes</code>, <code>parent_incident</code>, <code>problem_id</code>, <code>rfc</code>, <code>major_incident_state</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>incident_task</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>incident</code>, <code>assigned_to</code>, <code>assignment_group</code>, <code>state</code>, <code>short_description</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>incident_alert</code></td>
+                                    <td>None</td>
+                                    <td><code>source_incident</code>, <code>severity</code>, <code>event_type</code>, <code>communication_plan</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>major_incident_trigger_rule</code></td>
+                                    <td>None</td>
+                                    <td><code>name</code>, <code>condition</code>, <code>target_state</code>, <code>active</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-problem-tables">
+                        <h3>Problem Management Tables</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Extends</th>
+                                    <th>Key Columns</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>problem</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>first_reported_by_task</code>, <code>workaround</code>, <code>cause_notes</code>, <code>fix_notes</code>, <code>resolution_code</code>, <code>known_error</code>, <code>confirmed_at</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>problem_task</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>problem</code>, <code>problem_task_type</code> (RCA, Workaround, Permanent Fix), <code>assigned_to</code>, <code>state</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-change-tables">
+                        <h3>Change Management Tables</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Extends</th>
+                                    <th>Key Columns</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>change_request</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>type</code>, <code>chg_model</code>, <code>risk</code>, <code>scope</code>, <code>start_date</code>, <code>end_date</code>, <code>cab_required</code>, <code>cab_recommendation</code>, <code>review_status</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>change_task</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>change_request</code>, <code>change_task_type</code> (Planning, Implementation, Testing, Review), <code>state</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>chg_model</code></td>
+                                    <td>None</td>
+                                    <td><code>name</code>, <code>states</code>, <code>transitions</code>, <code>security_rules</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>change_risk_assessment</code></td>
+                                    <td>None</td>
+                                    <td><code>change_request</code>, <code>assessment_score</code>, <code>calculated_risk</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-request-tables">
+                        <h3>Service Catalog Tables</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Extends</th>
+                                    <th>Key Columns</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sc_request</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>requested_for</code>, <code>price</code>, <code>stage</code>, <code>approval</code>, <code>delivery_address</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>sc_req_item</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>request</code>, <code>cat_item</code>, <code>price</code>, <code>quantity</code>, <code>stage</code>, <code>context</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>sc_task</code></td>
+                                    <td><code>task</code></td>
+                                    <td><code>request_item</code>, <code>request</code>, <code>state</code>, <code>assigned_to</code>, <code>assignment_group</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>sc_cat_item</code></td>
+                                    <td>None</td>
+                                    <td><code>name</code>, <code>category</code>, <code>sc_catalogs</code>, <code>workflow</code>, <code>flow_designer_flow</code>, <code>price</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

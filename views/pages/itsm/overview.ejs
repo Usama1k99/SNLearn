@@ -1,0 +1,353 @@
+<%- include('../../partials/head', { title: 'Overview & Architecture — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'overview' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-itsm" class="toc-link">What is Modern ITSM?</a>
+                    <a href="#itil-alignment" class="toc-link">ITIL v4 Service Value System</a>
+                    <a href="#ecosystem-architecture" class="toc-link">Platform Architecture Layers</a>
+                    <a href="#core-modules" class="toc-link">Core Process Modules</a>
+                    <a href="#rbac-roles" class="toc-link">Role-Based Access Control (RBAC)</a>
+                    <a href="#lifecycle-flow" class="toc-link">End-to-End Service Lifecycle</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Overview & Architecture</span>
+                </div>
+                <h1 class="content-title">Overview & <span class="gradient-text">Architecture</span></h1>
+                <p class="content-subtitle">
+                    Understand the foundational architecture of ServiceNow IT Service Management, ITIL v4 alignment, 
+                    enterprise role hierarchies, and how ITSM powers modern digital service operations.
+                </p>
+            </div>
+
+            <!-- Section 1: What is ITSM -->
+            <section class="content-section" id="what-is-itsm">
+                <h2>What is Modern ITSM?</h2>
+                <p>
+                    <strong>ServiceNow IT Service Management (ITSM)</strong> is the platform's flagship application suite, 
+                    designed to design, deliver, manage, and optimize the entire lifecycle of Information Technology services 
+                    across an enterprise.
+                </p>
+                <p>
+                    Rather than operating in fragmented email inboxes and disparate point tools, ServiceNow consolidates 
+                    IT infrastructure operations, service desks, engineering squads, and end users onto a single 
+                    cloud-native data model rooted in the <strong>Common Service Data Model (CSDM)</strong>.
+                </p>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Core Mental Model</div>
+                    <p>
+                        ITSM is the <strong>operational nervous system</strong> of the enterprise. While the CMDB tracks 
+                        <em>what exists</em> (servers, databases, services), ITSM manages <em>what is happening</em> to those assets — 
+                        restoring broken services (Incident), finding root causes (Problem), governing modifications (Change), 
+                        fulfilling user needs (Request), and documenting institutional intelligence (Knowledge).
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: ITIL v4 Alignment -->
+            <section class="content-section" id="itil-alignment">
+                <h2>ITIL v4 & Service Value System</h2>
+                <p>
+                    ServiceNow ITSM is fully certified against the <strong>ITIL v4 (Information Technology Infrastructure Library)</strong> 
+                    framework. ITIL v4 shifts the focus from rigid, siloed process steps to an adaptive <strong>Service Value System (SVS)</strong> 
+                    and flexible <strong>Value Streams</strong>.
+                </p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-guiding-principles">Guiding Principles</button>
+                        <button class="tab-btn" data-tab="tab-four-dimensions">4 Dimensions</button>
+                        <button class="tab-btn" data-tab="tab-value-chain">Service Value Chain</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-guiding-principles">
+                        <h3>The 7 ITIL Guiding Principles in ServiceNow</h3>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Focus on Value:</strong> Every incident resolved and request fulfilled directly maps to business service availability.</li>
+                            <li><strong>Start Where You Are:</strong> Ingest existing configuration items via Discovery instead of rebuilding from scratch.</li>
+                            <li><strong>Progress Iteratively with Feedback:</strong> Use CSAT surveys and Continual Improvement Initiatives (`sn_cim_register`).</li>
+                            <li><strong>Collaborate & Promote Visibility:</strong> Major Incident Workbench connects resolvers, executives, and communications teams in real time.</li>
+                            <li><strong>Think & Work Holistically:</strong> Cross-module integration ensures changes link to impacted CIs, outages, and downstream services.</li>
+                            <li><strong>Keep It Simple & Practical:</strong> Standard Change templates and Record Producers eliminate administrative friction.</li>
+                            <li><strong>Optimize & Automate:</strong> Flow Designer and Now Assist GenAI eliminate manual ticket routing and resolution summaries.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-four-dimensions">
+                        <h3>The Four Dimensions of Service Management</h3>
+                        <p>To ensure balanced service delivery, ServiceNow structures ITSM across four architectural dimensions:</p>
+                        <ol>
+                            <li><strong>Organizations & People:</strong> Defined via User Profiles (`sys_user`), Assignment Groups (`sys_user_group`), and Skills.</li>
+                            <li><strong>Information & Technology:</strong> The CMDB (`cmdb_ci`), Service Mapping, and the Knowledge Base (`kb_knowledge`).</li>
+                            <li><strong>Partners & Suppliers:</strong> Vendor performance tracking, Underpinning Contracts (UCs), and external integrations.</li>
+                            <li><strong>Value Streams & Processes:</strong> End-to-end automated flows from Incident triage to Request fulfillment.</li>
+                        </ol>
+                    </div>
+
+                    <div class="tab-panel" id="tab-value-chain">
+                        <h3>The Service Value Chain Activities</h3>
+                        <p>ServiceNow native workflows operationalize the six core value chain activities:</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>ServiceNow ITSM Realization</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Plan</strong></td>
+                                    <td>Continual Improvement Management (CIM), Release planning, CAB schedules.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Improve</strong></td>
+                                    <td>Problem Root Cause Analysis (RCA), Knowledge generation (KCS), SLA repair.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Engage</strong></td>
+                                    <td>Employee Center, Service Operations Workspace (SOW), Omnichannel Chat/Walk-up.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Design & Transition</strong></td>
+                                    <td>Change Models, Risk Assessments, Catalog Item design, CI Dependency mapping.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Obtain / Build</strong></td>
+                                    <td>Procurement catalog tasks, Integration Hub spokes, asset allocation.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Deliver & Support</strong></td>
+                                    <td>Incident Management, Major Incident conference bridges, Task SLAs.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Platform Architecture Layers -->
+            <section class="content-section" id="ecosystem-architecture">
+                <h2>Platform Architecture Layers</h2>
+                <p>
+                    ServiceNow ITSM is built on a 4-tier platform architecture that isolates user presentation from 
+                    underlying transactional data integrity:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ServiceNow ITSM 4-Tier Platform Architecture</div>
+                    <div class="mermaid">
+                    graph TB
+                        subgraph ExperienceLayer["1. Experience & Interaction Layer"]
+                            EC[Employee Center Portal]
+                            SOW[Service Operations Workspace]
+                            VA[Virtual Agent & Now Assist GenAI]
+                            WK[Walk-up Kiosk & Tech Bar]
+                        end
+
+                        subgraph ProcessLayer["2. Process Automation & Business Logic"]
+                            FD[Flow Designer & Subflows]
+                            BR[Business Rules & State Handlers]
+                            DL[Data Lookup Rules: Priority / Assignment]
+                            SLAE[SLA Engine & Condition Rules]
+                        end
+
+                        subgraph DataLayer["3. Relational Data Model & CMDB"]
+                            TASK[task Super-Table Hierarchy]
+                            INC_TAB[incident / incident_task]
+                            PRB_TAB[problem / problem_task]
+                            CHG_TAB[change_request / change_task]
+                            REQ_TAB[sc_request / sc_req_item / sc_task]
+                            CSDM_TAB[CSDM 4.0: Services & CIs]
+                        end
+
+                        subgraph IntegrationLayer["4. Integration & Connectivity Layer"]
+                            IH[Integration Hub Spokes: Azure / AWS / Jira]
+                            REST[Scripted REST & Table APIs]
+                            SGC[Service Graph Connectors: SCCM / Intune]
+                        end
+
+                        ExperienceLayer --> ProcessLayer
+                        ProcessLayer --> DataLayer
+                        IntegrationLayer <--> DataLayer
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Core Process Modules -->
+            <section class="content-section" id="core-modules">
+                <h2>Core Process Modules</h2>
+                <p>The ITSM suite is organized into 6 tightly connected operational domains:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Incident Management</h4>
+                        </div>
+                        <p>Rapid restoration of normal service operations with minimal disruption. Includes P1/P2 Major Incident Management (MIM) workbenches and automated on-call escalations.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Problem Management</h4>
+                        </div>
+                        <p>Identifies the underlying root causes of recurring incidents. Structures Root Cause Analysis (RCA), publishes Known Error workarounds, and initiates permanent change requests.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Change & Release</h4>
+                        </div>
+                        <p>Governs modifications to IT infrastructure and business applications using modern Change Models (Normal, Standard, Emergency, Unauthorized) and CAB Workbench automation.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Service Catalog & Requests</h4>
+                        </div>
+                        <p>Provides an intuitive shopping experience for business goods and IT services. Implements the 3-tier Request model (<code>sc_request</code> &gt; <code>sc_req_item</code> &gt; <code>sc_task</code>) with Flow Designer approvals.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Knowledge Management</h4>
+                        </div>
+                        <p>Centralizes organizational knowledge and self-help articles. Enforces granular User Criteria security and enables Knowledge-Centered Service (KCS) generation directly from resolved tickets.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Service Level Management</h4>
+                        </div>
+                        <p>Monitors service commitments across SLAs, internal OLAs, and vendor Underpinning Contracts (UCs). Features retroactive start timers, schedule calculations, and breach notifications.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: RBAC Roles -->
+            <section class="content-section" id="rbac-roles">
+                <h2>Role-Based Access Control (RBAC)</h2>
+                <p>
+                    Security and operational permissions in ServiceNow ITSM follow strict role inheritance patterns:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Target Persona</th>
+                            <th>Inherited Rights & Permissions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>itil</code></td>
+                            <td>Service Desk Agents & Technical Engineers</td>
+                            <td>Create, read, update incidents, problems, changes, and service requests. Base fulfilling technician role.</td>
+                        </tr>
+                        <tr>
+                            <td><code>itil_admin</code></td>
+                            <td>ITSM Team Leads & Administrators</td>
+                            <td>Full administrative authority over ITSM records, override closed states, delete records, and modify assignment rules.</td>
+                        </tr>
+                        <tr>
+                            <td><code>incident_manager</code></td>
+                            <td>Incident Process Owner / MIM Manager</td>
+                            <td>Propose and accept Major Incidents, manage incident alerts, launch conference bridges, and sign off on PIRs.</td>
+                        </tr>
+                        <tr>
+                            <td><code>problem_manager</code></td>
+                            <td>Problem Process Owner</td>
+                            <td>Authorize problem root causes, approve risk acceptance, oversee Known Error publication, and close problems.</td>
+                        </tr>
+                        <tr>
+                            <td><code>change_manager</code></td>
+                            <td>Change Process Owner / CAB Chair</td>
+                            <td>Manage CAB meetings, approve Normal/Emergency changes, schedule changes, and resolve conflict detections.</td>
+                        </tr>
+                        <tr>
+                            <td><code>catalog_admin</code></td>
+                            <td>Catalog Managers</td>
+                            <td>Build and configure Catalog Items, Order Guides, Variable Sets, User Criteria, and Category hierarchies.</td>
+                        </tr>
+                        <tr>
+                            <td><code>knowledge_admin</code></td>
+                            <td>Knowledge Process Owner</td>
+                            <td>Administer Knowledge Bases, define approval workflows, configure User Criteria, and publish/retire articles.</td>
+                        </tr>
+                        <tr>
+                            <td><code>sla_admin</code></td>
+                            <td>Service Level Managers</td>
+                            <td>Create and maintain SLA Definitions (`contract_sla`), schedules (`cmn_schedule`), and condition scripts.</td>
+                        </tr>
+                        <tr>
+                            <td><code>snc_internal</code></td>
+                            <td>All Internal Employees / Requesters</td>
+                            <td>Base platform authentication role required to view Employee Center, submit requests, and log incidents.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: End-to-End Service Lifecycle -->
+            <section class="content-section" id="lifecycle-flow">
+                <h2>End-to-End Service Lifecycle</h2>
+                <p>
+                    The following sequence diagram illustrates how an initial end-user disruption orchestrates across 
+                    every ITSM process module and the CMDB in an enterprise environment:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ITSM Enterprise Cross-Module Execution Flow</div>
+                    <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        actor User as End User (Employee Center)
+                        participant SOW as Service Desk Agent (SOW)
+                        participant INC as Incident Management
+                        participant PRB as Problem Management
+                        participant KB as Knowledge Base (KCS)
+                        participant CHG as Change Management (CAB)
+                        participant REQ as Service Catalog (Fulfillment)
+
+                        User->>INC: Logs Incident (VPN Gateway Unresponsive)
+                        INC->>INC: Evaluates Priority (Impact 1 x Urgency 1 = P1 Critical)
+                        INC->>SOW: Routes to Network Resolver via AWA
+                        SOW->>INC: Resolves Immediate Disruption via Failover
+                        INC->>User: Service Restored (Auto-close after 5 days)
+
+                        INC->>PRB: Escalates to Problem for Root Cause Investigation
+                        PRB->>PRB: RCA Identifies Firmware Memory Leak
+                        PRB->>KB: Publishes Known Error Workaround Article
+                        PRB->>CHG: Submits Emergency Change Request (RFC) for Firmware Patch
+
+                        CHG->>CHG: Calculates Risk & Checks Maintenance Blackout Window
+                        CHG->>CHG: CAB Approves Change Request
+                        CHG->>CHG: Deploys Firmware Patch & Validates Health
+                        CHG->>PRB: Marks Problem Permanently Solved
+
+                        PRB->>REQ: Triggers Hardware Upgrade Request (Next-Gen Gateway)
+                        REQ->>REQ: Procures, Images & Deploys Hardware
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -1,0 +1,298 @@
+<%- include('../../partials/head', { title: 'Walk-up Experience & CIM — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'walkup-and-cim' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#walkup-mission" class="toc-link">Walk-up Experience & Tech Lounge</a>
+                    <a href="#walkup-schema" class="toc-link">Walk-up Schema & Kiosk Architecture</a>
+                    <a href="#stockroom-integration" class="toc-link">Stockroom & Loaner Integration</a>
+                    <a href="#cim-framework" class="toc-link">Continual Improvement (CIM) Model</a>
+                    <a href="#cim-register" class="toc-link">CIM Improvement Register Schema</a>
+                    <a href="#kpi-alignment" class="toc-link">KPI & Strategy Alignment</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Walk-up Experience & CIM</span>
+                </div>
+                <h1 class="content-title">Walk-up Experience & <span class="gradient-text">CIM</span></h1>
+                <p class="content-subtitle">
+                    Master onsite Tech Lounge support with Walk-up Experience (kiosks, queue management, stockroom integration) 
+                    and enterprise service optimization with Continual Improvement Management (CIM).
+                </p>
+            </div>
+
+            <!-- Section 1: Walk-up Mission -->
+            <section class="content-section" id="walkup-mission">
+                <h2>Walk-up Experience: The In-Person Tech Lounge</h2>
+                <p>
+                    The <strong>Walk-up Experience</strong> brings the consumer-grade "Genius Bar / Tech Lounge" support model into 
+                    the enterprise office. Employees visit an onsite IT service desk for face-to-face hardware troubleshooting, 
+                    device upgrades, and instant peripheral replacements.
+                </p>
+                <p>
+                    Rather than waiting in disorganized physical queues, the Walk-up application manages digital check-ins, 
+                    appointment scheduling, live wait-time estimates on public displayboards, and automated technician routing.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Self-Service Check-In Kiosk</h4>
+                        </div>
+                        <p>
+                            Touchscreen tablets or badge readers at the lounge entrance allow users to scan corporate badges, 
+                            select their issue category, and enter the digital queue with real-time SMS updates.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Online Appointment Booking</h4>
+                        </div>
+                        <p>
+                            Requesters reserve 15-minute support slots in advance via Employee Center or mobile app, 
+                            guaranteeing dedicated technician availability without office wait time.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Live Queue Displayboard</h4>
+                        </div>
+                        <p>
+                            Wall-mounted TV monitors display currently served tickets, upcoming queue positions, and estimated wait times 
+                            in real time.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Walk-up Schema & Architecture -->
+            <section class="content-section" id="walkup-schema">
+                <h2>Walk-up Table Architecture & Schema</h2>
+                <p>
+                    The Walk-up data model extends the Interaction framework to track visitors, wait times, and fulfillment:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>wu_location</code></td>
+                            <td><code>cmn_location</code></td>
+                            <td>Physical Tech Lounge locations (e.g. Building 4 Tech Bar).</td>
+                            <td><code>name</code>, <code>schedule</code>, <code>capacity</code>, <code>manager</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>wu_queue</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Location queue configuration and service offerings.</td>
+                            <td><code>location</code>, <code>max_wait_time</code>, <code>estimated_service_duration</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>wu_interaction</code></td>
+                            <td><code>interaction</code></td>
+                            <td>Individual visitor session record.</td>
+                            <td>
+                                <code>guest</code> (Ref to <code>sys_user</code>), <code>wu_queue</code>, <code>check_in_time</code>, 
+                                <code>wait_time</code>, <code>service_time</code>, <code>state</code> (Queued, Serving, Closed)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>wu_appointment</code></td>
+                            <td><code>sn_apptmnt_booking_appointment_booking</code></td>
+                            <td>Scheduled calendar reservations.</td>
+                            <td><code>location</code>, <code>start_date_time</code>, <code>end_date_time</code>, <code>profile</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Walk-up Visitor Journey & Fulfillment Flow</div>
+                    <div class="mermaid">
+                    graph TD
+                        VISIT["Employee Arrives at Tech Lounge or Books Online"] --> CHECKIN["Kiosk Badge Scan / Appointment Check-In"]
+                        
+                        CHECKIN --> QUEUED["wu_interaction Inserted (state = Queued)<br>Displayboard updates & SMS sent with queue number"]
+                        
+                        QUEUED --> TECH["Technician Workbench Alerts Agent via SOW / AWA"]
+                        TECH --> ACCEPT["Agent Clicks 'Serve Next'<br>wu_interaction state = Serving"]
+                        
+                        ACCEPT --> ACTION{"Diagnostic Assessment"}
+                        ACTION -->|Quick Fix / Peripheral| DISPO["Issue Consumable / Loaner Laptop<br>Direct HAM Stockroom deduction"]
+                        ACTION -->|Complex Hardware Defect| INC["Promote Interaction to Incident / RITM<br>Device retained for repair"]
+                        
+                        DISPO --> CLOSE["Complete Session (wu_interaction closed)<br>Customer survey dispatched"]
+                        INC --> CLOSE
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Stockroom Integration -->
+            <section class="content-section" id="stockroom-integration">
+                <h2>Stockroom & Loaner Asset Management Integration</h2>
+                <p>
+                    Walk-up lounges connect directly to <strong>Hardware Asset Management (HAM)</strong> stockrooms:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Consumable Disposables</h4>
+                        </div>
+                        <p>
+                            Cables, USB-C hubs, power adapters, and mice (<code>alm_consumable</code>) are issued with a single click, 
+                            instantly decrementing stockroom inventory counts.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Loaner Laptop Checkout</h4>
+                        </div>
+                        <p>
+                            Temporary loaner assets (<code>alm_hardware</code>) are scanned and assigned to the user with automated return 
+                            due dates and overdue reminder notifications.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: CIM Framework -->
+            <section class="content-section" id="cim-framework">
+                <h2>Continual Improvement Management (CIM)</h2>
+                <p>
+                    According to ITIL v4, the purpose of <strong>Continual Improvement</strong> is to 
+                    <em>"align the organization's practices and services with changing business needs through the ongoing identification 
+                    and improvement of services, service components, practices, or any element involved in the management of services."</em>
+                </p>
+                <p>
+                    The <strong>CIM application (`sn_cim`)</strong> provides an enterprise framework to register, prioritize, 
+                    and track structured improvement initiatives across ITSM, DevOps, and IT operations.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. Where are we now?</h4>
+                        </div>
+                        <p>
+                            Baselines current operational performance using Performance Analytics indicators 
+                            (e.g., <em>"Average P1 MTTR is currently 6.2 hours"</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. Where do we want to be?</h4>
+                        </div>
+                        <p>
+                            Defines measurable target KPIs and strategic business goals 
+                            (e.g., <em>"Reduce P1 MTTR to under 2.5 hours by Q4"</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. How do we get there?</h4>
+                        </div>
+                        <p>
+                            Decomposes initiatives into executable tasks (<code>sn_cim_task</code>) linked to Change Requests, 
+                            Agile Development Stories, or training programs.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: CIM Register Schema -->
+            <section class="content-section" id="cim-register">
+                <h2>CIM Improvement Register Schema</h2>
+                <p>
+                    The Continual Improvement Register centralizes all enhancement proposals across the enterprise:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>sn_cim_register</code></td>
+                            <td><code>task</code></td>
+                            <td>Master Continual Improvement Initiative record.</td>
+                            <td>
+                                <code>short_description</code>, <code>business_case</code>, <code>strategic_objective</code>, 
+                                <code>kpi</code> (Ref to <code>pa_indicators</code>), <code>target_value</code>, <code>actual_value</code>, 
+                                <code>state</code> (Draft, Assessment, In Progress, Complete)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>sn_cim_task</code></td>
+                            <td><code>task</code></td>
+                            <td>Individual execution milestones and work packages.</td>
+                            <td><code>initiative</code> (Ref to <code>sn_cim_register</code>), <code>assigned_to</code>, <code>state</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>sn_cim_m2m_initiative_task</code></td>
+                            <td>None (Base M2M)</td>
+                            <td>Links initiatives to originating Incidents, Problems, or Audits.</td>
+                            <td><code>initiative</code>, <code>task</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: KPI & Strategy Alignment -->
+            <section class="content-section" id="kpi-alignment">
+                <h2>KPI Alignment & Automated Validation</h2>
+                <p>
+                    CIM initiatives link directly to <strong>Performance Analytics (PA)</strong> indicators:
+                </p>
+                <ul class="feature-bullet-list">
+                    <li><strong>Real-Time Scorecard Tracking:</strong> As resolver teams implement process optimizations, the linked PA indicator dynamically tracks whether the target metric is being achieved.</li>
+                    <li><strong>Post-Improvement Validation:</strong> When an initiative moves to <em>Complete</em>, the system monitors the indicator for 90 days to confirm that improvements are sustained over time.</li>
+                </ul>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/service-operations-workspace" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Service Operations Workspace (SOW)</span>
+                </a>
+                <a href="/itsm/developer-patterns" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">ITSM Developer Patterns & APIs</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

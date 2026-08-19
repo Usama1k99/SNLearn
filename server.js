@@ -148,7 +148,7 @@ const renderModulePage = (req, res, next) => {
     pageName = pageName.replace(/\.html$/, '');
     
     // Basic validation to prevent arbitrary directory traversal
-    const allowedModules = ['irm', 'sam', 'secops', 'ham'];
+    const allowedModules = ['itsm', 'ham', 'sam', 'irm', 'secops'];
     
     if (allowedModules.includes(moduleName)) {
         res.locals.activePage = pageName;

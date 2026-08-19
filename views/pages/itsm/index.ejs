@@ -1,0 +1,94 @@
+<%- include('../../partials/head', { title: 'IT Service Management | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-hub">
+    <div class="container">
+        <div class="irm-hub-header">
+            <div class="breadcrumb">
+                <a href="/">Home</a>
+                <span class="breadcrumb-sep">›</span>
+                <span>ITSM</span>
+            </div>
+            <div class="irm-title-row">
+                <div class="irm-icon-badge">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="irm-hub-title">IT Service <span class="gradient-text">Management</span></h1>
+                    <p class="irm-hub-subtitle">
+                        Master the enterprise core of ServiceNow. Deep-dive into Incident, Problem, Change Models, Service Catalog, KCS Knowledge, SLA Engines, SOW, and CSDM 4.0 architecture.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pages-grid">
+            <a href="/itsm/overview" class="module-card-horizontal page-card">
+                <span class="page-card-number">01</span>
+                <h3 class="page-card-title">Overview & Architecture</h3>
+                <p class="page-card-desc">ITIL v4 alignment, foundational architecture, core platform roles, and SOW workspace evolution.</p>
+            </a>
+            <a href="/itsm/data-model" class="module-card-horizontal page-card">
+                <span class="page-card-number">02</span>
+                <h3 class="page-card-title">Master Data Model & CSDM</h3>
+                <p class="page-card-desc">The task super-table hierarchy, inheritance, table splitting, and CSDM 4.0 service mapping.</p>
+            </a>
+            <a href="/itsm/incident-management" class="module-card-horizontal page-card">
+                <span class="page-card-number">03</span>
+                <h3 class="page-card-title">Incident & Major Incident (MIM)</h3>
+                <p class="page-card-desc">Rapid restoration lifecycle, Priority Data Lookup Matrix, MIM Workbench, and on-call routing.</p>
+            </a>
+            <a href="/itsm/problem-management" class="module-card-horizontal page-card">
+                <span class="page-card-number">04</span>
+                <h3 class="page-card-title">Problem Management & KEDB</h3>
+                <p class="page-card-desc">Root Cause Analysis (RCA), Problem Tasks, Workarounds, and Known Error Article automation.</p>
+            </a>
+            <a href="/itsm/change-management" class="module-card-horizontal page-card">
+                <span class="page-card-number">05</span>
+                <h3 class="page-card-title">Change & Release Management</h3>
+                <p class="page-card-desc">Normal, Standard, Emergency, and Unauthorized Change Models, Risk Engine, and CAB Workbench.</p>
+            </a>
+            <a href="/itsm/service-catalog" class="module-card-horizontal page-card">
+                <span class="page-card-number">06</span>
+                <h3 class="page-card-title">Service Catalog & Requests</h3>
+                <p class="page-card-desc">3-Tier model (REQ &gt; RITM &gt; SCTASK), Order Guides, Variable Sets, and Flow Designer automation.</p>
+            </a>
+            <a href="/itsm/knowledge-management" class="module-card-horizontal page-card">
+                <span class="page-card-number">07</span>
+                <h3 class="page-card-title">Knowledge Management (KCS)</h3>
+                <p class="page-card-desc">Knowledge base containers, versioning, User Criteria security, and Knowledge-Centered Service.</p>
+            </a>
+            <a href="/itsm/sla-management" class="module-card-horizontal page-card">
+                <span class="page-card-number">08</span>
+                <h3 class="page-card-title">Service Level Management (SLA)</h3>
+                <p class="page-card-desc">SLA/OLA/UC definitions, Retroactive Start, Pause conditions, Schedules, and breach prevention.</p>
+            </a>
+            <a href="/itsm/service-operations-workspace" class="module-card-horizontal page-card">
+                <span class="page-card-number">09</span>
+                <h3 class="page-card-title">Service Operations Workspace</h3>
+                <p class="page-card-desc">Unified SOW cockpit, interaction records, Advanced Work Assignment (AWA), and Now Assist GenAI.</p>
+            </a>
+            <a href="/itsm/walkup-and-cim" class="module-card-horizontal page-card">
+                <span class="page-card-number">10</span>
+                <h3 class="page-card-title">Walk-up Experience & CIM</h3>
+                <p class="page-card-desc">Tech Lounge kiosks, online appointment booking, waitlist queues, and Continual Improvement Initiatives.</p>
+            </a>
+            <a href="/itsm/developer-patterns" class="module-card-horizontal page-card">
+                <span class="page-card-number">11</span>
+                <h3 class="page-card-title">Developer Patterns & APIs</h3>
+                <p class="page-card-desc">IncidentUtils/ChangeUtils extension pattern, state interceptors, REST Table & Change APIs.</p>
+            </a>
+            <a href="/itsm/simulator" class="module-card-horizontal page-card">
+                <span class="page-card-number">12</span>
+                <h3 class="page-card-title">Process Simulator</h3>
+                <p class="page-card-desc">Full 9-tab interactive operational simulator spanning Incidents, MIM, Problems, Changes, and SLAs.</p>
+            </a>
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

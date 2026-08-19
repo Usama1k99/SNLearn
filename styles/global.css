@@ -641,9 +641,9 @@ img {
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 1720px;
     margin: 0 auto;
-    padding: 0 var(--space-lg);
+    padding: 0 var(--space-xl);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1519,7 +1519,6 @@ body.page-exiting {
 .module-card-horizontal,
 .page-card,
 .module-card,
-.feature-card,
 .bento-card,
 .stat-card {
     background: rgba(18, 20, 30, 0.10) !important;
@@ -1535,8 +1534,7 @@ body.page-exiting {
 .page-card *,
 .module-card-horizontal *,
 .module-card *,
-.bento-card *,
-.feature-card * {
+.bento-card * {
     transform-style: flat;
     pointer-events: none;
 }

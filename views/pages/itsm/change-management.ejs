@@ -1,0 +1,566 @@
+<%- include('../../partials/head', { title: 'Change & Release Management — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'change-management' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#change-mission" class="toc-link">Governance Mission & Value</a>
+                    <a href="#change-models" class="toc-link">3 Core Change Types & Models</a>
+                    <a href="#table-schema" class="toc-link">Schema & Data Structure</a>
+                    <a href="#state-lifecycle" class="toc-link">Normal & Emergency State Model</a>
+                    <a href="#risk-and-conflict" class="toc-link">Risk Assessment & Conflict Engine</a>
+                    <a href="#cab-workbench" class="toc-link">CAB Workbench & Approvals</a>
+                    <a href="#example-records" class="toc-link">Real-World Change Records</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Change & Release Management</span>
+                </div>
+                <h1 class="content-title">Change & <span class="gradient-text">Release Management</span></h1>
+                <p class="content-subtitle">
+                    Master modern IT change enablement in ServiceNow — Normal, Standard, and Emergency change models, 
+                    automated risk calculation, CI conflict detection, CAB Workbench governance, and change task execution.
+                </p>
+            </div>
+
+            <!-- Section 1: Governance Mission -->
+            <section class="content-section" id="change-mission">
+                <h2>Governance Mission & ITIL Alignment</h2>
+                <p>
+                    According to ITIL v4, the purpose of <strong>Change Enablement</strong> is to 
+                    <em>"maximize the number of successful service and product changes by ensuring that risks have been properly assessed, 
+                    authorizing changes to proceed, and managing the change schedule."</em>
+                </p>
+                <p>
+                    In an enterprise environment, over <strong>70% of unplanned outages</strong> are historically caused by unauthorized, 
+                    untested, or conflicting changes to infrastructure and code. ServiceNow Change Management strikes the balance between 
+                    <strong>speed of innovation (DevOps/CI-CD)</strong> and <strong>operational stability</strong>.
+                </p>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Key Architectural Principle</div>
+                    <p>
+                        Change Management does not perform the technical work directly; it orchestrates the <strong>risk governance</strong>, 
+                        <strong>schedules maintenance windows</strong>, <strong>secures multi-stakeholder approvals</strong>, and decomposes 
+                        execution into concrete <strong>Change Tasks (<code>change_task</code>)</strong>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: 3 Core Change Types -->
+            <section class="content-section" id="change-models">
+                <h2>The 3 Core Change Types & Modern Change Models</h2>
+                <p>
+                    ServiceNow classifies all modifications into three primary operational categories, each following distinct 
+                    state transitions, approval gates, and lead times:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Standard Change</h4>
+                        </div>
+                        <p>
+                            <strong>Pre-authorized, low-risk, recurring, and procedural.</strong> Templated via the Standard Change Catalog 
+                            (<code>std_change_producer_version</code>). Bypasses CAB review entirely and moves directly to the Scheduled state upon creation.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Normal Change</h4>
+                        </div>
+                        <p>
+                            <strong>Non-emergency changes requiring full governance.</strong> Follows the complete lifecycle: Technical Assessment, 
+                            Risk Scoring, Conflict Detection, Peer Review, CAB Approval, Implementation during Maintenance Window, and PIR.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Emergency Change</h4>
+                        </div>
+                        <p>
+                            <strong>Urgent fixes for critical outages (P1/P2) or zero-day security vulnerabilities.</strong> 
+                            Bypasses standard lead times. Fast-tracked through the Emergency CAB (ECAB) with verbal/expedited approval and retrospective documentation.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">NextGen Change Models (chg_model)</div>
+                    <p>
+                        Starting in the Quebec/Rome releases, ServiceNow introduced <strong>Change Models (<code>chg_model</code>)</strong>, 
+                        allowing administrators to define custom state transition flows, conditions, and UI experiences per model 
+                        (e.g., Automated Cloud Pipeline Model, Database Patching Model, Site Reliability Engineering Model) 
+                        without modifying global business rules.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 3: Schema & Data Structure -->
+            <section class="content-section" id="table-schema">
+                <h2>Schema Architecture & Table Registry</h2>
+                <p>
+                    The Change Management database hierarchy centers on <code>change_request</code>, extending <code>task</code> 
+                    and orchestrating child execution tasks, schedule definitions, and approvals:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns & Data Types</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>change_request</code></td>
+                            <td><code>task</code></td>
+                            <td>Master Request for Change (RFC) envelope.</td>
+                            <td>
+                                <code>type</code> (Choice), <code>chg_model</code> (Ref), <code>risk</code> (Integer), <code>scope</code> (Choice), 
+                                <code>start_date</code> (DateTime), <code>end_date</code> (DateTime), <code>cab_required</code> (Boolean), 
+                                <code>cab_date</code> (Date), <code>review_status</code> (Choice), <code>conflict_status</code> (Choice)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>change_task</code></td>
+                            <td><code>task</code></td>
+                            <td>Discrete technical implementation steps.</td>
+                            <td>
+                                <code>change_request</code> (Ref), <code>change_task_type</code> (Choice: Planning, Implementation, Testing, Review), 
+                                <code>state</code> (Choice), <code>planned_start_date</code> (DateTime)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>std_change_producer_version</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Approved Standard Change template catalog.</td>
+                            <td>
+                                <code>std_change_proposal</code> (Ref), <code>version</code> (Integer), <code>active</code> (Boolean)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>cmn_schedule_blackout</code></td>
+                            <td><code>cmn_schedule</code></td>
+                            <td>Blackout calendar windows where changes are strictly forbidden.</td>
+                            <td>
+                                <code>name</code>, <code>type</code>, <code>applies_to</code> (Ref to CMDB CI or Class)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>cmn_schedule_maintenance</code></td>
+                            <td><code>cmn_schedule</code></td>
+                            <td>Authorized operational windows for production changes.</td>
+                            <td>
+                                <code>name</code>, <code>type</code>, <code>applies_to</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>sysapproval_approver</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Individual sign-offs generated for CAB and Technical leads.</td>
+                            <td>
+                                <code>sysapproval</code> (Ref to <code>task</code>), <code>approver</code> (Ref to <code>sys_user</code>), <code>state</code> (Choice)
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: State Model -->
+            <section class="content-section" id="state-lifecycle">
+                <h2>Normal & Emergency State Model Lifecycle</h2>
+                <p>
+                    Normal and Emergency changes transition through sequential state gates. Moving to the next state requires 
+                    fulfilling strict validation conditions:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Normal Change Request State Transition Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        NEW["New (-5)<br>Change logged & technical scope defined"] --> ASSESS["Assess (-4)<br>Peer review, technical viability & risk scoring"]
+                        ASSESS --> AUTH["Authorize (-3)<br>CAB review & multi-level stakeholder sign-offs"]
+                        
+                        AUTH -->|CAB Approved| SCHED["Scheduled (-2)<br>Assigned to maintenance window without CI conflicts"]
+                        AUTH -->|CAB Rejected| NEW
+                        
+                        SCHED --> IMPL["Implement (-1)<br>Change Tasks (CTASKs) executed in production"]
+                        IMPL --> REV["Review (0)<br>Post-Implementation Review (PIR) validation"]
+                        
+                        REV --> CLOSED["Closed (3)<br>Successfully deployed & validated"]
+                        
+                        NEW -->|Canceled by Requester| CANC["Canceled (4)"]
+                        ASSESS -->|Canceled| CANC
+                        AUTH -->|Canceled| CANC
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-normal-states">Normal Change States</button>
+                        <button class="tab-btn" data-tab="tab-emergency-states">Emergency Change States</button>
+                        <button class="tab-btn" data-tab="tab-closure-codes">Closure Codes</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-normal-states">
+                        <h3>Normal Change Request States (Integers)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>State Label</th>
+                                    <th>Integer Value</th>
+                                    <th>Mandatory Criteria & State Gate Rules</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>New</strong></td>
+                                    <td><code>-5</code></td>
+                                    <td>Initial drafting. Description, justification, risk questions, and planned CI must be populated.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Assess</strong></td>
+                                    <td><code>-4</code></td>
+                                    <td>Technical peer review. Assignment group manager verifies rollback plan and implementation plan.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Authorize</strong></td>
+                                    <td><code>-3</code></td>
+                                    <td>Formal CAB evaluation. Approval records (<code>sysapproval_approver</code>) generated for CAB members.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Scheduled</strong></td>
+                                    <td><code>-2</code></td>
+                                    <td>Approved. Awaiting arrival of planned start date (`start_date`) within maintenance window.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Implement</strong></td>
+                                    <td><code>-1</code></td>
+                                    <td>Active deployment in progress. Resolver engineers execute child <code>change_task</code> records.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Review</strong></td>
+                                    <td><code>0</code></td>
+                                    <td>Deployment complete. PIR conducted to evaluate success, downtime variance, and incidents generated.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Closed</strong></td>
+                                    <td><code>3</code></td>
+                                    <td>Final read-only state.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Canceled</strong></td>
+                                    <td><code>4</code></td>
+                                    <td>Change aborted before deployment.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-emergency-states">
+                        <h3>Emergency Change Workflow</h3>
+                        <p>
+                            Emergency changes bypass the standard <em>Assess</em> gate and move straight to <strong>Authorize</strong> 
+                            where expedited approval from the <strong>Emergency CAB (ECAB)</strong> is secured:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Fast-Track Authorization:</strong> Single ECAB approval triggers the move to <em>Scheduled</em> or immediately to <em>Implement</em>.</li>
+                            <li><strong>Retroactive Change Logging:</strong> In extreme P1 outages, engineers may restore the service first and log the Emergency Change within 24 hours for audit compliance.</li>
+                            <li><strong>Mandatory PIR:</strong> All Emergency changes require mandatory Post-Implementation Review to analyze why the emergency arose.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-closure-codes">
+                        <h3>Closure Codes (<code>close_code</code>)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Closure Code</th>
+                                    <th>Operational Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Successful</code></td>
+                                    <td>Deployed without issues or service disruptions.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Successful with Issues</code></td>
+                                    <td>Deployed successfully, but minor unexpected defects or incidents were logged.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Unsuccessful</code></td>
+                                    <td>Deployment failed; rollback plan executed to restore previous baseline.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Risk Assessment & Conflict Engine -->
+            <section class="content-section" id="risk-and-conflict">
+                <h2>Automated Risk Calculation & Conflict Detection Engine</h2>
+                <p>
+                    Before any change reaches the CAB, ServiceNow executes two automated analytical engines to protect 
+                    infrastructure availability:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Risk Calculation Engine</h4>
+                        </div>
+                        <p>
+                            Calculates the <strong>Risk (<code>risk</code>)</strong> value (Very High, High, Moderate, Low) dynamically using:
+                            <br>1. <strong>Risk Conditions:</strong> Evaluates criteria such as Class of CI (Production vs Test), Number of Impacted Users, and Complexity.
+                            <br>2. <strong>Risk Assessment Survey:</strong> Structured questionnaires scored via the Assessment engine (<code>asmt_assessment_instance</code>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Conflict Detection Engine</h4>
+                        </div>
+                        <p>
+                            Analyzes planned <code>start_date</code> and <code>end_date</code> against:
+                            <br>1. <strong>Blackout Schedules:</strong> Identifies changes scheduled during frozen fiscal/holiday periods.
+                            <br>2. <strong>Maintenance Windows:</strong> Flags changes scheduled outside approved operational windows.
+                            <br>3. <strong>CI Dependency Collisions:</strong> Warns when two concurrent changes touch the same CI or parent/child CIs in the CMDB.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: CAB Workbench -->
+            <section class="content-section" id="cab-workbench">
+                <h2>CAB Workbench (<code>cab_workbench</code>) & Approval Governance</h2>
+                <p>
+                    The <strong>Change Advisory Board (CAB) Workbench</strong> provides a dedicated cockpit for CAB managers 
+                    to plan, chair, and execute formal change review meetings:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Automated Agenda Generation</h4>
+                        </div>
+                        <p>
+                            Automatically aggregates all Normal changes in the <em>Authorize</em> state where <code>cab_required = true</code> 
+                            and <code>cab_date</code> matches the meeting schedule, assigning per-ticket presentation time slots.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Visual Calendar & Conflict Radar</h4>
+                        </div>
+                        <p>
+                            Visualizes all planned outages on an interactive timeline alongside CI service health maps, allowing 
+                            stakeholders to verify that changes do not conflict with business-critical operations.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Live In-Meeting Approval Voting</h4>
+                        </div>
+                        <p>
+                            CAB managers can record approvals, rejections, or requests for additional data directly in the workbench UI, 
+                            instantly updating <code>sysapproval_approver</code> records and transitioning tickets to <em>Scheduled</em>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Real-World Example Records -->
+            <section class="content-section" id="example-records">
+                <h2>Real-World Change Request Records (Standard, Normal & Emergency)</h2>
+                <p>
+                    The following example records demonstrate how technical attributes, risk scores, and approval models differ 
+                    across the three primary change categories:
+                </p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-record-normal">Normal Change Record</button>
+                        <button class="tab-btn" data-tab="tab-record-standard">Standard Change Record</button>
+                        <button class="tab-btn" data-tab="tab-record-emergency">Emergency Change Record</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-record-normal">
+                        <h3>Example: Production Oracle Database Cluster Migration</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Field Value</th>
+                                    <th>Technical Rationale</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>number</code></td>
+                                    <td><code>CHG0030194</code></td>
+                                    <td>System-generated task identifier.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td><code>Normal</code></td>
+                                    <td>High-impact production change requiring full CAB authorization.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cmdb_ci</code></td>
+                                    <td><code>db_prod_cluster_01</code></td>
+                                    <td>Primary Oracle database hosting global ERP.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>risk</code></td>
+                                    <td><code>2 - High</code></td>
+                                    <td>Calculated via Risk Assessment due to tier-1 business service impact.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>start_date</code> / <code>end_date</code></td>
+                                    <td><code>2026-09-12 02:00:00</code> to <code>05:00:00</code></td>
+                                    <td>Scheduled during the approved Sunday morning Maintenance Window.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cab_required</code></td>
+                                    <td><code>true</code></td>
+                                    <td>Mandates presentation and approval at the weekly CAB meeting.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>change_task</code> records</td>
+                                    <td>3 Child Tasks</td>
+                                    <td>1. Pre-change DB Backup, 2. Schema Migration Script, 3. Health Smoke Test.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-record-standard">
+                        <h3>Example: Monthly Operating System Security Patching</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Field Value</th>
+                                    <th>Technical Rationale</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>number</code></td>
+                                    <td><code>CHG0030250</code></td>
+                                    <td>System-generated task identifier.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td><code>Standard</code></td>
+                                    <td>Created from Standard Change Template (<code>STDCHG_WIN_PATCH_01</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cmdb_ci</code></td>
+                                    <td><code>app_srv_farm_east</code></td>
+                                    <td>Pool of redundant web servers behind load balancer.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>risk</code></td>
+                                    <td><code>4 - Low</code></td>
+                                    <td>Pre-approved procedural change with zero customer downtime.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>state</code></td>
+                                    <td><code>Scheduled (-2)</code></td>
+                                    <td>Bypasses <em>Assess</em> and <em>Authorize</em> gates immediately upon submission.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cab_required</code></td>
+                                    <td><code>false</code></td>
+                                    <td>No CAB review required; authorized by historical template approval.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-record-emergency">
+                        <h3>Example: Critical Zero-Day SSL Vulnerability Patch</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Field Value</th>
+                                    <th>Technical Rationale</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>number</code></td>
+                                    <td><code>CHG0030401</code></td>
+                                    <td>System-generated task identifier.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td><code>Emergency</code></td>
+                                    <td>Urgent hotfix required to mitigate CVE-2026-9812 on edge routers.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cmdb_ci</code></td>
+                                    <td><code>edge_router_global_01</code></td>
+                                    <td>Edge perimeter routing cluster.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>risk</code></td>
+                                    <td><code>1 - Very High</code></td>
+                                    <td>Emergency execution on live production edge infrastructure.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>state</code></td>
+                                    <td><code>Authorize (-3)</code> $\rightarrow$ <code>Implement (-1)</code></td>
+                                    <td>Expedited authorization granted by Emergency CAB (ECAB) via mobile notification.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>review_status</code></td>
+                                    <td><code>PIR Required</code></td>
+                                    <td>Mandates formal Post-Implementation Review after deployment stabilization.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/problem-management" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Problem Management & KEDB</span>
+                </a>
+                <a href="/itsm/service-catalog" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Service Catalog & Request Fulfillment</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

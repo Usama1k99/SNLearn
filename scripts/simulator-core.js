@@ -10,6 +10,7 @@ function initSimulatorCore() {
     else if (typeof SamSimulatorData !== 'undefined') data = SamSimulatorData;
     else if (typeof HamSimulatorData !== 'undefined') data = HamSimulatorData;
     else if (typeof SecopsSimulatorData !== 'undefined') data = SecopsSimulatorData;
+    else if (typeof ItsmSimulatorData !== 'undefined') data = ItsmSimulatorData;
     else if (typeof SimulatorData !== 'undefined') data = SimulatorData;
 
     window.CurrentSimulatorData = data;

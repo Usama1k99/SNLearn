@@ -1,0 +1,286 @@
+<%- include('../../partials/head', { title: 'Service Operations Workspace (SOW) — ITSM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'itsm' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'itsm', moduleLabel: 'ITSM', activePage: typeof activePage !== 'undefined' ? activePage : 'service-operations-workspace' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#sow-mission" class="toc-link">Next Experience & Unification</a>
+                    <a href="#table-schema" class="toc-link">Table Architecture & Schema</a>
+                    <a href="#interaction-mgmt" class="toc-link">Interaction Management Framework</a>
+                    <a href="#awa-routing" class="toc-link">Advanced Work Assignment (AWA)</a>
+                    <a href="#agent-assist" class="toc-link">Agent Assist & Now Assist AI</a>
+                    <a href="#ci-health-ribbon" class="toc-link">Service Health & Topology Ribbon</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/itsm">ITSM</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Service Operations Workspace (SOW)</span>
+                </div>
+                <h1 class="content-title">Service Operations <span class="gradient-text">Workspace (SOW)</span></h1>
+                <p class="content-subtitle">
+                    Master modern Service Desk operations in the Next Experience — unified ITSM &amp; ITOM workflows, 
+                    Advanced Work Assignment (AWA), Interaction management, Agent Assist, and Now Assist Generative AI.
+                </p>
+            </div>
+
+            <!-- Section 1: Next Experience Unification -->
+            <section class="content-section" id="sow-mission">
+                <h2>Next Experience Architecture &amp; ITSM + ITOM Unification</h2>
+                <p>
+                    <strong>Service Operations Workspace (SOW)</strong> represents the modern evolution of the ServiceNow agent experience, 
+                    replacing legacy UI16 forms and disjointed list views with a purpose-built, high-density configurable workspace.
+                </p>
+                <p>
+                    SOW's primary architectural breakthrough is the <strong>unification of ITSM (Service Desk)</strong> and 
+                    <strong>ITOM (IT Operations Management)</strong>: Service Desk agents and Operations engineers view user-reported 
+                    incidents side-by-side with real-time server telemetry, ITOM Event Management alerts, and active CMDB outage maps.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Multi-Tab Session Cockpit</h4>
+                        </div>
+                        <p>
+                            Resolvers can manage multiple active live chats, incident investigations, and CI records simultaneously 
+                            within a single unified browser session without losing draft inputs or switching tabs.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Configurable UI Builder Canvas</h4>
+                        </div>
+                        <p>
+                            Built on ServiceNow's modern Seismic component framework and UI Builder, allowing administrators 
+                            to customize ribbons, sidebars, and widget placements dynamically per persona.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Table Architecture & Schema -->
+            <section class="content-section" id="table-schema">
+                <h2>Table Architecture & Key Fields</h2>
+                <p>
+                    SOW leverages specialized foundational tables for session routing, channel presence, and interaction management:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>Parent Extension</th>
+                            <th>Operational Scope</th>
+                            <th>Key Columns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>interaction</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Omnichannel landing record created for live chats, calls, and walk-ups before task creation.</td>
+                            <td><code>number</code>, <code>channel_metadata_document</code>, <code>type</code> (Chat, Phone, Walk-up), <code>state</code>, <code>assigned_to</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>awa_service_channel</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Defines work streams routed through AWA (e.g. Live Chat, Incidents, Cases).</td>
+                            <td><code>name</code>, <code>table</code>, <code>capacity_mode</code>, <code>max_capacity</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>awa_queue</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Routing queues prioritized by skill requirements and customer VIP tiers.</td>
+                            <td><code>name</code>, <code>service_channel</code>, <code>priority</code>, <code>schedule</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>awa_work_item</code></td>
+                            <td>None (Base Table)</td>
+                            <td>Individual queue payload assigned to an active resolver agent.</td>
+                            <td><code>document_id</code> (Ref to ticket), <code>assigned_to</code>, <code>state</code> (Queued, Offered, Accepted, Rejected)</td>
+                        </tr>
+                        <tr>
+                            <td><code>cmn_rota</code></td>
+                            <td>None (Base Table)</td>
+                            <td>On-Call roster schedules and shift rotations.</td>
+                            <td><code>name</code>, <code>group</code> (Ref to <code>sys_user_group</code>), <code>schedule</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: Interaction Management -->
+            <section class="content-section" id="interaction-mgmt">
+                <h2>The Interaction Management Framework (<code>interaction</code>)</h2>
+                <p>
+                    Historically, every incoming phone call or chat created an <code>incident</code> record immediately, leading to 
+                    database bloat from false alarms or quick password resets. SOW introduces the <strong>Interaction (<code>interaction</code>)</strong> table:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Omnichannel Ingestion Envelope</h4>
+                        </div>
+                        <p>
+                            Incoming communications from Microsoft Teams, Virtual Agent, OpenFrame Telephony (CTI), or Walk-up desks 
+                            instantly create an <code>interaction</code> record holding the live transcript and caller metadata.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>One-Click Ticket Promotion</h4>
+                        </div>
+                        <p>
+                            If an interaction represents a genuine outage or service need, agents click <em>"Create Incident"</em> or 
+                            <em>"Create Request"</em>, automatically linking the interaction and copying the conversation transcript into work notes.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Advanced Work Assignment (AWA) -->
+            <section class="content-section" id="awa-routing">
+                <h2>Advanced Work Assignment (AWA) Omnichannel Engine</h2>
+                <p>
+                    <strong>Advanced Work Assignment (AWA)</strong> automatically routes incoming interactions, incidents, 
+                    and catalog tasks to the best-suited agent based on availability, capacity, and certified skills:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">AWA Omnichannel Routing &amp; Resolution Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        INCOMING["Incoming Omnichannel Request<br>(Virtual Agent Chat, Phone Call, or P1 Incident)"] --> QUEUE["AWA Routing Queue (awa_queue)<br>Evaluates Priority & Language/Skill Requirements"]
+                        
+                        QUEUE --> CAPACITY["Agent Capacity & Presence Engine<br>Checks ava_presence_state (Available) & Open Workload"]
+                        
+                        CAPACITY --> OFFER["Work Item Offered (awa_work_item)<br>Desktop screen pop & audio chime with 30s acceptance timer"]
+                        
+                        OFFER -->|Agent Accepts| COCKPIT["Launch Service Operations Workspace Cockpit<br>Transcript & Customer Profile populated automatically"]
+                        OFFER -->|Timer Expires / Rejected| REROUTE["Re-route to Next Qualified Resolver"]
+                        REROUTE --> CAPACITY
+                        
+                        COCKPIT --> ASSIST["Agent Assist Surfaces Matching KB Articles & Similar Outages"]
+                        ASSIST --> RESOLVE["Ticket Resolved & Interaction Closed"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-awa-routing">Routing Criteria</button>
+                        <button class="tab-btn" data-tab="tab-awa-presence">Presence &amp; Capacity</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-awa-routing">
+                        <h3>AWA Routing Allocation Methods</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Routing Method</th>
+                                    <th>Operational Behavior</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Most Capacity</strong></td>
+                                    <td>Routes to the qualified agent currently carrying the lowest percentage of their maximum allowed work items.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Last Assigned (Round Robin)</strong></td>
+                                    <td>Routes to the qualified agent who has gone the longest time without receiving a new work item.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Skill-Based Routing</strong></td>
+                                    <td>Matches required ticket skills (e.g. <code>Oracle DBA Level 3</code>, <code>German Language</code>) with agent certifications (<code>cmn_skill</code>).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-awa-presence">
+                        <h3>Agent Presence States</h3>
+                        <p>Agents manage their availability via the SOW status drawer:</p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Available:</strong> Actively accepting live chat, phone, and incident screen pops.</li>
+                            <li><strong>Busy / In a Meeting:</strong> Temporarily pauses new push allocations while preserving current active work items.</li>
+                            <li><strong>Offline:</strong> Agent logged off; no work routed.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Agent Assist & Now Assist -->
+            <section class="content-section" id="agent-assist">
+                <h2>Agent Assist &amp; Now Assist Generative AI</h2>
+                <p>
+                    Embedded directly within the right-hand panel of SOW, <strong>Agent Assist</strong> provides 
+                    real-time intelligence as the resolver works the ticket:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Contextual Recommendations</h4>
+                        </div>
+                        <p>
+                            Continuously runs contextual queries on the ticket's Short Description and CI to surface matching 
+                            <strong>Knowledge Articles</strong>, <strong>Known Errors</strong>, and <strong>Historically Resolved Incidents</strong>.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Now Assist (Generative AI)</h4>
+                        </div>
+                        <p>
+                            • <strong>Chat Summarization:</strong> Generates concise incident descriptions from long customer live chat transcripts in seconds.<br>
+                            • <strong>Resolution Notes Generation:</strong> Auto-drafts complete technical close notes summarizing the troubleshooting steps taken.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: CI Health & Topology Ribbon -->
+            <section class="content-section" id="ci-health-ribbon">
+                <h2>Service &amp; CI Health Ribbon</h2>
+                <p>
+                    At the top of every incident in SOW, the <strong>Ribbon Component</strong> provides instantaneous operational awareness:
+                </p>
+                <ul class="feature-bullet-list">
+                    <li><strong>Upstream Business Service Health:</strong> Displays whether the CI's parent Business Offering is experiencing active outages or degraded performance.</li>
+                    <li><strong>Recent Changes on CI:</strong> Lists changes deployed on the target server within the past 72 hours, allowing resolvers to immediately pinpoint change-induced outages.</li>
+                    <li><strong>Caller VIP &amp; History Badge:</strong> Highlights caller tier, open ticket counts, and contact preferences.</li>
+                </ul>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/itsm/sla-management" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Service Level Management (SLA)</span>
+                </a>
+                <a href="/itsm/walkup-and-cim" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Walk-up Experience &amp; CIM</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

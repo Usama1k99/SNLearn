@@ -166,11 +166,11 @@
 
 .irm-page-layout {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 270px 1fr;
     gap: var(--space-2xl);
-    max-width: 1200px;
+    max-width: 1720px;
     margin: 0 auto;
-    padding: 0 var(--space-lg);
+    padding: 0 var(--space-xl);
 }
 
 /* -- Sidebar -- */
@@ -192,7 +192,7 @@
 }
 
 .sidebar-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -387,6 +387,51 @@
     margin-bottom: 0;
 }
 
+/* -- Feature Grids & Cards (Rounded Elements) -- */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.feature-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg) var(--space-xl);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card:hover {
+    border-color: var(--border-accent);
+    background: rgba(30, 41, 59, 0.4);
+}
+
+.feature-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.feature-card h4,
+.feature-card-header h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 0;
+}
+
 /* -- Code Blocks -- */
 .code-block {
     background: var(--bg-primary);
@@ -449,7 +494,7 @@
 /* Inline code */
 .content-section code:not(.code-body code) {
     font-family: var(--font-mono);
-    font-size: 16px;
+    font-size: 14px;
     padding: 2px 6px;
     border-radius: 4px;
     background: var(--bg-elevated);
@@ -522,19 +567,130 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    margin-bottom: var(--space-lg);
-    text-align: center;
-    overflow-x: auto;
+    padding: var(--space-lg) var(--space-xl);
+    margin-bottom: var(--space-xl);
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.diagram-block:hover {
+    border-color: var(--border-default);
+}
+
+.diagram-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .diagram-title {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-tertiary);
-    margin-bottom: var(--space-md);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    margin-bottom: 0;
+}
+
+/* Diagram Interactive Toolbar */
+.diagram-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 3px 6px;
+    backdrop-filter: blur(8px);
+}
+
+.diagram-zoom-level {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-tertiary);
+    min-width: 40px;
+    text-align: center;
+    user-select: none;
+}
+
+.diagram-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.diagram-btn:hover {
+    color: var(--text-primary);
+    background: var(--accent-soft);
+}
+
+.diagram-btn svg {
+    stroke-width: 2.2;
+}
+
+/* Fullscreen Modal View */
+.diagram-block.diagram-fullscreen {
+    position: fixed !important;
+    top: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: 16px !important;
+    width: calc(100vw - 32px) !important;
+    height: calc(100vh - 32px) !important;
+    max-width: none !important;
+    z-index: 10000000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #0b1120 !important;
+    border: 1px solid var(--border-accent) !important;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.85), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+    border-radius: var(--radius-xl) !important;
+    padding: var(--space-xl) !important;
+    animation: diagramFadeIn 0.2s ease-out;
+}
+
+@keyframes diagramFadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.diagram-block.diagram-fullscreen .diagram-header-row {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.diagram-block.diagram-fullscreen .diagram-title {
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.diagram-block.diagram-fullscreen .mermaid {
+    flex: 1;
+    height: calc(100% - 60px);
+    max-height: none !important;
+    background: rgba(2, 6, 23, 0.85);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    padding: 2rem;
+}
+
+body.diagram-modal-open {
+    overflow: hidden !important;
 }
 
 /* Flowchart */
@@ -910,10 +1066,58 @@
 .mermaid {
     display: flex;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.4);
-    padding: 2rem;
+    align-items: flex-start;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 1.5rem 1rem;
     border-radius: 12px;
-    overflow: visible;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(16, 185, 129, 0.4) rgba(15, 23, 42, 0.6);
+    position: relative;
+    user-select: none;
+}
+
+.mermaid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.mermaid::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 4px;
+}
+
+.mermaid::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+    border-radius: 4px;
+}
+
+.mermaid::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+.mermaid.is-zoomed {
+    cursor: grab;
+}
+
+.mermaid.is-dragging {
+    cursor: grabbing !important;
+}
+
+.mermaid svg {
+    max-width: none !important;
+    height: auto !important;
+    display: block;
+    margin: 0 auto;
+    min-width: min-content;
+    transform-origin: top center;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure large sequence diagrams & ERDs maintain generous legible width */
+.mermaid svg[id^="mermaid-"] {
+    min-width: min(100%, 750px);
 }
 
 /* -------------------------------------------
