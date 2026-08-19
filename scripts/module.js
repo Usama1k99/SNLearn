@@ -111,13 +111,13 @@ function setupDiagramControls() {
         toolbar.className = 'diagram-toolbar';
         toolbar.innerHTML = `
             <div class="diagram-zoom-level" id="zoom-level-${idx}">100%</div>
-            <button class="diagram-btn diagram-btn-zoom-out" title="Zoom Out (Alt + -)" aria-label="Zoom Out">
+            <button class="diagram-btn diagram-btn-zoom-out" title="Zoom Out (Ctrl + Scroll Down / Alt + -)" aria-label="Zoom Out">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
             </button>
             <button class="diagram-btn diagram-btn-reset" title="Reset Zoom" aria-label="Reset Zoom">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
             </button>
-            <button class="diagram-btn diagram-btn-zoom-in" title="Zoom In (Alt + +)" aria-label="Zoom In">
+            <button class="diagram-btn diagram-btn-zoom-in" title="Zoom In (Ctrl + Scroll Up / Alt + +)" aria-label="Zoom In">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
             </button>
             <button class="diagram-btn diagram-btn-fullscreen" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
@@ -159,6 +159,19 @@ function setupDiagramControls() {
         toolbar.querySelector('.diagram-btn-zoom-in')?.addEventListener('click', () => applyZoom(zoom + 0.1));
         toolbar.querySelector('.diagram-btn-zoom-out')?.addEventListener('click', () => applyZoom(zoom - 0.1));
         toolbar.querySelector('.diagram-btn-reset')?.addEventListener('click', () => applyZoom(1.0));
+
+        // Intercept Ctrl/Meta + Scroll Wheel to step zoom levels and suppress default browser window zoom
+        block.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const step = 0.10;
+                if (e.deltaY < 0) {
+                    applyZoom(zoom + step);
+                } else if (e.deltaY > 0) {
+                    applyZoom(zoom - step);
+                }
+            }
+        }, { passive: false });
 
         const fullscreenBtn = toolbar.querySelector('.diagram-btn-fullscreen');
         const EXPAND_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';

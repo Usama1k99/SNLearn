@@ -1,0 +1,333 @@
+<%- include('../../partials/head', { title: 'Career & Learning Roadmap — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'career-roadmap' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#why-itsm-first" class="toc-link">Why ITSM is Mandatory Step 1</a>
+                    <a href="#module-landscape" class="toc-link">Enterprise Module Landscape</a>
+                    <a href="#career-quiz" class="toc-link">Career Matcher Quiz</a>
+                    <a href="#cert-ladder" class="toc-link">The Certification Pathway</a>
+                    <a href="#launch-module" class="toc-link">Choose Your Next Module</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Career &amp; Learning Roadmap</span>
+                </div>
+                <h1 class="content-title">The Master Pathway: <span class="gradient-text">Career &amp; Module Roadmap</span></h1>
+                <p class="content-subtitle">
+                    Congratulations on completing the ServiceNow Basics fundamentals! Discover where to go next, 
+                    why ITSM is the platform foundation, and find the perfect enterprise specialty tailored to your career goals.
+                </p>
+            </div>
+
+            <!-- Section 1: Why ITSM is Mandatory Step 1 -->
+            <section class="content-section" id="why-itsm-first">
+                <h2>The Golden Rule: Why ITSM is Step 1 for Every Developer</h2>
+                <p>
+                    Regardless of whether your long-term dream is to become a Cybersecurity Architect (SecOps), a Compliance Auditor (IRM), 
+                    or a Software Asset Manager (SAM), <strong>IT Service Management (ITSM) is the universal mandatory foundation</strong>.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Task Table Blueprint</h4>
+                        </div>
+                        <p>
+                            Every advanced module inherits from the <code>task</code> table you master in ITSM. Incident, Change, and Service Request 
+                            define the core concepts of assignments, state lifecycles, and SLAs.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The CMDB Nerve Center</h4>
+                        </div>
+                        <p>
+                            Without understanding Configuration Items (CIs) in ITSM Change and Incident, you cannot comprehend Hardware Assets (HAM), 
+                            Software Entitlements (SAM), or Security Vulnerability mapping (SecOps).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Market Demand &amp; Hiring</h4>
+                        </div>
+                        <p>
+                            Over 85% of ServiceNow enterprise job openings require proven competency in ITSM processes (Incident, Problem, Change, Service Catalog) 
+                            before evaluating specialized skills.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Module Landscape & Specializations -->
+            <section class="content-section" id="module-landscape">
+                <h2>The 5 Core Modules on SN Learn</h2>
+                <p>
+                    Once you have solid grounding in ITSM, choose a specialization based on your technical background and career interests:
+                </p>
+
+                <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. ITSM (IT Service Management)</h4>
+                        </div>
+                        <p>
+                            <strong>The Foundation.</strong> Incident, Major Incident, Problem Management, Change Risk Calculation, Service Catalog, Service Level Agreements (SLAs), and Service Operations Workspace.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. HAM (Hardware Asset Management)</h4>
+                        </div>
+                        <p>
+                            <strong>Physical &amp; Data Center Assets.</strong> Procurement lifecycles, stockrooms, transfer orders, hardware normalization, barcode scanning, and secure asset retirement.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. SAM (Software Asset Management)</h4>
+                        </div>
+                        <p>
+                            <strong>Financial &amp; License Compliance.</strong> Software discovery models, license metric algorithms (per core, per user), Microsoft/Oracle/Adobe publishers, and audit reconciliation.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>4. IRM / GRC (Integrated Risk Management)</h4>
+                        </div>
+                        <p>
+                            <strong>Enterprise Governance &amp; Risk.</strong> Entity scoping, risk assessment frameworks (NIST, ISO 27001), policy compliance attestations, and internal audit engagements.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>5. SecOps (Security Operations)</h4>
+                        </div>
+                        <p>
+                            <strong>Cybersecurity &amp; Threat Defense.</strong> Security Incident Response (SIR), Vulnerability Response (VR) with Qualys/Tenable integrations, Threat Intelligence, and automated SOC playbooks.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Interactive Career Matcher Quiz -->
+            <section class="content-section" id="career-quiz">
+                <h2>Interactive Career Persona Matcher</h2>
+                <p>
+                    Not sure which specialty matches your strengths? Answer the 3 questions below to receive a personalized pathway recommendation:
+                </p>
+
+                <div class="quiz-container" style="background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-2xl);">
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; font-weight: 700; font-size: 14px; color: var(--text-primary); margin-bottom: 8px;">1. What is your primary background or technical interest?</label>
+                        <select id="quizQ1" onchange="evaluateCareerMatcher()" style="width: 100%; padding: 10px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); color: var(--text-primary); font-size: 13px;">
+                            <option value="itsm">IT Operations, Service Desk, or Helpdesk Management</option>
+                            <option value="ham">Logistics, Supply Chain, Data Center or Hardware Inventory</option>
+                            <option value="sam">Finance, Auditing, Software Licensing &amp; Cost Optimization</option>
+                            <option value="irm">Compliance, Corporate Governance, Legal, or Risk Management</option>
+                            <option value="secops">Cybersecurity, SOC Defense, Penetration Testing &amp; Vulnerability Mgmt</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; font-weight: 700; font-size: 14px; color: var(--text-primary); margin-bottom: 8px;">2. What type of business challenge excites you the most?</label>
+                        <select id="quizQ2" onchange="evaluateCareerMatcher()" style="width: 100%; padding: 10px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); color: var(--text-primary); font-size: 13px;">
+                            <option value="itsm">Resolving critical outages fast and automating service requests</option>
+                            <option value="ham">Preventing hardware loss and managing physical equipment lifecycles</option>
+                            <option value="sam">Saving millions in licensing fines and optimizing cloud subscriptions</option>
+                            <option value="irm">Passing strict SOC2 / ISO compliance audits with automated evidence</option>
+                            <option value="secops">Neutralizing ransomware, malicious phishing, and zero-day CVE exploits</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Recommendation Card -->
+                    <div id="careerRecommendationCard" style="background: var(--bg-elevated); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: var(--space-lg); margin-top: var(--space-xl);">
+                        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 4px;">Recommended Next Step</div>
+                        <h3 id="recTitle" style="color: var(--text-primary); margin-bottom: 8px; font-size: 20px;">IT Service Management (ITSM) Specialist</h3>
+                        <p id="recDesc" style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 14px;">
+                            Start with the ITSM learning module. Master Incident, Problem, Change, and Service Catalog to build the universal foundation of ServiceNow enterprise development.
+                        </p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+                            <span class="badge" id="recCert" style="padding: 4px 10px; border-radius: 100px; background: var(--accent-soft); color: var(--accent-primary); font-size: 12px; font-weight: 600;">Cert Target: CIS-ITSM</span>
+                            <span class="badge" id="recSalary" style="padding: 4px 10px; border-radius: 100px; background: rgba(255,255,255,0.06); color: var(--text-secondary); font-size: 12px;">Avg US Salary: $115,000 - $145,000</span>
+                        </div>
+                        <a id="recLink" href="/itsm/overview" class="btn-start-basics" style="display: inline-flex; width: auto; padding: 10px 20px; font-size: 13px;">
+                            Start ITSM Module →
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: The Certification Ladder -->
+            <section class="content-section" id="cert-ladder">
+                <h2>The ServiceNow Certification Pathway</h2>
+                <p>
+                    Industry-recognized certifications validate your expertise and are critical for career advancement:
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Level</th>
+                                <th>Certification Name</th>
+                                <th>Prerequisites</th>
+                                <th>Focus Area</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Core Platform</strong></td>
+                                <td><code>CSA (Certified System Administrator)</code></td>
+                                <td>Basics Module + 3-6 months PDI practice</td>
+                                <td>Table schemas, UI Policies, Business Rules, User Governance, and Update Sets.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Application Development</strong></td>
+                                <td><code>CAD (Certified Application Developer)</code></td>
+                                <td>CSA + JavaScript Fundamentals</td>
+                                <td>Scoped Apps, GlideAjax, Script Includes, REST APIs, and Flow Designer actions.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Implementation Specialist</strong></td>
+                                <td><code>CIS (Certified Implementation Specialist)</code></td>
+                                <td>CSA + Module Specialty Track</td>
+                                <td>Deep domain expertise (CIS-ITSM, CIS-HAM, CIS-SAM, CIS-Risk &amp; Compliance, CIS-SIR).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Master Architect</strong></td>
+                                <td><code>CTA / CMA (Technical / Master Architect)</code></td>
+                                <td>Multiple CIS + Board Review Defense</td>
+                                <td>Multi-instance enterprise architecture, global governance, and C-suite digital strategy.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 5: Launch Next Module -->
+            <section class="content-section" id="launch-module">
+                <h2>Ready to Begin? Explore Enterprise Modules</h2>
+                <div class="pages-grid" style="margin-top: var(--space-lg);">
+                    <a href="/itsm" class="module-card-horizontal page-card">
+                        <span class="page-card-number">01</span>
+                        <h3 class="page-card-title">ITSM (IT Service Management)</h3>
+                        <p class="page-card-desc">The mandatory foundation. Incident, Problem, Change, Service Catalog, and Service Operations Workspace.</p>
+                    </a>
+                    <a href="/ham" class="module-card-horizontal page-card">
+                        <span class="page-card-number">02</span>
+                        <h3 class="page-card-title">HAM (Hardware Asset Management)</h3>
+                        <p class="page-card-desc">Hardware procurement, stockrooms, transfer orders, and disposal lifecycles.</p>
+                    </a>
+                    <a href="/sam" class="module-card-horizontal page-card">
+                        <span class="page-card-number">03</span>
+                        <h3 class="page-card-title">SAM (Software Asset Management)</h3>
+                        <p class="page-card-desc">Software normalization, compliance reconciliation, and license optimization.</p>
+                    </a>
+                    <a href="/irm" class="module-card-horizontal page-card">
+                        <span class="page-card-number">04</span>
+                        <h3 class="page-card-title">IRM (Integrated Risk Management)</h3>
+                        <p class="page-card-desc">Entity scoping, risk frameworks, policy compliance, and audit management.</p>
+                    </a>
+                    <a href="/secops" class="module-card-horizontal page-card">
+                        <span class="page-card-number">05</span>
+                        <h3 class="page-card-title">SecOps (Security Operations)</h3>
+                        <p class="page-card-desc">Security Incident Response (SIR), Vulnerability Response, and SOC workflows.</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/app-builder-sandbox" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Custom App Sandbox Lab</span>
+                </a>
+                <a href="/itsm/overview" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Step 1 Foundation →</span>
+                    <span class="page-nav-title">Launch ITSM Module</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+</main>
+
+<script>
+const careerProfiles = {
+    itsm: {
+        title: "IT Service Management (ITSM) Specialist",
+        desc: "Master the heart of ServiceNow. You will design automated Incident resolution pipelines, configure Change approval workflows, and optimize Service Operations Workspaces for enterprise IT teams.",
+        cert: "Cert Target: CSA → CIS-ITSM",
+        salary: "Avg US Salary: $115,000 - $145,000",
+        link: "/itsm/overview",
+        btnText: "Start ITSM Module →"
+    },
+    ham: {
+        title: "Hardware Asset Management (HAM) Architect",
+        desc: "Specialise in tracking physical enterprise infrastructure, data center server racks, laptop fleet procurement, barcode scanning logistics, and e-waste disposal compliance.",
+        cert: "Cert Target: CSA → CIS-HAM",
+        salary: "Avg US Salary: $120,000 - $150,000",
+        link: "/ham/overview",
+        btnText: "Start HAM Module →"
+    },
+    sam: {
+        title: "Software Asset Management (SAM) Consultant",
+        desc: "Command the highest contractor rates by mastering complex licensing models (Microsoft, Oracle, IBM, Adobe). Save enterprises millions in audit penalties and eliminate SaaS shelfware.",
+        cert: "Cert Target: CSA → CIS-SAM",
+        salary: "Avg US Salary: $135,000 - $170,000",
+        link: "/sam/overview",
+        btnText: "Start SAM Module →"
+    },
+    irm: {
+        title: "Integrated Risk Management (IRM / GRC) Architect",
+        desc: "Partner with corporate legal, security, and financial compliance officers to automate SOX, ISO 27001, and NIST audit evidence, risk assessments, and policy governance.",
+        cert: "Cert Target: CSA → CIS-Risk & Compliance",
+        salary: "Avg US Salary: $130,000 - $165,000",
+        link: "/irm/overview",
+        btnText: "Start IRM Module →"
+    },
+    secops: {
+        title: "Security Operations (SecOps) Engineer",
+        desc: "Bridge the gap between Security Operations Centers (SOC) and IT. Automate Security Incident Response (SIR) playbooks, manage CVE vulnerabilities, and integrate threat feeds.",
+        cert: "Cert Target: CSA → CIS-SIR / CIS-VR",
+        salary: "Avg US Salary: $130,000 - $175,000",
+        link: "/secops/overview",
+        btnText: "Start SecOps Module →"
+    }
+};
+
+function evaluateCareerMatcher() {
+    const q1 = document.getElementById('quizQ1').value;
+    const profile = careerProfiles[q1] || careerProfiles.itsm;
+
+    document.getElementById('recTitle').innerText = profile.title;
+    document.getElementById('recDesc').innerText = profile.desc;
+    document.getElementById('recCert').innerText = profile.cert;
+    document.getElementById('recSalary').innerText = profile.salary;
+    
+    const linkBtn = document.getElementById('recLink');
+    linkBtn.href = profile.link;
+    linkBtn.innerText = profile.btnText;
+}
+</script>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

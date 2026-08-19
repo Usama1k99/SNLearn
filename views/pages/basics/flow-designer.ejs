@@ -1,0 +1,231 @@
+<%- include('../../partials/head', { title: 'Flow Designer & Workflows — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'flow-designer' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-flow" class="toc-link">What is Flow Designer?</a>
+                    <a href="#three-pillars" class="toc-link">The 3 Pillars (Triggers, Actions, Logic)</a>
+                    <a href="#data-pills" class="toc-link">Data Pills &amp; Visual Mapping</a>
+                    <a href="#case-study" class="toc-link">Step-by-Step Flow Case Study</a>
+                    <a href="#flow-vs-br" class="toc-link">Flow Designer vs. Business Rules</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Flow Designer &amp; Workflows</span>
+                </div>
+                <h1 class="content-title">No-Code Automation: <span class="gradient-text">Flow Designer &amp; Workflows</span></h1>
+                <p class="content-subtitle">
+                    Automate complex enterprise business processes without writing scripts — understand triggers, actions, 
+                    flow logic, drag-and-drop data pills, and multi-stage approval pipelines.
+                </p>
+            </div>
+
+            <!-- Section 1: What is Flow Designer -->
+            <section class="content-section" id="what-is-flow">
+                <h2>What is Flow Designer?</h2>
+                <p>
+                    Historically, automating multi-step enterprise workflows required writing complex JavaScript code across 
+                    legacy Workflow Editors and script engines.
+                </p>
+                <p>
+                    <strong>Flow Designer</strong> is ServiceNow's modern, natural-language automation environment that enables 
+                    both non-technical administrators and professional developers to build end-to-end automations visually.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Natural Language Assembly</h4>
+                        </div>
+                        <p>
+                            Workflows read like plain English sentences: 
+                            <em>"When a high-priority incident is created, ask the On-Call Manager for approval, then create a task for Network Support."</em>
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Live Execution Tracking</h4>
+                        </div>
+                        <p>
+                            Every time a flow runs, Flow Designer captures a detailed execution log showing exactly which branch 
+                            executed, how long each step took, and what data passed through each node.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Three Pillars -->
+            <section class="content-section" id="three-pillars">
+                <h2>The 3 Core Pillars of Flow Designer</h2>
+                <p>
+                    Every automated process in Flow Designer is composed of three building blocks:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. Triggers (When should this run?)</h4>
+                        </div>
+                        <p>
+                            • <strong>Record Triggers:</strong> Runs when a record is <em>Created</em>, <em>Updated</em>, or <em>Created or Updated</em>.
+                            <br>• <strong>Scheduled Triggers:</strong> Runs at set intervals (e.g. every Monday at 8:00 AM).
+                            <br>• <strong>Application Triggers:</strong> Inbound REST webhooks or Service Catalog requests.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. Actions (What should happen?)</h4>
+                        </div>
+                        <p>
+                            Pre-built operational steps:
+                            <br>• <em>Ask for Approval</em>
+                            <br>• <em>Create Task</em> or <em>Update Record</em>
+                            <br>• <em>Send Email Notification</em>
+                            <br>• <em>Look Up Records</em>
+                            <br>• Integration spokes (Post to Slack, create Jira ticket).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. Flow Logic (How should it branch?)</h4>
+                        </div>
+                        <p>
+                            Decision structures:
+                            <br>• <em>If / Else If / Else</em> conditions.
+                            <br>• <em>For Each</em> loops (processing arrays of records).
+                            <br>• <em>Wait for Condition</em> (pausing until a field changes).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Data Pills -->
+            <section class="content-section" id="data-pills">
+                <h2>Data Pills &amp; Visual Drag-and-Drop Mapping</h2>
+                <p>
+                    How do you pass data from step 1 into step 4? Through <strong>Data Pills</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>What is a Data Pill?</h4>
+                        </div>
+                        <p>
+                            A visual pill representing a variable output from any previous step in the flow. 
+                            For example: <code>[1. Trigger - Incident &gt; Caller &gt; Manager &gt; Email]</code>.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Zero Code Mapping</h4>
+                        </div>
+                        <p>
+                            Instead of writing string concatenations in JavaScript, you drag the <em>Caller Name</em> data pill 
+                            directly into the <em>To</em> box of an email notification step!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Case Study -->
+            <section class="content-section" id="case-study">
+                <h2>Step-by-Step Case Study: VIP Hardware Request Flow</h2>
+                <p>
+                    Let's trace a real-world enterprise approval and fulfillment flow built in Flow Designer:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Visual Automation Pipeline in Flow Designer</div>
+                    <div class="mermaid">
+                    graph TD
+                        TRG["1. Trigger: Service Catalog Request submitted<br>Item = Executive Laptop Package"] --> LKP["2. Look Up Record: Fetch Requester's Department Budget"]
+                        
+                        LKP --> COND{"3. Flow Logic: Is Cost > $2,000?"}
+                        COND -->|Yes| APPR["4. Ask for Approval: Send notification to Department VP"]
+                        COND -->|No| AUTO["Skip Approval: Auto-approve standard order"]
+                        
+                        APPR --> WAIT{"Approval Decision"}
+                        WAIT -->|Approved| TASK["5. Create Catalog Task (SCTASK): Dispatch to IT Procurement"]
+                        WAIT -->|Rejected| REJ["Send Rejection Email to Employee &amp; Close Request"]
+                        
+                        AUTO --> TASK
+                        TASK --> CLOSE["6. Wait for SCTASK completion $\rightarrow$ Mark Request Closed Complete"]
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Flow Designer vs Business Rules -->
+            <section class="content-section" id="flow-vs-br">
+                <h2>When to Use Flow Designer vs. Business Rules</h2>
+                <p>
+                    A common question for new ServiceNow developers is knowing when to build a Flow vs. writing a Business Rule:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Best Choice</th>
+                            <th>Why</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Multi-day approval workflow with email reminders.</td>
+                            <td><strong>Flow Designer</strong></td>
+                            <td>Flows can pause, wait for days, and resume cleanly without tying up server threads.</td>
+                        </tr>
+                        <tr>
+                            <td>Validating field values and stopping invalid saves before SQL commit.</td>
+                            <td><strong>Business Rule (`before`)</strong></td>
+                            <td>Business Rules run in milliseconds synchronously inside the database transaction.</td>
+                        </tr>
+                        <tr>
+                            <td>Fulfilling Service Catalog order items across multiple teams.</td>
+                            <td><strong>Flow Designer</strong></td>
+                            <td>Built-in catalog item triggers, sequential task generation, and stage visualizers.</td>
+                        </tr>
+                        <tr>
+                            <td>High-frequency math calculation on every single record update.</td>
+                            <td><strong>Business Rule (`before`)</strong></td>
+                            <td>Zero execution overhead for instant mathematical field population.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/server-scripting" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Business Rules &amp; Script Includes</span>
+                </a>
+                <a href="/basics/security-and-scopes" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Security, Roles &amp; Update Sets</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

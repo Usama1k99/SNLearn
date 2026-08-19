@@ -22,14 +22,42 @@
             </button>
 
             <!-- Navigation Links (Desktop Row & Mobile Expandable Menu) -->
+            <% const isModuleActive = typeof activeTab !== 'undefined' && ['itsm', 'ham', 'sam', 'irm', 'secops'].includes(activeTab); %>
             <div class="nav-links" id="navLinks">
                 <a href="/" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'home' ? 'active' : '' %>">Home</a>
                 <a href="/basics" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'basics' ? 'active' : '' %>">Basics</a>
-                <a href="/itsm" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'itsm' ? 'active' : '' %>">ITSM</a>
-                <a href="/ham" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'ham' ? 'active' : '' %>">HAM</a>
-                <a href="/sam" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'sam' ? 'active' : '' %>">SAM</a>
-                <a href="/irm" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'irm' ? 'active' : '' %>">IRM</a>
-                <a href="/secops" class="nav-link <%= typeof activeTab !== 'undefined' && activeTab === 'secops' ? 'active' : '' %>">SecOps</a>
+
+                <!-- Modules Dropdown -->
+                <div class="nav-dropdown" id="navModulesDropdown">
+                    <button class="nav-link nav-dropdown-btn <%= isModuleActive ? 'active' : '' %>" id="modulesDropdownToggle" aria-haspopup="true" aria-expanded="false" type="button">
+                        <span>Modules</span>
+                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="nav-dropdown-menu" id="modulesDropdownMenu" aria-labelledby="modulesDropdownToggle">
+                        <a href="/itsm" class="dropdown-item <%= typeof activeTab !== 'undefined' && activeTab === 'itsm' ? 'active' : '' %>">
+                            <span class="dropdown-item-dot"></span>
+                            <span class="dropdown-item-text">ITSM (IT Service Management)</span>
+                        </a>
+                        <a href="/ham" class="dropdown-item <%= typeof activeTab !== 'undefined' && activeTab === 'ham' ? 'active' : '' %>">
+                            <span class="dropdown-item-dot"></span>
+                            <span class="dropdown-item-text">HAM (Hardware Asset Management)</span>
+                        </a>
+                        <a href="/sam" class="dropdown-item <%= typeof activeTab !== 'undefined' && activeTab === 'sam' ? 'active' : '' %>">
+                            <span class="dropdown-item-dot"></span>
+                            <span class="dropdown-item-text">SAM (Software Asset Management)</span>
+                        </a>
+                        <a href="/irm" class="dropdown-item <%= typeof activeTab !== 'undefined' && activeTab === 'irm' ? 'active' : '' %>">
+                            <span class="dropdown-item-dot"></span>
+                            <span class="dropdown-item-text">IRM (Integrated Risk Management)</span>
+                        </a>
+                        <a href="/secops" class="dropdown-item <%= typeof activeTab !== 'undefined' && activeTab === 'secops' ? 'active' : '' %>">
+                            <span class="dropdown-item-dot"></span>
+                            <span class="dropdown-item-text">SecOps (Security Operations)</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

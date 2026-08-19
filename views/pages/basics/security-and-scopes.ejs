@@ -1,0 +1,256 @@
+<%- include('../../partials/head', { title: 'Security, Roles & Update Sets — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'security-and-scopes' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#user-governance" class="toc-link">Users, Groups &amp; Roles</a>
+                    <a href="#acls-explained" class="toc-link">Access Control Lists (ACLs)</a>
+                    <a href="#elevated-privileges" class="toc-link">Security Admin &amp; Elevate Role</a>
+                    <a href="#update-sets" class="toc-link">Update Sets (Dev to Prod)</a>
+                    <a href="#scoped-apps" class="toc-link">Application Scopes</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Security, Roles &amp; Update Sets</span>
+                </div>
+                <h1 class="content-title">Enterprise Governance: <span class="gradient-text">Security, Roles &amp; Update Sets</span></h1>
+                <p class="content-subtitle">
+                    Learn how enterprise permissions are enforced through Access Control Lists (ACLs) and how developers 
+                    safely package and migrate tested code from DEV to PROD using Update Sets.
+                </p>
+            </div>
+
+            <!-- Section 1: User Governance -->
+            <section class="content-section" id="user-governance">
+                <h2>Users, Groups &amp; Roles (The Governance Pyramid)</h2>
+                <p>
+                    Enterprise security in ServiceNow is structured across three core entities:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. Users (`sys_user`)</h4>
+                        </div>
+                        <p>
+                            Individual employee accounts. Every user has a unique username, email, department, manager, and login credentials.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. Groups (`sys_user_group`)</h4>
+                        </div>
+                        <p>
+                            Collections of users performing similar business duties (e.g. <em>Network Engineering</em>, <em>Service Desk Tier 1</em>, <em>HR Fulfillers</em>).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. Roles (`sys_user_role`)</h4>
+                        </div>
+                        <p>
+                            Personas that grant specific permissions to access applications, read tables, and execute scripts (e.g. <code>itil</code>, <code>admin</code>, <code>approver_user</code>).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">The Golden Rule of ServiceNow Administration</div>
+                    <p>
+                        <strong>Always assign roles to Groups, NEVER directly to individual Users!</strong>
+                        <br>When an employee joins or switches teams, simply adding them to the appropriate Group automatically grants 
+                        them the exact permissions needed. When they leave, removing them from the Group revokes all access instantly.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: ACLs -->
+            <section class="content-section" id="acls-explained">
+                <h2>Access Control Lists (ACLs: The Platform Bouncers)</h2>
+                <p>
+                    An <strong>Access Control List (ACL)</strong> is a security rule stored in <code>sys_security_acl</code> that 
+                    evaluates whether a user is allowed to perform a specific operation on a table or individual field.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The 4 CRUD Operations</h4>
+                        </div>
+                        <p>
+                            • <code>read</code>: Can the user view this record or field?
+                            <br>• <code>write</code>: Can the user edit/update this data?
+                            <br>• <code>create</code>: Can the user insert a new record?
+                            <br>• <code>delete</code>: Can the user permanently delete this row?
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The 3-Stage Security Check</h4>
+                        </div>
+                        <p>
+                            To pass an ACL, the user must satisfy all 3 criteria:
+                            <br>1. <strong>Role:</strong> User has the required role (e.g. <code>itil</code>).
+                            <br>2. <strong>Condition:</strong> The record meets filter conditions (e.g. <code>active=true</code>).
+                            <br>3. <strong>Script:</strong> Advanced script returns <code>answer = true</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">ACL Security Evaluation Pipeline</div>
+                    <div class="mermaid">
+                    graph TD
+                        REQ["User attempts to View/Edit Field (e.g. incident.work_notes)"] --> ROL{"1. Does User have required Role?"}
+                        ROL -->|No| DENY["Access Denied: Field is Hidden / Read-Only"]
+                        ROL -->|Yes| COND{"2. Does Record pass Condition Filter?"}
+                        
+                        COND -->|No| DENY
+                        COND -->|Yes| SCR{"3. Does Advanced Script evaluate to true?"}
+                        
+                        SCR -->|No| DENY
+                        SCR -->|Yes| ALLOW["Access Granted: Full Read/Write Permitted"]
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Elevated Privileges -->
+            <section class="content-section" id="elevated-privileges">
+                <h2>Elevated Privileges &amp; The `security_admin` Role</h2>
+                <p>
+                    To prevent accidental modifications to security rules, ServiceNow implements <strong>Elevated Privileges</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Why Standard Admins Can't Edit ACLs</h4>
+                        </div>
+                        <p>
+                            Even if you are logged in as an <code>admin</code>, you cannot modify Access Control rules by default. 
+                            This protects the system from accidental security breaches.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>How to Elevate</h4>
+                        </div>
+                        <p>
+                            Click your user profile avatar in the top right $\rightarrow$ select <strong>Elevate Roles</strong> $\rightarrow$ 
+                            check <code>security_admin</code>. The session privilege expires automatically when you log out.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Update Sets -->
+            <section class="content-section" id="update-sets">
+                <h2>Update Sets (The Developer's Moving Boxes)</h2>
+                <p>
+                    Developers never build or test code directly in the live Production (<code>PROD</code>) instance. 
+                    Instead, they build in <code>DEV</code>, package their work into an <strong>Update Set</strong>, and migrate it through the pipeline:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">The Enterprise 4-Stage Deployment Pipeline</div>
+                    <div class="mermaid">
+                    graph LR
+                        DEV["1. DEV Instance<br>Build Features in Active Update Set"] --> COMP["2. Mark State = Complete<br>Export XML / Push to Repo"]
+                        COMP --> TEST["3. TEST / QA Instance<br>Retrieve &amp; Preview (Resolve Collisions)"]
+                        TEST --> PROD["4. PROD Instance<br>Commit Update Set during Maintenance Window"]
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-captured">What Gets Captured</button>
+                        <button class="tab-btn" data-tab="tab-not-captured">What is NOT Captured</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-captured">
+                        <h3>✅ Configuration Elements (Tracked in Update Sets)</h3>
+                        <ul class="feature-bullet-list">
+                            <li>Custom Tables, Columns &amp; Dictionary entries (`sys_dictionary`).</li>
+                            <li>Form Layouts &amp; Section arrangements.</li>
+                            <li>Business Rules, Client Scripts &amp; Script Includes.</li>
+                            <li>UI Policies, UI Actions (Buttons), and Flow Designer Flows.</li>
+                            <li>Access Control Lists (ACLs) &amp; System Properties.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-not-captured">
+                        <h3>❌ Data Records (NOT Tracked in Update Sets)</h3>
+                        <ul class="feature-bullet-list">
+                            <li>Transactional records (Incidents, Problems, Changes, Tasks).</li>
+                            <li>User accounts (`sys_user`) &amp; Groups (`sys_user_group`).</li>
+                            <li>Configuration Items / Hardware Assets in the CMDB.</li>
+                            <li><em>Note:</em> Data must be exported via XML or imported via Import Sets / CSV.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Scoped Apps -->
+            <section class="content-section" id="scoped-apps">
+                <h2>Application Scopes (Global vs. Scoped Apps)</h2>
+                <p>
+                    In modern ServiceNow development, custom business solutions are packaged as <strong>Scoped Applications</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Global Scope (Legacy Shared Area)</h4>
+                        </div>
+                        <p>
+                            Historically, all scripts and tables lived in the Global scope. If two developers created a field with the 
+                            same name, they could accidentally break each other's applications.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Scoped Applications (Sandboxed Containers)</h4>
+                        </div>
+                        <p>
+                            Every custom app receives its own unique namespace prefix (e.g. <code>x_acme_badge_mgr</code>). 
+                            Tables and scripts are sandboxed, preventing other apps from making unauthorized changes to your database.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/flow-designer" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Flow Designer &amp; Workflows</span>
+                </a>
+                <a href="/basics/app-builder-sandbox" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Custom App Sandbox Lab</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

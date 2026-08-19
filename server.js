@@ -40,7 +40,7 @@ const DEFAULT_PREFS = {
     cursorType: 'default',
     sparkleTrail: false,
     cursorSize: 1.0,
-    cursorChaseSpeed: 0.5,
+    cursorChaseSpeed: 0.7,
     cursorBloomEnabled: false,
     cursorEncompassDelay: 0.15,
     starfieldEnabled: false,

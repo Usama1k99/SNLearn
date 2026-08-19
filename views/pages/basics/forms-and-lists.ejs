@@ -1,0 +1,303 @@
+<%- include('../../partials/head', { title: 'Forms, Lists & The Filter Engine — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'forms-and-lists' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#dual-ui" class="toc-link">Lists vs. Forms</a>
+                    <a href="#list-anatomy" class="toc-link">List View Anatomy &amp; Controls</a>
+                    <a href="#filter-engine" class="toc-link">The Breadcrumb Filter Engine</a>
+                    <a href="#form-anatomy" class="toc-link">Form View Anatomy &amp; Formatters</a>
+                    <a href="#form-customization" class="toc-link">Form Layout vs. Form Design</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Forms, Lists &amp; Filters</span>
+                </div>
+                <h1 class="content-title">UI Anatomy: <span class="gradient-text">Forms, Lists &amp; The Filter Engine</span></h1>
+                <p class="content-subtitle">
+                    Master how humans interact with data in ServiceNow — list view controls, the breadcrumb query engine, 
+                    form section anatomy, related lists, and visual form design.
+                </p>
+            </div>
+
+            <!-- Section 1: Dual UI Principle -->
+            <section class="content-section" id="dual-ui">
+                <h2>The Dual UI Principle: Lists vs. Forms</h2>
+                <p>
+                    Every table in ServiceNow is experienced through two complementary interface modes:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The List View (Macro Perspective)</h4>
+                        </div>
+                        <p>
+                            A high-density tabular view displaying multiple records at once. Designed for triage, searching, 
+                            sorting, filtering, and bulk-updating hundreds of work items simultaneously.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Form View (Micro Perspective)</h4>
+                        </div>
+                        <p>
+                            A detailed single-record document view. Designed for data entry, step-by-step diagnostic workflows, 
+                            journal work note updates, and executing action buttons (*Resolve, Approve, Rollback*).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: List View Anatomy -->
+            <section class="content-section" id="list-anatomy">
+                <h2>List View Anatomy &amp; Power Controls</h2>
+                <p>
+                    The List view is packed with built-in productivity tools:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>1. Column Header Sorting &amp; Grouping</h4>
+                        </div>
+                        <p>
+                            Click any column header to sort ascending/descending. Right-click any column header and select 
+                            <strong>Group By [Field]</strong> to instantly collapse records into visual accordion buckets 
+                            (e.g., group 500 incidents by *Assignment Group*).
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>2. Personalize List Columns (Gear Icon ⚙️)</h4>
+                        </div>
+                        <p>
+                            Clicking the gear icon in the top-left of a list lets individual users add, remove, or reorder columns 
+                            on their screen without changing the view for other team members.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>3. List Cell Inline Editing</h4>
+                        </div>
+                        <p>
+                            Double-click any editable cell (like <em>State</em> or <em>Assigned To</em>) to update the record directly 
+                            from the grid without loading the full form page.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>4. Natural Language Column Search</h4>
+                        </div>
+                        <p>
+                            Type in the column search bar using wildcard syntax:
+                            <br>• <code>*vpn</code> $\rightarrow$ searches text containing "vpn" anywhere in the field.
+                            <br>• <code>!vpn</code> $\rightarrow$ excludes records containing "vpn".
+                            <br>• <code>=prdsrv</code> $\rightarrow$ exact match.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: The Filter Engine -->
+            <section class="content-section" id="filter-engine">
+                <h2>The Breadcrumb Filter Engine (Querying like a Pro)</h2>
+                <p>
+                    Clicking the funnel icon (🔍) at the top of any list opens the <strong>Condition Builder</strong>. 
+                    Queries are assembled using a simple 3-part syntax:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Filter Condition Structure</span>
+                    </div>
+                    <div class="code-body">
+<pre><code>[ Field ]  --  [ Operator ]  --  [ Value ]
+Example: [ Active ] [ is ] [ true ]  AND  [ Priority ] [ is ] [ 1 - Critical ]</code></pre>
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-operators">Common Operators</button>
+                        <button class="tab-btn" data-tab="tab-breadcrumbs">Breadcrumb Navigation</button>
+                        <button class="tab-btn" data-tab="tab-copy-query">Copy Encoded Query</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-operators">
+                        <h3>Core Filter Operators</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Operator</th>
+                                    <th>Data Type Supported</th>
+                                    <th>Operational Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>is / is not</code></td>
+                                    <td>String, Choice, Reference</td>
+                                    <td>Exact value equality check.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>contains / does not contain</code></td>
+                                    <td>String, HTML</td>
+                                    <td>Wildcard substring search anywhere inside the text.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>is one of</code></td>
+                                    <td>Choice, Reference</td>
+                                    <td>Matches any selected values from a multi-select list (SQL <code>IN (...)</code>).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>is empty / is not empty</code></td>
+                                    <td>All Data Types</td>
+                                    <td>Checks for <code>NULL</code> or unpopulated fields.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>on / between / dynamic</code></td>
+                                    <td>Date / DateTime</td>
+                                    <td>Evaluates time windows (e.g. *Created on "Today"*, *Opened "This Quarter"*).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-panel" id="tab-breadcrumbs">
+                        <h3>Breadcrumb Trail Navigation</h3>
+                        <p>
+                            As you apply filters, ServiceNow generates an interactive breadcrumb trail at the top of the screen:
+                            <br><code>All &gt; Active = true &gt; Priority = 1 - Critical &gt; State != Resolved</code>
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>Clicking any segment in the breadcrumb immediately filters the list up to that exact step.</li>
+                            <li>Right-clicking a value in a list cell and selecting <strong>Show Matching</strong> or <strong>Filter Out</strong> adds to the breadcrumb instantly.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="tab-copy-query">
+                        <h3>Developer Superpower: Copy Encoded Query</h3>
+                        <p>
+                            Right-clicking the last item in the breadcrumb trail and selecting <strong>Copy Query</strong> 
+                            copies the platform's raw encoded query string (e.g. <code>active=true^priority=1^state!=6</code>).
+                        </p>
+                        <p>
+                            Developers paste this string directly into JavaScript server scripts via <code>gr.addEncodedQuery(...)</code>, 
+                            eliminating the need to hand-code complex SQL queries!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Form Anatomy -->
+            <section class="content-section" id="form-anatomy">
+                <h2>Form View Anatomy &amp; Related Lists</h2>
+                <p>
+                    When you click into a record, the Form View organizes fields into logical operational zones:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Visual Architecture of a ServiceNow Form</div>
+                    <div class="mermaid">
+                    graph TD
+                        HDR["1. Form Header: Back Button, Number, Attachment Clip, UI Actions (Save/Submit)"]
+                        
+                        HDR --> SEC1["2. Primary Section (2-Column Split): Caller, Category, CI, Priority, State"]
+                        SEC1 --> SEC2["3. Tabbed Sections: Resolution Details, Notes (Work Notes / Comments), SLAs"]
+                        SEC2 --> REL["4. Related Lists (Sub-Tables at Bottom): Child Incidents, Incident Tasks, Approvers"]
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Activity Stream (Journal Log)</h4>
+                        </div>
+                        <p>
+                            Combines **Customer Visible Comments** (yellow border, seen by the end user on the portal) 
+                            and **Internal Work Notes** (yellow background, visible only to ITIL agents) into a single timestamped audit timeline.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Related Lists (Bottom Grids)</h4>
+                        </div>
+                        <p>
+                            Displays child tables linked to this record via foreign keys (e.g. all 3 <code>task_sla</code> timers 
+                            counting down on this incident, or all <code>change_task</code> records assigned for a server upgrade).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Form Layout vs Form Design -->
+            <section class="content-section" id="form-customization">
+                <h2>Form Layout vs. Form Design (How Admins Customize Forms)</h2>
+                <p>
+                    ServiceNow provides two built-in configuration tools to modify form layouts:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Dimension</th>
+                            <th>Form Layout (Classic Slushbucket)</th>
+                            <th>Form Design (Modern Drag-and-Drop)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Interface</strong></td>
+                            <td>Dual-list box (Slushbucket: Available Columns $\rightarrow$ Selected Columns).</td>
+                            <td>Visual canvas with drag-and-drop field palette.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best Used For</strong></td>
+                            <td>Quickly adding existing fields to a section or configuring Related Lists.</td>
+                            <td>Arranging 2-column grids, creating new fields on the fly, and organizing multi-tab sections.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>How to Access</strong></td>
+                            <td>Form Header Menu $\rightarrow$ <em>Configure</em> $\rightarrow$ <em>Form Layout</em>.</td>
+                            <td>Form Header Menu $\rightarrow$ <em>Configure</em> $\rightarrow$ <em>Form Design</em>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/data-architecture" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Tables, Records &amp; Sys IDs</span>
+                </a>
+                <a href="/basics/client-scripting" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">UI Policies &amp; Client Scripts</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

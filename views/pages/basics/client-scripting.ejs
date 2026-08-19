@@ -1,0 +1,312 @@
+<%- include('../../partials/head', { title: 'UI Policies & Client Scripts — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'client-scripting' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#client-concept" class="toc-link">The Client-Side Philosophy</a>
+                    <a href="#ui-policies" class="toc-link">UI Policies (No-Code Rules)</a>
+                    <a href="#client-scripts" class="toc-link">Client Scripts (4 Trigger Types)</a>
+                    <a href="#g-form-api" class="toc-link">The `g_form` API Reference</a>
+                    <a href="#g-user-api" class="toc-link">The `g_user` API Reference</a>
+                    <a href="#best-practices" class="toc-link">Client-Side Best Practices</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>UI Policies &amp; Client Scripts</span>
+                </div>
+                <h1 class="content-title">Client-Side Magic: <span class="gradient-text">UI Policies &amp; Client Scripts</span></h1>
+                <p class="content-subtitle">
+                    Learn how to dynamically validate, show, hide, and control form fields directly in the user's browser 
+                    using no-code UI Policies and JavaScript client APIs (`g_form` &amp; `g_user`).
+                </p>
+            </div>
+
+            <!-- Section 1: Client Concept -->
+            <section class="content-section" id="client-concept">
+                <h2>The Client-Side Philosophy (The Restaurant Dining Room)</h2>
+                <p>
+                    In web architecture, ServiceNow is divided into two distinct execution environments:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Client-Side (The Dining Room)</h4>
+                        </div>
+                        <p>
+                            Runs entirely inside the <strong>user's web browser</strong> (Chrome, Safari, Edge). 
+                            Executes instantly with zero server lag. Responsible for visual changes, field validation, 
+                            and guiding the user through data entry before submission.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Server-Side (The Kitchen)</h4>
+                        </div>
+                        <p>
+                            Runs on the <strong>ServiceNow cloud server &amp; database</strong>. 
+                            Responsible for heavy calculations, database commits, triggering integrations, 
+                            and security governance (covered on Page 6).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: UI Policies -->
+            <section class="content-section" id="ui-policies">
+                <h2>UI Policies (The No-Code Superpower)</h2>
+                <p>
+                    A <strong>UI Policy</strong> is a declarative, zero-code rule that dynamically changes how fields behave 
+                    on a form based on conditions.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The 3 Core Field Attributes</h4>
+                        </div>
+                        <p>
+                            A UI Policy Action can set any field to:
+                            <br>• <strong>Mandatory (True/False):</strong> Forces user to fill the field before saving.
+                            <br>• <strong>Visible (True/False):</strong> Shows or hides the field dynamically.
+                            <br>• <strong>Read-Only (True/False):</strong> Locks the field from being edited.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The "Reverse if False" Checkbox</h4>
+                        </div>
+                        <p>
+                            When checked, if the condition stops being true, ServiceNow <em>automatically</em> reverses the action 
+                            (e.g., if State changes from *Resolved* back to *In Progress*, the Close Notes field automatically hides again).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Golden Rule: Prefer UI Policies over Scripts</div>
+                    <p>
+                        Always use a UI Policy instead of writing JavaScript code whenever you only need to toggle Mandatory, 
+                        Visible, or Read-Only properties. UI Policies are faster, require no maintenance, and load seamlessly on mobile apps.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 3: Client Scripts -->
+            <section class="content-section" id="client-scripts">
+                <h2>Client Scripts (JavaScript in the Browser)</h2>
+                <p>
+                    When form logic requires math calculations, string validation (e.g. checking phone number regex), 
+                    or custom alert dialogs, developers write <strong>Client Scripts</strong> in standard JavaScript.
+                </p>
+                <p>
+                    Every Client Script belongs to one of <strong>4 Execution Types</strong>:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Script Type</th>
+                            <th>When It Runs</th>
+                            <th>Typical Real-World Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>onLoad()</code></td>
+                            <td>Runs immediately when the form finishes rendering on screen.</td>
+                            <td>Displaying an informational banner if the ticket belongs to a VIP customer.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onChange()</code></td>
+                            <td>Runs whenever the user modifies a specific watched field value.</td>
+                            <td>If the user changes <em>Urgency</em> to "High", automatically recalculate priority and populate an SLA warning.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onSubmit()</code></td>
+                            <td>Runs when the user clicks *Submit*, *Save*, or *Update* before data is sent to the server.</td>
+                            <td>Validating that a custom end-date is after the start-date; returning <code>false</code> halts submission.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onCellEdit()</code></td>
+                            <td>Runs when an agent edits a field directly inside a List view grid.</td>
+                            <td>Preventing users from changing a State to "Closed" directly from the List view without opening the form.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 4: g_form API -->
+            <section class="content-section" id="g-form-api">
+                <h2>The <code>g_form</code> (GlideForm) API Reference</h2>
+                <p>
+                    The <code>g_form</code> JavaScript object is pre-instantiated by ServiceNow on every form page. 
+                    It gives you complete programmatic control over form elements:
+                </p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-get-set">Values &amp; State</button>
+                        <button class="tab-btn" data-tab="tab-messages">Messages &amp; Alerts</button>
+                        <button class="tab-btn" data-tab="tab-example-script">Complete Script Example</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-get-set">
+                        <h3>Getting &amp; Setting Field Values</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript (Client Script)</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>// Get the value entered in a field
+var category = g_form.getValue('category');
+
+// Set a field value programmatically
+g_form.setValue('short_description', 'Auto-generated: Network switch outage');
+
+// Toggle mandatory, visible, and read-only states
+g_form.setMandatory('work_notes', true);
+g_form.setVisible('u_hardware_serial', false);
+g_form.setReadOnly('priority', true);
+
+// Clear out a field value
+g_form.clearValue('assigned_to');</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-messages">
+                        <h3>Displaying User Messages &amp; Field Errors</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript (Client Script)</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>// Top-of-form blue informational banner
+g_form.addInfoMessage('This user is a VIP. Expedited SLA applies.');
+
+// Top-of-form red error banner
+g_form.addErrorMessage('Please fill out all mandatory fields before resolving.');
+
+// Inline red error attached directly beneath a specific input box
+g_form.showFieldMsg('u_phone_number', 'Please enter a valid 10-digit number', 'error');
+
+// Remove messages
+g_form.clearMessages();</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-example-script">
+                        <h3>Example: `onSubmit` Date Validation Script</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">onSubmit Client Script</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>function onSubmit() {
+    var startDate = g_form.getValue('start_date');
+    var endDate = g_form.getValue('end_date');
+
+    if (startDate && endDate && endDate < startDate) {
+        g_form.addErrorMessage('End Date cannot be before Planned Start Date!');
+        g_form.showFieldMsg('end_date', 'Invalid date sequence', 'error');
+        return false; // Aborts form submission and keeps user on screen
+    }
+
+    return true; // Allows submission to proceed to cloud server
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: g_user API -->
+            <section class="content-section" id="g-user-api">
+                <h2>The <code>g_user</code> (GlideUser) API Reference</h2>
+                <p>
+                    The <code>g_user</code> object contains read-only session data about the currently logged-in user:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (g_user Methods)</span>
+                    </div>
+                    <div class="code-body">
+<pre><code>// Access user identity properties
+var currentUserId = g_user.userID;     // 32-character sys_id of the logged-in user
+var currentUsername = g_user.userName; // User login username (e.g. 'admin')
+var firstName = g_user.firstName;
+
+// Check user security roles
+if (g_user.hasRole('admin')) {
+    g_form.addInfoMessage('Welcome Administrator! Developer mode active.');
+}
+
+if (!g_user.hasRole('itil')) {
+    // Hide internal-only field for non-fulfiller employees
+    g_form.setVisible('u_internal_budget_code', false);
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Best Practices -->
+            <section class="content-section" id="best-practices">
+                <h2>Client-Side Best Practices &amp; Critical Anti-Patterns</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>❌ Never Run Synchronous GlideRecord on Client</h4>
+                        </div>
+                        <p>
+                            Calling <code>var gr = new GlideRecord(...)</code> in a Client Script makes synchronous database round-trips 
+                            that completely freeze the user's browser screen until the query returns. Always use <strong>GlideAjax</strong> instead!
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>✅ Check `isLoading` in `onChange` Scripts</h4>
+                        </div>
+                        <p>
+                            Always include <code>if (isLoading || newValue === '') return;</code> at the top of <code>onChange</code> scripts 
+                            to avoid running costly scripts when the page is merely initial-loading.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/forms-and-lists" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Forms, Lists &amp; Filters</span>
+                </a>
+                <a href="/basics/server-scripting" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Business Rules &amp; Script Includes</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

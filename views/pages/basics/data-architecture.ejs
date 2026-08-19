@@ -1,0 +1,290 @@
+<%- include('../../partials/head', { title: 'Tables, Records & Sys IDs — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'data-architecture' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#spreadsheet-analogy" class="toc-link">The Spreadsheet Analogy</a>
+                    <a href="#what-is-sysid" class="toc-link">What is a sys_id?</a>
+                    <a href="#task-inheritance" class="toc-link">The Mother Table (`task`)</a>
+                    <a href="#data-types" class="toc-link">Dictionary &amp; Field Types</a>
+                    <a href="#dot-walking" class="toc-link">Reference Fields &amp; Dot-Walking</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Tables, Records &amp; Sys IDs</span>
+                </div>
+                <h1 class="content-title">Data Architecture 101: <span class="gradient-text">Tables, Records &amp; Sys IDs</span></h1>
+                <p class="content-subtitle">
+                    Understand how ServiceNow stores and connects data — the spreadsheet analogy, the universal 32-character sys_id, 
+                    the foundational task inheritance tree, and relational dot-walking.
+                </p>
+            </div>
+
+            <!-- Section 1: Spreadsheet Analogy -->
+            <section class="content-section" id="spreadsheet-analogy">
+                <h2>The Spreadsheet Analogy on Enterprise Steroids</h2>
+                <p>
+                    If you know how to use Microsoft Excel or Google Sheets, you already understand <strong>80% of ServiceNow's data model</strong>. 
+                    Let's map traditional spreadsheet concepts to ServiceNow terminology:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Excel Tab = ServiceNow Table</h4>
+                        </div>
+                        <p>
+                            A container storing a specific category of information. For example, the <code>sys_user</code> table stores people, 
+                            the <code>cmdb_ci</code> table stores hardware/servers, and the <code>incident</code> table stores technical disruptions.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Column Header = Field (Dictionary Element)</h4>
+                        </div>
+                        <p>
+                            An attribute defined on a table (e.g. <code>short_description</code>, <code>caller_id</code>, <code>priority</code>, <code>state</code>). 
+                            Each field has a defined data type such as String, Integer, Choice, or Reference.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Row = Record</h4>
+                        </div>
+                        <p>
+                            A single row representing one specific ticket, user, or server. For example, incident <code>INC0010482</code> 
+                            is one record in the <code>incident</code> table.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Why ServiceNow Beats Spreadsheets</div>
+                    <p>
+                        Unlike spreadsheets where anyone can accidentally overwrite cells or delete rows, ServiceNow enforces 
+                        <strong>automatic audit histories (`sys_audit`)</strong>, <strong>access control security (ACLs)</strong>, 
+                        and <strong>automated relational integrity</strong> across billions of records.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 2: What is a sys_id? -->
+            <section class="content-section" id="what-is-sysid">
+                <h2>The Universal Key: What is a <code>sys_id</code>?</h2>
+                <p>
+                    In ServiceNow, every single record, user, group, form field, script, and business rule is assigned a 
+                    <strong>32-character hexadecimal Globally Unique Identifier (GUID)</strong> called a <strong><code>sys_id</code></strong>:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Example sys_id String</span>
+                    </div>
+                    <div class="code-body">
+<pre><code>9d3850110a0a0b7800dfa312cd6a41f3</code></pre>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Why Not Just Use Names or Numbers?</h4>
+                        </div>
+                        <p>
+                            Names change (employees get married and change surnames; ticket numbers might be reformatted). 
+                            The <code>sys_id</code> never changes for the entire lifetime of the record, ensuring foreign key links never break.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>How References Work Under the Hood</h4>
+                        </div>
+                        <p>
+                            When an incident shows <em>Caller: Sarah Jenkins</em>, the database isn't storing the string "Sarah Jenkins". 
+                            It stores Sarah's 32-character <code>sys_id</code> pointing directly to her row in the <code>sys_user</code> table!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: The Mother of All Tables (task) -->
+            <section class="content-section" id="task-inheritance">
+                <h2>The Mother of All Tables: <code>task</code> Inheritance</h2>
+                <p>
+                    One of ServiceNow's greatest architectural superpowers is <strong>Object-Oriented Table Inheritance</strong>. 
+                    Almost every work ticket across IT, Security, HR, and Facilities extends the base <strong><code>task</code></strong> table:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">The Task Table Family Tree (Inheritance Model)</div>
+                    <div class="mermaid">
+                    classDiagram
+                        class Task {
+                            +String number
+                            +Reference assigned_to
+                            +Reference assignment_group
+                            +Integer priority
+                            +Integer state
+                            +String short_description
+                            +DateTime opened_at
+                            #The Universal Base Table
+                        }
+                        
+                        class Incident {
+                            +Choice severity
+                            +Reference caller_id
+                            +Reference problem_id
+                        }
+                        
+                        class Problem {
+                            +Boolean known_error
+                            +String cause_notes
+                            +String workaround
+                        }
+                        
+                        class ChangeRequest {
+                            +Choice type (Normal/Std/Emerg)
+                            +Boolean cab_required
+                            +DateTime start_date
+                        }
+                        
+                        class RequestedItem {
+                            +Reference cat_item
+                            +Currency price
+                            +Choice stage
+                        }
+                        
+                        Task <|-- Incident : Extends
+                        Task <|-- Problem : Extends
+                        Task <|-- ChangeRequest : Extends
+                        Task <|-- RequestedItem : Extends
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Why Inheritance Saves Hundreds of Developer Hours</div>
+                    <p>
+                        When creating a custom ticket table (e.g. <em>Office Badge Request</em>), extending <code>task</code> automatically 
+                        gives you over 50 built-in enterprise fields, SLA timer engines, activity journals, and approval routing without 
+                        re-inventing the wheel!
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 4: Dictionary & Field Types -->
+            <section class="content-section" id="data-types">
+                <h2>The Dictionary System &amp; Core Field Types</h2>
+                <p>
+                    ServiceNow stores its own structural definitions in metadata tables: <code>sys_db_object</code> (Tables) and 
+                    <code>sys_dictionary</code> (Columns/Fields). Here are the primary data types every developer uses:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data Type Label</th>
+                            <th>Internal Type Name</th>
+                            <th>Description &amp; Real-World Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>String</strong></td>
+                            <td><code>string</code></td>
+                            <td>Text input with optional character limits (e.g. <code>short_description</code> max 160 chars, or multi-line notes).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Choice</strong></td>
+                            <td><code>choice</code></td>
+                            <td>Predefined dropdown menus stored in <code>sys_choice</code> (e.g. State: New, In Progress, Resolved).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reference</strong></td>
+                            <td><code>reference</code></td>
+                            <td>Foreign-key relationship pointing to a record in another table (e.g. <code>assigned_to</code> points to <code>sys_user</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>True/False</strong></td>
+                            <td><code>boolean</code></td>
+                            <td>Checkbox boolean toggle (e.g. <code>active</code>, <code>known_error</code>, <code>cab_required</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Date / Date/Time</strong></td>
+                            <td><code>glide_date_time</code></td>
+                            <td>Standardized ISO timestamps auto-converted to the user's local timezone (e.g. <code>sys_created_on</code>, <code>start_date</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Journal Input</strong></td>
+                            <td><code>journal_input</code></td>
+                            <td>Audit-trailed work notes and customer comments. Entries are timestamped and permanently logged in <code>sys_journal_field</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 5: Dot-Walking -->
+            <section class="content-section" id="dot-walking">
+                <h2>Reference Fields &amp; "Dot-Walking"</h2>
+                <p>
+                    Because tables are linked via Reference fields, ServiceNow lets you navigate across multiple tables 
+                    in filters, form layouts, and scripts using a syntax called <strong>Dot-Walking</strong>:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>How Dot-Walking Works</h4>
+                        </div>
+                        <p>
+                            Starting from an <code>incident</code> record:
+                            <br>• <code>current.caller_id</code> $\rightarrow$ gets the User record.
+                            <br>• <code>current.caller_id.manager</code> $\rightarrow$ gets the User's Manager.
+                            <br>• <code>current.caller_id.manager.email</code> $\rightarrow$ gets the Manager's Email address!
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Zero SQL JOINs Required</h4>
+                        </div>
+                        <p>
+                            In traditional SQL, reaching across 3 tables requires writing complex <code>INNER JOIN</code> statements. 
+                            In ServiceNow, the platform handles all database joins behind the scenes using dots (<code>.</code>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/pdi-setup" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Claiming Your PDI &amp; UI Tour</span>
+                </a>
+                <a href="/basics/forms-and-lists" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Forms, Lists &amp; Filters</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

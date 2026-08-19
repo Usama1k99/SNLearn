@@ -54,12 +54,17 @@
     width: 56px;
     height: 56px;
     border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+    background: var(--accent-soft);
     border: 1px solid var(--border-accent);
+    color: var(--accent-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.irm-icon-badge svg {
+    stroke: var(--accent-primary);
 }
 
 .irm-hub-title {
@@ -582,6 +587,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     gap: var(--space-md);
     margin-bottom: var(--space-md);
     padding-bottom: var(--space-xs);
@@ -595,6 +601,7 @@
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-bottom: 0;
+    flex-grow: 1;
 }
 
 /* Diagram Interactive Toolbar */
@@ -607,6 +614,8 @@
     border-radius: var(--radius-md);
     padding: 3px 6px;
     backdrop-filter: blur(8px);
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .diagram-zoom-level {

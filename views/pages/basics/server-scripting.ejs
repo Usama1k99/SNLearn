@@ -1,0 +1,364 @@
+<%- include('../../partials/head', { title: 'Business Rules & Script Includes — Basics | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'basics' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'basics', moduleLabel: 'Basics', activePage: typeof activePage !== 'undefined' ? activePage : 'server-scripting' }) %>
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#server-concept" class="toc-link">The Server-Side Philosophy</a>
+                    <a href="#business-rules" class="toc-link">Business Rules (4 Timings)</a>
+                    <a href="#br-antipattern" class="toc-link">The `current.update()` Trap</a>
+                    <a href="#script-includes" class="toc-link">Script Includes (Reusable Classes)</a>
+                    <a href="#glide-ajax" class="toc-link">GlideAjax (Client-Server Bridge)</a>
+                    <a href="#gliderecord-basics" class="toc-link">GlideRecord &amp; GlideAggregate</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <a href="/basics">Basics</a>
+                    <span class="breadcrumb-sep">›</span>
+                    <span>Business Rules &amp; Script Includes</span>
+                </div>
+                <h1 class="content-title">Server-Side Power: <span class="gradient-text">Business Rules &amp; Script Includes</span></h1>
+                <p class="content-subtitle">
+                    Master the backend logic engines of ServiceNow — database trigger timings (before, after, async, display), 
+                    modular Script Includes, the GlideAjax client-to-server bridge, and high-performance GlideRecord querying.
+                </p>
+            </div>
+
+            <!-- Section 1: Server Concept -->
+            <section class="content-section" id="server-concept">
+                <h2>The Server-Side Philosophy (The Kitchen Master Chef)</h2>
+                <p>
+                    While client scripts control what users see on their screens, <strong>Server-Side Scripts</strong> 
+                    hold total authority over the database:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>Direct Database Access</h4>
+                        </div>
+                        <p>
+                            Server scripts execute securely inside ServiceNow's cloud application nodes. 
+                            They have unrestricted access to read, insert, update, and delete database records across all tables.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-card-header">
+                            <h4>The Ultimate Security Gate</h4>
+                        </div>
+                        <p>
+                            A clever user might disable JavaScript in their browser to bypass a client script, 
+                            but they can <strong>never bypass a Server-Side Business Rule</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Business Rules -->
+            <section class="content-section" id="business-rules">
+                <h2>Business Rules (The 4 Execution Timings)</h2>
+                <p>
+                    A <strong>Business Rule (BR)</strong> is server-side JavaScript that executes automatically whenever 
+                    a record is queried, inserted, updated, or deleted.
+                </p>
+                <p>
+                    Every Business Rule runs at one of <strong>4 distinct execution timings</strong>:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Timing</th>
+                            <th>When It Runs</th>
+                            <th>Database State</th>
+                            <th>Best Used For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>before</code></td>
+                            <td>Runs <em>before</em> data is committed to SQL database.</td>
+                            <td>Values are in memory on the <code>current</code> object.</td>
+                            <td>Calculating field values (e.g. setting Assignment Group) or aborting invalid saves (<code>current.setAbortAction(true)</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code>after</code></td>
+                            <td>Runs <em>immediately after</em> data is saved to SQL database.</td>
+                            <td>Record is permanently committed to database.</td>
+                            <td>Cascading updates to related records (e.g. closing child tasks when the parent incident resolves).</td>
+                        </tr>
+                        <tr>
+                            <td><code>async</code></td>
+                            <td>Runs in the background task queue (asynchronously via <code>sys_trigger</code>).</td>
+                            <td>Record is already committed; runs seconds later.</td>
+                            <td>Sending outbound REST webhooks, heavy integrations, or mass email notifications without slowing down the user.</td>
+                        </tr>
+                        <tr>
+                            <td><code>display</code></td>
+                            <td>Runs while assembling record data to send to the user's browser.</td>
+                            <td>Read-only gathering phase.</td>
+                            <td>Passing server data to the client form via the <code>g_scratchpad</code> object.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 3: The Fatal Anti-Pattern -->
+            <section class="content-section" id="br-antipattern">
+                <h2>The Fatal Anti-Pattern: Never Call `current.update()` in a BR</h2>
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">⚠️ The Infinite Loop Crash Trap</div>
+                    <p>
+                        Calling <code>current.update()</code> inside a Business Rule that triggers on update tells the server: 
+                        <em>"Hey, update this record again!"</em> $\rightarrow$ which triggers the Business Rule again $\rightarrow$ 
+                        which calls <code>current.update()</code> again $\rightarrow$ creating an <strong>infinite recursive loop</strong> 
+                        that crashes server memory!
+                    </p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (Correct vs Incorrect Syntax)</span>
+                    </div>
+                    <div class="code-body">
+<pre><code>// ❌ WRONG: Causes infinite loop recursion!
+current.short_description = 'Updated text';
+current.update(); 
+
+// ✅ CORRECT (in a 'before' Business Rule):
+// Simply assign the value! ServiceNow automatically commits current to the database.
+current.short_description = 'Updated text';</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Script Includes -->
+            <section class="content-section" id="script-includes">
+                <h2>Script Includes (Modular, Reusable Cookbooks)</h2>
+                <p>
+                    Instead of copying and pasting the same 50 lines of complex query code across 15 different Business Rules, 
+                    developers write <strong>Script Includes</strong> (stored in <code>sys_script_include</code>).
+                </p>
+                <p>
+                    A Script Include is a reusable JavaScript class or library that can be called from any server script or API:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JavaScript (Script Include: IncidentManagerHelper)</span>
+                    </div>
+                    <div class="code-body">
+<pre><code>var IncidentManagerHelper = Class.create();
+IncidentManagerHelper.prototype = {
+    initialize: function() {
+        // Constructor logic
+    },
+
+    // Reusable method to check if a caller is a high-priority executive
+    isExecutiveVIP: function(userSysId) {
+        var userGR = new GlideRecord('sys_user');
+        if (userGR.get(userSysId)) {
+            return userGR.getValue('vip') == '1' || userGR.getValue('title').indexOf('Director') !== -1;
+        }
+        return false;
+    },
+
+    type: 'IncidentManagerHelper'
+};</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: GlideAjax -->
+            <section class="content-section" id="glide-ajax">
+                <h2>GlideAjax (The Client-to-Server Bridge)</h2>
+                <p>
+                    When a user is filling out a form in their browser and needs data from the server (e.g. selecting a Caller 
+                    and automatically pulling their Department and Manager Phone Number), developers use <strong>GlideAjax</strong>.
+                </p>
+                <p>
+                    GlideAjax communicates asynchronously behind the scenes without refreshing the page:
+                </p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-ajax-server">1. Server Script Include</button>
+                        <button class="tab-btn" data-tab="tab-ajax-client">2. Client Script (Browser)</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-ajax-server">
+                        <h3>Server: Script Include (Extends AbstractAjaxProcessor)</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript (Server Script Include)</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>var UserInfoAjax = Class.create();
+UserInfoAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+
+    getUserDetails: function() {
+        var userId = this.getParameter('sysparm_user_id');
+        var userGR = new GlideRecord('sys_user');
+        
+        if (userGR.get(userId)) {
+            var result = {
+                email: userGR.getValue('email'),
+                phone: userGR.getValue('phone'),
+                department: userGR.getDisplayValue('department')
+            };
+            return JSON.stringify(result);
+        }
+        return null;
+    },
+
+    type: 'UserInfoAjax'
+});</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-ajax-client">
+                        <h3>Client: onChange Client Script</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript (Client Script)</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+    if (isLoading || newValue === '') return;
+
+    var ga = new GlideAjax('UserInfoAjax');
+    ga.addParam('sysparm_name', 'getUserDetails');
+    ga.addParam('sysparm_user_id', newValue);
+    
+    // Asynchronous non-blocking callback
+    ga.getXMLAnswer(function(response) {
+        if (response) {
+            var data = JSON.parse(response);
+            g_form.setValue('u_contact_email', data.email);
+            g_form.setValue('u_contact_phone', data.phone);
+            g_form.addInfoMessage('Loaded profile for ' + data.department);
+        }
+    });
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: GlideRecord Basics -->
+            <section class="content-section" id="gliderecord-basics">
+                <h2>GlideRecord &amp; GlideAggregate Basics</h2>
+                <p>
+                    <code>GlideRecord</code> is ServiceNow's native JavaScript Object-Relational Mapping (ORM) API 
+                    for interacting with database tables:
+                </p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-gr-query">Query Records</button>
+                        <button class="tab-btn" data-tab="tab-gr-insert">Insert / Update</button>
+                        <button class="tab-btn" data-tab="tab-gr-aggregate">High-Speed Aggregate</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tab-gr-query">
+                        <h3>Querying Records with GlideRecord</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>var incGR = new GlideRecord('incident');
+incGR.addQuery('active', true);
+incGR.addQuery('priority', 1);
+incGR.orderByDesc('sys_created_on');
+incGR.setLimit(10);
+incGR.query();
+
+while (incGR.next()) {
+    gs.info('Critical Incident: ' + incGR.getValue('number') + ' - ' + incGR.getValue('short_description'));
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-gr-insert">
+                        <h3>Inserting &amp; Updating Records</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>// Inserting a brand new record
+var newInc = new GlideRecord('incident');
+newInc.initialize();
+newInc.setValue('short_description', 'VPN Gateway Outage');
+newInc.setValue('urgency', 1);
+newInc.setValue('impact', 1);
+var newSysId = newInc.insert(); // Returns 32-character sys_id
+
+// Updating an existing record
+var updateGR = new GlideRecord('incident');
+if (updateGR.get(newSysId)) {
+    updateGR.setValue('work_notes', 'Assigned network engineering team for RCA.');
+    updateGR.update();
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-gr-aggregate">
+                        <h3>Counting Records with GlideAggregate (10x Faster)</h3>
+                        <p>
+                            Never use <code>GlideRecord.getRowCount()</code> to count thousands of rows because it loads every record into server RAM. 
+                            Always use <code>GlideAggregate</code> to run native SQL <code>COUNT(*)</code> queries:
+                        </p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JavaScript</span>
+                            </div>
+                            <div class="code-body">
+<pre><code>var ga = new GlideAggregate('incident');
+ga.addQuery('active', true);
+ga.addAggregate('COUNT');
+ga.query();
+
+if (ga.next()) {
+    var count = ga.getAggregate('COUNT');
+    gs.info('Total Active Incidents: ' + count);
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/basics/client-scripting" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">UI Policies &amp; Client Scripts</span>
+                </a>
+                <a href="/basics/flow-designer" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Flow Designer &amp; Workflows</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

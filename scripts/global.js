@@ -340,7 +340,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             window.currentCursorType = (data.cursorType === 'droplet') ? 'ring' : (data.cursorType || (data.customCursor ? 'ring' : 'default'));
             window.sparkleTrailEnabled = !!data.sparkleTrail;
             window.cursorSizeMultiplier = data.cursorSize || 1.0;
-            window.cursorChaseSpeed = data.cursorChaseSpeed !== undefined ? data.cursorChaseSpeed : 0.5;
+            window.cursorChaseSpeed = data.cursorChaseSpeed !== undefined ? data.cursorChaseSpeed : 0.7;
             window.cursorBloomEnabled = data.cursorBloomEnabled !== undefined ? !!data.cursorBloomEnabled : false;
             window.cursorEncompassDelay = data.cursorEncompassDelay !== undefined ? data.cursorEncompassDelay : 0.15;
             window.starfieldEnabled = !!data.starfieldEnabled;
@@ -432,10 +432,14 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             cursorGhost.classList.remove('magnetic-hover', 'text-drag');
         }
 
+        if (pointerDot) {
+            pointerDot.classList.remove('active', 'dot-inverted');
+        }
+
         window.currentCursorType = 'default';
         window.sparkleTrailEnabled = false;
         window.cursorSizeMultiplier = 1.0;
-        window.cursorChaseSpeed = 0.5;
+        window.cursorChaseSpeed = 0.7;
         window.cursorBloomEnabled = false;
         window.cursorEncompassDelay = 0.15;
         window.starfieldEnabled = false;
@@ -458,7 +462,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 cursorType: 'default',
                 sparkleTrail: false,
                 cursorSize: 1.0,
-                cursorChaseSpeed: 0.5,
+                cursorChaseSpeed: 0.7,
                 cursorBloomEnabled: false,
                 cursorEncompassDelay: 0.15,
                 starfieldEnabled: false,
@@ -545,15 +549,15 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             cursor.style.borderRadius = computedStyle.borderRadius !== '0px' ? computedStyle.borderRadius : '8px';
 
             // 3D Card Tilt check for encompassed cards
-            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card');
+            const cardEl = targetElement.closest('.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card, .beginner-hero-card');
             if (cardEl) {
                 const cRect = cardEl.getBoundingClientRect();
                 const relX = mouseX - cRect.left;
                 const relY = mouseY - cRect.top;
                 const centerX = cRect.width / 2;
                 const centerY = cRect.height / 2;
-                const rotateX = -((relY - centerY) / centerY) * 8;
-                const rotateY = ((relX - centerX) / centerX) * 8;
+                const rotateX = -((relY - centerY) / centerY) * 4.8;
+                const rotateY = ((relX - centerX) / centerX) * 4.8;
                 cursor.style.transform = `translate(${cursorX - (targetRect.width + 10) / 2}px, ${cursorY - (targetRect.height + 10) / 2}px) perspective(600px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
             } else {
                 cursor.style.transform = `translate(${cursorX - (targetRect.width + 10) / 2}px, ${cursorY - (targetRect.height + 10) / 2}px)`;
@@ -566,7 +570,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             // Normal follow mode
             const dx = mouseX - cursorX;
             const dy = mouseY - cursorY;
-            const chaseSpeed = window.cursorChaseSpeed || 0.5;
+            const chaseSpeed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.7;
 
             cursorX += dx * chaseSpeed;
             cursorY += dy * chaseSpeed;
@@ -639,10 +643,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         if (pointerDot) {
             pointerDot.style.left = `${mouseX}px`;
             pointerDot.style.top = `${mouseY}px`;
-            if (isHovering && (window.currentCursorType === 'ring' || window.currentCursorType === 'droplet')) {
+            if (window.currentCursorType === 'inverted') {
+                pointerDot.classList.add('active', 'dot-inverted');
+            } else if (isHovering && (window.currentCursorType === 'ring' || window.currentCursorType === 'droplet')) {
                 pointerDot.classList.add('active');
+                pointerDot.classList.remove('dot-inverted');
             } else {
-                pointerDot.classList.remove('active');
+                pointerDot.classList.remove('active', 'dot-inverted');
             }
         }
 
@@ -660,10 +667,15 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     let encompassTimer = null;
 
     const setupInteractives = () => {
-        const interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary, .node, .nav-link, .sidebar-link, .toc-link, .tab-btn, .sim-record-header, .sim-ref-info-btn, .sim-tab-btn, select, option, input[type="button"], input[type="submit"], .flow-step, .custom-scrollbar-thumb');
+        const interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary, .node, .nav-link, .sidebar-link, .toc-link, .tab-btn, .sim-record-header, .sim-ref-info-btn, .sim-tab-btn, select, option, input[type="button"], input[type="submit"], .flow-step, .custom-scrollbar-thumb, .beginner-hero-card');
         interactives.forEach(el => {
             if (el.dataset.cursorBound) return;
             el.dataset.cursorBound = 'true';
+
+            // If an inner element is inside .beginner-hero-card, let .beginner-hero-card be the encompassing target
+            if (el.closest('.beginner-hero-card') && el !== el.closest('.beginner-hero-card')) {
+                return;
+            }
 
             el.addEventListener('mouseenter', () => {
                 // Cancel any pending delay from a previous leave
@@ -746,10 +758,10 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     overlay.innerHTML = `
         <div class="unified-settings-modal">
             <div class="unified-modal-header">
-                <div class="unified-modal-title">⚡ Personalization & Visual Physics</div>
+                <div class="unified-modal-title">Personalization & Visual Physics</div>
                 <div class="unified-modal-tabs">
-                    <button class="unified-tab-btn active" data-tab="theme">🎨 Theme & Physics</button>
-                    <button class="unified-tab-btn" data-tab="cursor">🖱️ Custom Cursor</button>
+                    <button class="unified-tab-btn active" data-tab="theme">Theme & Physics</button>
+                    <button class="unified-tab-btn" data-tab="cursor">Custom Cursor</button>
                 </div>
             </div>
 
@@ -757,9 +769,10 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             <div class="unified-panel active" id="panel-theme">
                 <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Color Themes</div>
                 <div class="theme-swatches" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px;">
-                    ${themes.map(t => `<div class="theme-swatch-container" data-theme-id="${t.id}" style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+                    ${themes.map(t => `<div class="theme-swatch-container" data-theme-id="${t.id}">
                         <div class="theme-swatch" style="--swatch-color: ${t.color}"></div>
-                        <span class="theme-label" style="text-align: left;">${t.name || (t.id.charAt(0).toUpperCase() + t.id.slice(1))}</span>
+                        <span class="theme-label">${t.name || (t.id.charAt(0).toUpperCase() + t.id.slice(1))}</span>
+                        <span class="theme-active-indicator">Active</span>
                     </div>`).join('')}
                 </div>
 
@@ -827,9 +840,9 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     <div class="cursor-speed-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; color:var(--text-primary); font-size:13px; font-weight:600; margin-bottom:8px;">
                             <label>Chase Speed</label>
-                            <span id="chaseSpeedVal" style="color:var(--accent-primary); font-family: monospace;">0.50</span>
+                            <span id="chaseSpeedVal" style="color:var(--accent-primary); font-family: monospace;">0.70</span>
                         </div>
-                        <input type="range" id="cursorSpeedSlider" min="0.1" max="1.0" step="0.01" value="0.50" style="width: 100%; accent-color: var(--accent-primary);">
+                        <input type="range" id="cursorSpeedSlider" min="0.1" max="1.0" step="0.01" value="0.70" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
 
                     <div class="cursor-delay-container" style="border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 4px;">
@@ -969,7 +982,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         if (trailCheckbox) trailCheckbox.checked = !!window.sparkleTrailEnabled;
         if (sizeSlider) sizeSlider.value = window.cursorSizeMultiplier || 1.0;
         if (speedSlider) {
-            const speed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.5;
+            const speed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.7;
             speedSlider.value = speed;
             if (speedVal) speedVal.innerText = parseFloat(speed).toFixed(2);
         }
@@ -1134,7 +1147,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const type = window.currentCursorType || 'default';
         const trail = !!window.sparkleTrailEnabled;
         const sizeMult = window.cursorSizeMultiplier || 1.0;
-        const chaseSpeed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.5;
+        const chaseSpeed = window.cursorChaseSpeed !== undefined ? window.cursorChaseSpeed : 0.7;
         const bloomEnabled = !!window.cursorBloomEnabled;
         const encompassDelay = window.cursorEncompassDelay !== undefined ? window.cursorEncompassDelay : 0.15;
 
@@ -1300,42 +1313,37 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     overlay.innerHTML = `
         <div class="theme-modal shortcuts-modal-container" style="width: 380px; max-width: 92vw;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div class="theme-modal-title" style="margin-bottom: 0; text-align: left; font-size: 1.15rem;">⚡ Quick Actions</div>
+                <div class="theme-modal-title" style="margin-bottom: 0; text-align: left; font-size: 1.15rem;">Quick Actions</div>
                 <button class="shortcuts-close-btn" aria-label="Close" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;">✕</button>
             </div>
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Tap any action to execute, or use keyboard hotkeys.</div>
             <div class="shortcuts-actions-list" style="display: flex; flex-direction: column; gap: 8px;">
                 <div class="shortcut-action-row" data-action="search" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🔍</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Search Box</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Ctrl + K</kbd>
                 </div>
                 <div class="shortcut-action-row" data-action="settings" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🎨</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Personalization & Settings</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + T</kbd>
                 </div>
                 <div class="shortcut-action-row" data-action="zen" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🧘</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Zen Mode</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + Z</kbd>
                 </div>
                 <div class="shortcut-action-row" data-action="invert" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🌓</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Invert Colors</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + I</kbd>
                 </div>
                 <div class="shortcut-action-row" data-action="nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">📖</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Chapter Navigation</span>
                     </div>
                     <div style="display: flex; gap: 6px;">
@@ -1345,14 +1353,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 </div>
                 <div class="shortcut-action-row" data-action="reset" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🔄</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Factory Reset</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + R</kbd>
                 </div>
                 <div class="shortcut-action-row" data-action="dev" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 16px;">🎮</span>
                         <span style="font-weight: 500; color: var(--text-primary);">Developer Mode</span>
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Konami</kbd>
@@ -1742,7 +1748,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     document.addEventListener('mousemove', (e) => {
         // Target top-level outer card containers
         const cardTarget = e.target.closest(
-            '.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card'
+            '.module-card-horizontal, .page-card, .module-card, .bento-card, .stat-card, .beginner-hero-card'
         );
 
         if (!cardTarget) {
@@ -1766,11 +1772,11 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
 
-        // Clean, responsive 3D tilt calculation (max 8 deg tilt)
-        const rotateX = -((y - centerY) / centerY) * 8;
-        const rotateY = ((x - centerX) / centerX) * 8;
+        // Clean, responsive 3D tilt calculation (4.8 deg tilt - 60% of original 8 deg)
+        const rotateX = -((y - centerY) / centerY) * 4.8;
+        const rotateY = ((x - centerX) / centerX) * 4.8;
 
-        cardTarget.style.transform = `perspective(600px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+        cardTarget.style.transform = `perspective(600px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.015, 1.015, 1.015)`;
         cardTarget.style.boxShadow = `${-rotateY * 0.8}px ${rotateX * 0.8}px 25px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-glow)`;
     });
 
@@ -2547,6 +2553,29 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const navLinks = document.getElementById('navLinks');
         const navHubBtn = document.getElementById('navHubBtn');
 
+        const navModulesDropdown = document.getElementById('navModulesDropdown');
+        const modulesDropdownToggle = document.getElementById('modulesDropdownToggle');
+
+        if (modulesDropdownToggle && navModulesDropdown) {
+            modulesDropdownToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = navModulesDropdown.classList.toggle('is-open');
+                modulesDropdownToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            navModulesDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    navModulesDropdown.classList.remove('is-open');
+                    modulesDropdownToggle.setAttribute('aria-expanded', 'false');
+                    if (navLinks) navLinks.classList.remove('active');
+                    if (toggleBtn) {
+                        toggleBtn.classList.remove('active');
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+        }
+
         if (toggleBtn && navLinks) {
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -2556,8 +2585,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 if (navigator.vibrate) navigator.vibrate(15);
             });
 
-            // Close on link click
-            navLinks.querySelectorAll('.nav-link').forEach(link => {
+            // Close on link click (excluding dropdown toggle)
+            navLinks.querySelectorAll('.nav-link:not(.nav-dropdown-btn)').forEach(link => {
                 link.addEventListener('click', () => {
                     navLinks.classList.remove('active');
                     toggleBtn.classList.remove('active');
@@ -2567,7 +2596,22 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
             // Close when clicking outside
             document.addEventListener('click', (e) => {
+                if (navModulesDropdown && !navModulesDropdown.contains(e.target)) {
+                    navModulesDropdown.classList.remove('is-open');
+                    modulesDropdownToggle?.setAttribute('aria-expanded', 'false');
+                }
                 if (!e.target.closest('#navbar')) {
+                    navLinks.classList.remove('active');
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Escape key closes dropdown & mobile menu
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    navModulesDropdown?.classList.remove('is-open');
+                    modulesDropdownToggle?.setAttribute('aria-expanded', 'false');
                     navLinks.classList.remove('active');
                     toggleBtn.classList.remove('active');
                     toggleBtn.setAttribute('aria-expanded', 'false');
@@ -2576,52 +2620,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }
 
-    // Beginner Hero Card Onboarding Toggle Handler
-    function setupBeginnerCardToggle() {
-        const card = document.getElementById('beginnerHeroCard');
-        const exploreBtn = document.getElementById('exploreModulesBtn');
-        const dismissBtn = document.getElementById('dismissIntroCardBtn');
-        const reopenContainer = document.getElementById('reopenIntroContainer');
-        const reopenBtn = document.getElementById('reopenIntroBtn');
-        const modulesStack = document.getElementById('modulesStack');
-
-        if (!card) return;
-
-        function collapseCard(scrollDown = false) {
-            card.classList.add('is-collapsed');
-            if (reopenContainer) reopenContainer.style.display = 'block';
-            localStorage.setItem('sn_hide_intro_card', 'true');
-
-            if (scrollDown && modulesStack) {
-                modulesStack.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        function expandCard() {
-            card.classList.remove('is-collapsed');
-            if (reopenContainer) reopenContainer.style.display = 'none';
-            localStorage.removeItem('sn_hide_intro_card');
-        }
-
-        // Check stored user preference
-        if (localStorage.getItem('sn_hide_intro_card') === 'true') {
-            card.classList.add('is-collapsed');
-            if (reopenContainer) reopenContainer.style.display = 'block';
-        }
-
-        exploreBtn?.addEventListener('click', () => collapseCard(true));
-        dismissBtn?.addEventListener('click', () => collapseCard(false));
-        reopenBtn?.addEventListener('click', expandCard);
-    }
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             setupNavToggle();
-            setupBeginnerCardToggle();
         });
     } else {
         setupNavToggle();
-        setupBeginnerCardToggle();
     }
 })();
 
