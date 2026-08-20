@@ -123,12 +123,17 @@ app.post('/api/user-prefs', async (req, res) => {
     const sessionId = req.headers['x-session-id'] || 'default';
     let currentSessionPrefs = {};
     try {
-        currentSessionPrefs = (await getSessionPrefs(sessionId)) || {};
+        currentSessionPrefs = (await getSessionPrefs(sessionId, false)) || {};
     } catch (e) {
         console.error("Error reading existing session prefs", e);
     }
 
-    const newPrefs = { ...DEFAULT_PREFS, ...currentSessionPrefs, ...req.body };
+    const newPrefs = {
+        ...DEFAULT_PREFS,
+        ...currentSessionPrefs,
+        ...req.body,
+        createdAt: currentSessionPrefs.createdAt || new Date().toISOString()
+    };
     const saved = await setSessionPrefs(sessionId, newPrefs);
     res.json({ success: true, prefs: saved || newPrefs });
 });

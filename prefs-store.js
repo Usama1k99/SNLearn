@@ -101,12 +101,22 @@ async function getSessionPrefs(sessionId, updateLastActive = true) {
 
             const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
-            if (updateLastActive && parsed) {
-                parsed.lastActive = new Date().toISOString();
-                // Persist new lastActive timestamp to Redis and reset 7-day TTL
-                redis.set(key, JSON.stringify(parsed), { ex: SESSION_TTL_SECONDS }).catch(() => {});
-            } else {
-                redis.expire(key, SESSION_TTL_SECONDS).catch(() => {});
+            if (parsed) {
+                let needsUpdate = false;
+                if (!parsed.createdAt) {
+                    parsed.createdAt = parsed.lastActive || new Date().toISOString();
+                    needsUpdate = true;
+                }
+                if (updateLastActive) {
+                    parsed.lastActive = new Date().toISOString();
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate) {
+                    redis.set(key, JSON.stringify(parsed), { ex: SESSION_TTL_SECONDS }).catch(() => {});
+                } else {
+                    redis.expire(key, SESSION_TTL_SECONDS).catch(() => {});
+                }
             }
 
             return parsed;
@@ -118,8 +128,13 @@ async function getSessionPrefs(sessionId, updateLastActive = true) {
     }
 
     const fileData = readFilePrefs();
-    if (fileData[sessionId] && updateLastActive) {
-        fileData[sessionId].lastActive = new Date().toISOString();
+    if (fileData[sessionId]) {
+        if (!fileData[sessionId].createdAt) {
+            fileData[sessionId].createdAt = fileData[sessionId].lastActive || new Date().toISOString();
+        }
+        if (updateLastActive) {
+            fileData[sessionId].lastActive = new Date().toISOString();
+        }
         writeFilePrefs(fileData);
     }
     return fileData[sessionId] || null;
@@ -133,6 +148,7 @@ async function setSessionPrefs(sessionId, prefs) {
 
     const dataToSave = {
         ...prefs,
+        createdAt: prefs.createdAt || new Date().toISOString(),
         lastActive: new Date().toISOString()
     };
 
