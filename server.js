@@ -21,8 +21,8 @@ app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 app.use('/models.json', express.static(path.join(__dirname, 'models.json')));
 
-// Preferences store (Upstash Redis on Vercel, local JSON file otherwise)
-const { readAllPrefs, writeAllPrefs } = require('./prefs-store');
+// Preferences store (Upstash Redis with per-session 7-day TTL, local JSON file fallback)
+const { getSessionPrefs, setSessionPrefs, readAllPrefs } = require('./prefs-store');
 
 const THEME_COLORS = {
     'emerald':   '#10b981',
@@ -67,11 +67,11 @@ app.get('/favicon.svg', async (req, res) => {
     let isInverted = req.query.inv === '1';
 
     try {
-        const allPrefs = await readAllPrefs();
         const sessionId = req.query.sid || req.headers['x-session-id'];
-        let sessionPrefs = sessionId ? allPrefs[sessionId] : null;
+        let sessionPrefs = sessionId ? await getSessionPrefs(sessionId) : null;
 
         if (!sessionPrefs) {
+            const allPrefs = await readAllPrefs();
             const sessions = Object.values(allPrefs).filter(v => typeof v === 'object');
             if (sessions.length > 0) sessionPrefs = sessions[sessions.length - 1];
         }
@@ -101,36 +101,36 @@ app.get('/favicon.svg', async (req, res) => {
 app.get('/api/user-prefs', async (req, res) => {
     const sessionId = req.headers['x-session-id'] || 'default';
     try {
-        const allPrefs = await readAllPrefs();
-        if (allPrefs[sessionId] && typeof allPrefs[sessionId] === 'object') {
-            return res.json(allPrefs[sessionId]);
+        let sessionPrefs = await getSessionPrefs(sessionId);
+        if (sessionPrefs && typeof sessionPrefs === 'object') {
+            return res.json(sessionPrefs);
         }
+        
+        // Brand new session: initialize with defaults and persist to Redis with 7-day TTL
+        const initialPrefs = {
+            ...DEFAULT_PREFS,
+            createdAt: new Date().toISOString()
+        };
+        const saved = await setSessionPrefs(sessionId, initialPrefs);
+        return res.json(saved || initialPrefs);
     } catch (e) {
-        console.error("Error reading prefs", e);
+        console.error("Error reading/initializing session prefs", e);
+        res.json({ ...DEFAULT_PREFS });
     }
-    res.json({ ...DEFAULT_PREFS });
 });
 
 app.post('/api/user-prefs', async (req, res) => {
     const sessionId = req.headers['x-session-id'] || 'default';
-    let allPrefs = {};
+    let currentSessionPrefs = {};
     try {
-        const raw = await readAllPrefs();
-        if (raw.theme || raw.cursorType) {
-            allPrefs = {};
-        } else {
-            allPrefs = raw;
-        }
+        currentSessionPrefs = (await getSessionPrefs(sessionId)) || {};
     } catch (e) {
-        console.error("Error parsing existing user-prefs", e);
+        console.error("Error reading existing session prefs", e);
     }
 
-    const currentSessionPrefs = allPrefs[sessionId] || {};
-    const newPrefs = { ...currentSessionPrefs, ...req.body };
-    allPrefs[sessionId] = newPrefs;
-
-    await writeAllPrefs(allPrefs);
-    res.json({ success: true, prefs: newPrefs });
+    const newPrefs = { ...DEFAULT_PREFS, ...currentSessionPrefs, ...req.body };
+    const saved = await setSessionPrefs(sessionId, newPrefs);
+    res.json({ success: true, prefs: saved || newPrefs });
 });
 
 // Routes
