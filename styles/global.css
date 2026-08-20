@@ -337,19 +337,19 @@ html[data-theme="noir"] #starfieldCanvas {
     right: max(22px, env(safe-area-inset-right, 22px));
     width: 48px;
     height: 48px;
+    padding: 0;
     border-radius: 50%;
     background: var(--bg-card);
     border: 2px solid var(--accent-primary);
     color: var(--accent-primary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow);
-    font-size: 20px;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 99999;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
 }
@@ -359,6 +359,23 @@ html[data-theme="noir"] #starfieldCanvas {
     transform: scale(1.12);
     background: var(--accent-soft);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 24px var(--accent-primary);
+}
+
+.mobile-floating-hub-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--accent-primary);
+    fill: none;
+    display: block;
+    transition: transform 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+.mobile-floating-hub-btn:hover svg,
+.mobile-floating-hub-btn:active svg {
+    transform: scale(1.08);
+    stroke: var(--accent-primary);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 
 @media (max-width: 1024px) {
@@ -533,6 +550,9 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scrollbar-width: none;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 body {
@@ -542,6 +562,9 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
 }
 
 ::selection {
@@ -679,8 +702,10 @@ img {
 /* -- Container -- */
 .container {
     max-width: 1720px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 var(--space-xl);
+    box-sizing: border-box;
 }
 
 /* -- Navigation -- */
@@ -689,10 +714,13 @@ img {
     top: 0;
     left: 0;
     right: 0;
+    width: 100%;
+    max-width: 100%;
     z-index: 1000;
     padding: var(--space-md) 0;
     transition: all var(--transition-base);
     backdrop-filter: blur(0px);
+    box-sizing: border-box;
 }
 
 .navbar.scrolled {
@@ -704,11 +732,13 @@ img {
 
 .nav-container {
     max-width: 1720px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 var(--space-xl);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .nav-logo {
@@ -913,8 +943,32 @@ img {
 }
 
 @media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .navbar {
+        padding: 10px 0;
+    }
+
+    .navbar.scrolled {
+        padding: 8px 0;
+    }
+
+    .nav-container {
+        padding: 0 16px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .nav-logo {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+
     .nav-mobile-toggle {
         display: flex;
+        flex-shrink: 0;
     }
 
     .nav-links {
@@ -922,6 +976,8 @@ img {
         top: 56px;
         left: 12px;
         right: 12px;
+        width: auto;
+        max-width: calc(100vw - 24px);
         background: var(--bg-elevated);
         border: 1px solid var(--border-accent);
         border-radius: var(--radius-lg);
@@ -932,14 +988,17 @@ img {
         padding: 12px;
         gap: 6px;
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
         transform: translateY(-12px) scale(0.97);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease;
         z-index: 1001;
+        box-sizing: border-box;
     }
 
     .nav-links.active {
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
         transform: translateY(0) scale(1);
     }
@@ -984,6 +1043,7 @@ img {
     .nav-dropdown-menu {
         position: static;
         width: 100%;
+        min-width: 0;
         box-shadow: none;
         border: 1px solid var(--border-subtle);
         background: rgba(2, 6, 23, 0.4);
@@ -1339,7 +1399,7 @@ line.edge-hover-glow {
     animation: hollow-breath 4s infinite ease-in-out;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 10000000;
+    z-index: 2147483646 !important;
     transform: translate(-50%, -50%);
     transition: opacity 0.15s ease;
 }
@@ -1354,7 +1414,7 @@ line.edge-hover-glow {
     background: var(--accent-primary) !important;
     box-shadow: 0 0 10px var(--accent-primary), 0 0 4px #ffffff !important;
     pointer-events: none;
-    z-index: 9999999;
+    z-index: 2147483645 !important;
     opacity: 0;
     transform: translate(-50%, -50%);
     transition: opacity 0.15s ease;
@@ -1373,7 +1433,7 @@ line.edge-hover-glow {
     box-shadow: none !important;
     border-radius: 50%;
     opacity: 1 !important;
-    z-index: 10000001;
+    z-index: 2147483647 !important;
 }
 
 .cursor-ghost.magnetic-hover {
@@ -1437,7 +1497,7 @@ html.cursor-inverted .cursor-ghost.magnetic-hover {
 .cursor-sparkle {
     position: fixed;
     pointer-events: none;
-    z-index: 999998;
+    z-index: 2147483640 !important;
     border-radius: 50%;
     background: var(--accent-primary);
     animation: sparkle-fade 0.6s linear forwards;
@@ -1600,6 +1660,24 @@ body.page-exiting {
     padding: 8px;
 }
 
+@media (max-width: 768px) {
+    .cmd-palette-overlay {
+        padding: 20px 12px;
+        align-items: flex-start;
+    }
+
+    .cmd-palette-modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: 82vh;
+    }
+
+    .cmd-palette-results {
+        max-height: 60vh;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 .cmd-palette-item {
     display: flex;
     align-items: center;
@@ -1675,7 +1753,7 @@ body.page-exiting {
 .cursor-bloom {
     position: fixed;
     pointer-events: none;
-    z-index: 9998;
+    z-index: 2147483641 !important;
     width: 80px;
     height: 80px;
     border-radius: 50%;

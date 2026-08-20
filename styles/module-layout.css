@@ -660,7 +660,7 @@
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: 2147483647 !important; /* Maximum z-index above all navigation and modals */
+    z-index: 500000 !important; /* Above all navigation and standard modals, below custom cursor */
     background: rgba(3, 7, 18, 0.85) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
@@ -1025,6 +1025,10 @@ body.diagram-modal-open {
 @media (max-width: 900px) {
     .irm-page-layout {
         grid-template-columns: 1fr;
+        padding: 0 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .irm-sidebar {
@@ -1059,8 +1063,50 @@ body.diagram-modal-open {
 }
 
 @media (max-width: 768px) {
+    .irm-hub {
+        padding: 70px 0 30px;
+    }
+
+    .irm-page {
+        padding: 60px 0 30px;
+    }
+
+    .irm-page-layout {
+        padding: 0 16px;
+        gap: var(--space-lg);
+    }
+
     .pages-grid {
         grid-template-columns: 1fr;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-card {
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .feature-card {
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .code-block {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .diagram-block {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .mermaid {
+        max-width: 100%;
+        overflow-x: auto !important;
     }
 
     .irm-title-row {

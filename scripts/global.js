@@ -297,6 +297,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     let currentAngle = 0;
     let prevStretch = 0;
     let jiggleTimer = 0;
+    const sparklePool = [];
 
     let isMouseDown = false;
     let isTextHovering = false;
@@ -339,7 +340,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         .then(data => {
             window.currentCursorType = (data.cursorType === 'droplet') ? 'ring' : (data.cursorType || (data.customCursor ? 'ring' : 'default'));
             window.sparkleTrailEnabled = !!data.sparkleTrail;
-            window.cursorSizeMultiplier = data.cursorSize || 1.0;
+            window.cursorSizeMultiplier = Math.min(1.875, data.cursorSize || 1.0);
             window.cursorChaseSpeed = data.cursorChaseSpeed !== undefined ? data.cursorChaseSpeed : 0.7;
             window.cursorBloomEnabled = data.cursorBloomEnabled !== undefined ? !!data.cursorBloomEnabled : false;
             window.cursorEncompassDelay = data.cursorEncompassDelay !== undefined ? data.cursorEncompassDelay : 0.15;
@@ -580,28 +581,28 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 currentAngle = Math.atan2(dy, dx);
             }
 
-            const stretch = Math.min(speed / 30, 2.5);
+            const stretch = Math.min(speed / 130, 0.45);
             let scaleX = 1 + stretch;
-            let scaleY = Math.max(0.2, 1 - (stretch * 0.4));
+            let scaleY = Math.max(0.80, 1 - (stretch * 0.18));
 
             if (window.currentCursorType !== 'inverted') {
-                if (speed > 5) {
+                if (speed > 28) {
                     cursor.style.borderRadius = '0 50% 50% 50%';
                     jiggleTimer = 0;
                 } else {
                     cursor.style.borderRadius = '50%';
-                    if (speed < 0.5 && prevStretch > 0.1 && jiggleTimer === 0) {
+                    if (speed < 0.5 && prevStretch > 0.03 && jiggleTimer === 0) {
                         jiggleTimer = 1;
                     }
                 }
 
                 if (jiggleTimer > 0) {
-                    jiggleTimer -= 0.04;
+                    jiggleTimer -= 0.12;
                     if (jiggleTimer <= 0) jiggleTimer = 0;
 
                     const jiggleAmt = Math.sin(jiggleTimer * Math.PI * 5) * jiggleTimer;
-                    scaleX += jiggleAmt * 0.4;
-                    scaleY -= jiggleAmt * 0.4;
+                    scaleX += jiggleAmt * 0.08;
+                    scaleY -= jiggleAmt * 0.08;
                 }
             } else {
                 cursor.style.borderRadius = '50%';
@@ -623,20 +624,33 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 cursor.style.transform = `translate(${cursorX - offset}px, ${cursorY - offset}px) rotate(${currentAngle}rad) scale(${scaleX}, ${scaleY}) rotate(-45deg)`;
             }
             
-            // Sparkle Trail logic
+            // Sparkle Trail logic (reusable object pool)
             if (window.sparkleTrailEnabled && speed > 2 && Math.random() > 0.4) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'cursor-sparkle';
-                sparkle.style.left = `${cursorX + (Math.random() - 0.5) * 16}px`;
-                sparkle.style.top = `${cursorY + (Math.random() - 0.5) * 16}px`;
-                const spkSize = Math.random() * 4 + 2;
-                sparkle.style.width = `${spkSize}px`;
-                sparkle.style.height = `${spkSize}px`;
-                if (window.currentCursorType === 'inverted') {
-                    sparkle.style.background = '#888';
+                let sparkle = sparklePool.find(s => !s.active);
+                if (!sparkle) {
+                    if (sparklePool.length < 25) {
+                        const el = document.createElement('div');
+                        el.className = 'cursor-sparkle';
+                        document.body.appendChild(el);
+                        sparkle = { el, active: false, timer: null };
+                        sparklePool.push(sparkle);
+                    }
                 }
-                document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 600);
+                if (sparkle) {
+                    sparkle.active = true;
+                    sparkle.el.style.display = 'block';
+                    sparkle.el.style.left = `${cursorX + (Math.random() - 0.5) * 16}px`;
+                    sparkle.el.style.top = `${cursorY + (Math.random() - 0.5) * 16}px`;
+                    const spkSize = Math.random() * 4 + 2;
+                    sparkle.el.style.width = `${spkSize}px`;
+                    sparkle.el.style.height = `${spkSize}px`;
+                    sparkle.el.style.background = (window.currentCursorType === 'inverted') ? '#888' : '';
+                    if (sparkle.timer) clearTimeout(sparkle.timer);
+                    sparkle.timer = setTimeout(() => {
+                        sparkle.active = false;
+                        sparkle.el.style.display = 'none';
+                    }, 600);
+                }
             }
         }
 
@@ -661,13 +675,13 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         if (isHovering && targetElement) {
             targetRect = targetElement.getBoundingClientRect();
         }
-    }, { passive: true });
+    }, { capture: true, passive: true });
 
 
     let encompassTimer = null;
 
     const setupInteractives = () => {
-        const interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary, .node, .nav-link, .sidebar-link, .toc-link, .tab-btn, .sim-record-header, .sim-ref-info-btn, .sim-tab-btn, select, option, input[type="button"], input[type="submit"], .flow-step, .custom-scrollbar-thumb, .beginner-hero-card');
+        const interactives = document.querySelectorAll('a, button, .btn-primary, .btn-secondary, .node, .nav-link, .sidebar-link, .toc-link, .tab-btn, .sim-record-header, .sim-ref-info-btn, .sim-tab-btn, select, option, input[type="button"], input[type="submit"], .flow-step, .custom-scrollbar-thumb, .beginner-hero-card, .diagram-btn');
         interactives.forEach(el => {
             if (el.dataset.cursorBound) return;
             el.dataset.cursorBound = 'true';
@@ -834,7 +848,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                                 <div id="cursorPreview" style="width:16px; height:16px; border-radius:50%; background:var(--accent-primary); transition:all 0.1s;"></div>
                             </div>
                         </div>
-                        <input type="range" id="cursorSizeSlider" min="0.5" max="2.5" step="0.1" value="1.0" style="width: 100%; accent-color: var(--accent-primary);">
+                        <input type="range" id="cursorSizeSlider" min="0.5" max="1.875" step="0.025" value="1.0" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
 
                     <div class="cursor-speed-container">
@@ -1336,12 +1350,6 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                     </div>
                     <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + Z</kbd>
                 </div>
-                <div class="shortcut-action-row" data-action="invert" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-weight: 500; color: var(--text-primary);">Invert Colors</span>
-                    </div>
-                    <kbd style="background: var(--bg-tertiary); padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Alt + I</kbd>
-                </div>
                 <div class="shortcut-action-row" data-action="nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-weight: 500; color: var(--text-primary);">Chapter Navigation</span>
@@ -1394,11 +1402,15 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         console.log(`%c[${devInfo.deviceType}] 📱 Quick Action Executed: ${action}`, 'color: #3b82f6; font-weight: bold; font-family: monospace; font-size: 11px;');
 
         if (action === 'search') {
-            const cmdOverlay = document.querySelector('.cmd-palette-overlay');
-            if (cmdOverlay) {
-                cmdOverlay.classList.add('active');
-                const input = cmdOverlay.querySelector('.cmd-palette-input');
-                if (input) setTimeout(() => input.focus(), 50);
+            if (window.openCommandPalette) {
+                window.openCommandPalette();
+            } else {
+                const cmdOverlay = document.querySelector('.cmd-palette-overlay');
+                if (cmdOverlay) {
+                    cmdOverlay.classList.add('active');
+                    const input = cmdOverlay.querySelector('.cmd-palette-input');
+                    if (input) setTimeout(() => input.focus(), 60);
+                }
             }
         } else if (action === 'settings') {
             if (window.openUnifiedSettingsModal) {
@@ -1406,14 +1418,14 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             }
         } else if (action === 'zen') {
             if (window.toggleZenMode) window.toggleZenMode();
-        } else if (action === 'invert') {
-            if (window.toggleInvertColors) window.toggleInvertColors();
         } else if (action === 'nav') {
             if (window.navigateModulePage) window.navigateModulePage('next');
         } else if (action === 'reset') {
             if (window.performFactoryReset) window.performFactoryReset();
         } else if (action === 'dev') {
-            if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+            setTimeout(() => {
+                if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg();
+            }, 80);
         }
     }
 
@@ -1437,6 +1449,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
         row.addEventListener('touchend', (e) => {
             touchTriggered = true;
+            if (e.cancelable) e.preventDefault();
             onTrigger(e);
             setTimeout(() => { touchTriggered = false; }, 350);
         });
@@ -1555,7 +1568,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 })();
 
 // ============================================
-// COMMAND PALETTE (Feature 1 - All 32 Module Pages)
+// COMMAND PALETTE (Feature 1 - All 40+ Module Pages)
 // ============================================
 (function initCommandPalette() {
     const overlay = document.createElement('div');
@@ -1564,7 +1577,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         <div class="cmd-palette-modal">
             <div class="cmd-palette-header">
                 <span class="cmd-palette-icon">🔍</span>
-                <input type="text" class="cmd-palette-input" placeholder="Search pages...">
+                <input type="text" class="cmd-palette-input" placeholder="Search pages..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="cmd-palette-results"></div>
         </div>
@@ -1577,6 +1590,26 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     const commands = [
         { label: 'Home Page', category: 'Navigation', url: '/' },
         
+        // Basics Curriculum (8 Pages)
+        { label: 'Basics Curriculum (All 7 Chapters)', category: 'Basics Module', url: '/basics' },
+        { label: 'Chapter 1: Platform Overview & Architecture', category: 'Basics Module', url: '/basics/overview' },
+        { label: 'Chapter 2: Multi-Instance & Cloud Architecture', category: 'Basics Module', url: '/basics/architecture' },
+        { label: 'Chapter 3: Tables, Fields & Data Structures', category: 'Basics Module', url: '/basics/tables-fields' },
+        { label: 'Chapter 4: UI, Forms, Lists & Navigation', category: 'Basics Module', url: '/basics/ui-navigation' },
+        { label: 'Chapter 5: Scripting & Business Logic', category: 'Basics Module', url: '/basics/scripting-logic' },
+        { label: 'Chapter 6: Security, Roles & Access Control (ACLs)', category: 'Basics Module', url: '/basics/security-access' },
+        { label: 'Chapter 7: Workflows & Flow Designer', category: 'Basics Module', url: '/basics/workflows-flow-designer' },
+
+        // ITSM Module (8 Pages)
+        { label: 'ITSM Dashboard', category: 'ITSM Module', url: '/itsm' },
+        { label: 'ITSM Incident Management', category: 'ITSM Module', url: '/itsm/incident' },
+        { label: 'ITSM Problem Management', category: 'ITSM Module', url: '/itsm/problem' },
+        { label: 'ITSM Change Management', category: 'ITSM Module', url: '/itsm/change' },
+        { label: 'ITSM Request Management', category: 'ITSM Module', url: '/itsm/request' },
+        { label: 'ITSM Knowledge Management', category: 'ITSM Module', url: '/itsm/knowledge' },
+        { label: 'ITSM Data Model & CSDM', category: 'ITSM Module', url: '/itsm/data-model' },
+        { label: 'ITSM Interactive Simulator', category: 'ITSM Module', url: '/itsm/simulator' },
+
         // IRM Module (8 Pages)
         { label: 'IRM Dashboard', category: 'IRM Module', url: '/irm' },
         { label: 'IRM Overview', category: 'IRM Module', url: '/irm/overview' },
@@ -1618,10 +1651,10 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         { label: 'HAM Simulator', category: 'HAM Module', url: '/ham/simulator' },
 
         // Actions & Settings
-        { label: 'Personalization & Settings (Alt + T)', category: 'Setting', action: () => document.dispatchEvent(new KeyboardEvent('keydown', { altKey: true, key: 't' })) },
-        { label: 'Zen Mode (Alt + Z)', category: 'Action', action: () => document.body.classList.toggle('zen-mode') },
-        { label: 'Invert Colors (Alt + I)', category: 'Action', action: () => document.documentElement.classList.toggle('invert-mode') },
-        { label: 'Keyboard Shortcuts (Alt + H)', category: 'Help', action: () => document.dispatchEvent(new KeyboardEvent('keydown', { altKey: true, key: 'h' })) }
+        { label: 'Personalization & Settings (Alt + T)', category: 'Setting', action: () => { if (window.openUnifiedSettingsModal) window.openUnifiedSettingsModal('theme'); } },
+        { label: 'Zen Mode (Alt + Z)', category: 'Action', action: () => { if (window.toggleZenMode) window.toggleZenMode(); } },
+        { label: 'Developer Mode / Diagnostics', category: 'Action', action: () => { if (window.triggerKonamiEasterEgg) window.triggerKonamiEasterEgg(); } },
+        { label: 'Keyboard Shortcuts Hub (Alt + H)', category: 'Help', action: () => { const o = document.querySelector('.shortcuts-modal-overlay'); if (o) o.classList.add('active'); } }
     ];
 
     let selectedIndex = 0;
@@ -1630,7 +1663,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     function renderResults() {
         resultsContainer.innerHTML = '';
         if (filteredCommands.length === 0) {
-            resultsContainer.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 13px;">No commands found</div>`;
+            resultsContainer.innerHTML = `<div style="padding: 14px; text-align: center; color: var(--text-muted); font-size: 13px;">No matching pages found</div>`;
             return;
         }
         filteredCommands.forEach((cmd, idx) => {
@@ -1640,20 +1673,50 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 <span>${cmd.label}</span>
                 <span class="cmd-category">${cmd.category}</span>
             `;
-            item.addEventListener('click', () => executeCommand(cmd));
+            
+            let touchHandled = false;
+            item.addEventListener('touchend', (e) => {
+                touchHandled = true;
+                if (e.cancelable) e.preventDefault();
+                executeCommand(cmd);
+                setTimeout(() => { touchHandled = false; }, 300);
+            });
+
+            item.addEventListener('click', () => {
+                if (!touchHandled) executeCommand(cmd);
+            });
             resultsContainer.appendChild(item);
         });
     }
 
     function executeCommand(cmd) {
-        overlay.classList.remove('active');
+        closeCommandPalette();
         if (cmd.url) {
             document.body.classList.add('page-exiting');
-            setTimeout(() => window.location.href = cmd.url, 150);
+            setTimeout(() => window.location.href = cmd.url, 120);
         } else if (cmd.action) {
             cmd.action();
         }
     }
+
+    function closeCommandPalette() {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        if (input) input.blur();
+    }
+
+    window.openCommandPalette = function() {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        input.value = '';
+        filteredCommands = [...commands];
+        selectedIndex = 0;
+        renderResults();
+        setTimeout(() => {
+            input.focus();
+            if (input.select) input.select();
+        }, 80);
+    };
 
     input.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
@@ -1677,7 +1740,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             e.preventDefault();
             if (filteredCommands[selectedIndex]) executeCommand(filteredCommands[selectedIndex]);
         } else if (e.key === 'Escape') {
-            overlay.classList.remove('active');
+            closeCommandPalette();
         }
     });
 
@@ -1686,19 +1749,16 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const isK = e.key.toLowerCase() === 'k';
         if ((e.ctrlKey || e.metaKey || e.altKey) && isK) {
             e.preventDefault();
-            overlay.classList.toggle('active');
             if (overlay.classList.contains('active')) {
-                input.value = '';
-                filteredCommands = [...commands];
-                selectedIndex = 0;
-                renderResults();
-                setTimeout(() => input.focus(), 50);
+                closeCommandPalette();
+            } else {
+                window.openCommandPalette();
             }
         }
     });
 
     overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.classList.remove('active');
+        if (e.target === overlay) closeCommandPalette();
     });
 })();
 
@@ -2215,12 +2275,15 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         return k || '';
     }
 
+    let lastKonamiOpenTime = 0;
+
     function closeKonami() {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
     }
 
     window.triggerKonamiEasterEgg = function() {
+        lastKonamiOpenTime = Date.now();
         const info = getDetailedDeviceInfo();
         document.getElementById('konamiDeviceType').innerText = info.deviceType;
         document.getElementById('konamiDeviceName').innerText = info.deviceName;
@@ -2293,7 +2356,8 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         }
     }, true);
 
-    overlay.addEventListener('click', () => {
+    overlay.addEventListener('click', (e) => {
+        if (Date.now() - lastKonamiOpenTime < 450) return;
         closeKonami();
     });
 })();
@@ -2503,7 +2567,11 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         fab.className = 'mobile-floating-hub-btn';
         fab.setAttribute('aria-label', 'Open Quick Actions Hub');
         fab.title = 'Quick Actions & Shortcuts';
-        fab.innerHTML = `<span>⚡</span>`;
+        fab.innerHTML = `
+            <svg class="mobile-fab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+        `;
 
         let fabTouchHandled = false;
 
@@ -2513,7 +2581,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 e.stopPropagation();
             }
             const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: 'Mobile' };
-            console.log(`%c[${devInfo.deviceType}] ⚡ Floating Action Button pressed -> Opening Quick Actions Hub`, 'color: #f59e0b; font-weight: bold; font-family: monospace; font-size: 11px;');
+            console.log(`%c[${devInfo.deviceType}] Floating Action Button pressed -> Opening Quick Actions Hub`, 'color: var(--accent-primary, #10b981); font-weight: bold; font-family: monospace; font-size: 11px;');
 
             const shortcutsOverlay = document.querySelector('.shortcuts-modal-overlay');
             if (shortcutsOverlay) {

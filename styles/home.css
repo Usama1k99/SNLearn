@@ -42,17 +42,67 @@
 @media (max-width: 1024px) {
     .split-layout {
         flex-direction: column;
+        padding: 0 20px;
+        gap: var(--space-xl);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     .split-left {
         width: 100%;
         position: relative;
         top: 0;
         height: auto;
-        padding-bottom: var(--space-xl);
+        padding: var(--space-xl) 0 0 0;
     }
     .split-right {
         width: 100%;
-        padding-top: 0;
+        padding: 0 0 var(--space-2xl) 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .split-layout {
+        padding: 0 16px;
+        gap: var(--space-lg);
+    }
+    .hero-title {
+        font-size: 26px;
+        letter-spacing: -0.5px;
+    }
+    .hero-subtitle {
+        font-size: 14px;
+    }
+    .module-card-horizontal {
+        padding: 14px 16px;
+        gap: 12px;
+        border-radius: var(--radius-lg);
+    }
+    .card-icon-container {
+        width: 48px;
+        height: 48px;
+        margin-right: 0;
+        border-radius: var(--radius-md);
+    }
+    .card-title {
+        font-size: 16px;
+    }
+    .card-desc {
+        font-size: 13px;
+    }
+    .beginner-hero-card {
+        padding: 16px;
+        margin: 0;
+        border-radius: var(--radius-lg);
+    }
+    .beginner-card-title {
+        font-size: 18px;
+    }
+    .beginner-card-desc {
+        font-size: 13.5px;
+    }
+    .beginner-card-glow {
+        display: none;
     }
 }
 
