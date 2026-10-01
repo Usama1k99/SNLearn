@@ -98,7 +98,7 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .page-card::before {
@@ -109,12 +109,16 @@
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
     opacity: 0;
     transition: opacity var(--transition-base);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .page-card:hover {
-    border-color: var(--border-accent);
+    border-color: var(--border-accent) !important;
     box-shadow: var(--shadow-glow);
 }
 
