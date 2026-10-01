@@ -1,0 +1,498 @@
+<%- include('../../partials/head', { title: 'Operational Resilience & BCM — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#resilience-vs-bcm" class="toc-link">Resilience vs BCM</a>
+                        <a href="#critical-services" class="toc-link">Critical Business Services</a>
+                        <a href="#bia" class="toc-link">Business Impact Analysis</a>
+                        <a href="#dependency-mapping" class="toc-link">Dependency Mapping</a>
+                        <a href="#recovery-planning" class="toc-link">Recovery Planning</a>
+                        <a href="#crisis-management" class="toc-link">Crisis Management</a>
+                        <a href="#developer-resilience" class="toc-link">Developer Patterns</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Operational Resilience & BCM</span>
+                    </div>
+                    <h1 class="content-title">Operational Resilience <span class="gradient-text">& BCM</span></h1>
+                    <p class="content-subtitle">
+                        Understand how ServiceNow connects risk management with business continuity — from 
+                        identifying critical business services and mapping dependencies to planning recovery 
+                        strategies and managing crises in real time.
+                    </p>
+                </div>
+
+                <!-- Resilience vs BCM -->
+                <section class="content-section" id="resilience-vs-bcm">
+                    <h2>Operational Resilience vs Business Continuity</h2>
+                    <p>
+                        While often used interchangeably, <strong>Operational Resilience</strong> and 
+                        <strong>Business Continuity Management (BCM)</strong> serve distinct but complementary 
+                        roles in protecting an organization's ability to deliver critical services.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Operational Resilience</th>
+                                    <th>Business Continuity (BCM/BCDR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Focus</strong></td>
+                                    <td>Proactive — ability to prevent, adapt, and recover</td>
+                                    <td>Reactive — pre-planned responses and recovery procedures</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Scope</strong></td>
+                                    <td>End-to-end business services across all disruption types</td>
+                                    <td>Specific processes, assets, and IT systems</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Key Concept</strong></td>
+                                    <td>Impact tolerances — "How much disruption can we absorb?"</td>
+                                    <td>Recovery objectives — "How fast can we restore?"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Regulatory Driver</strong></td>
+                                    <td>DORA, Basel III, UK PS 6/7 & SS 1/21</td>
+                                    <td>ISO 22301, SOC 2, industry-specific mandates</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ServiceNow Module</strong></td>
+                                    <td>Operational Resilience Management</td>
+                                    <td>Business Continuity Management (BCM)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">The Convergence Trend</div>
+                        <p>
+                            Modern frameworks like <strong>DORA (Digital Operational Resilience Act)</strong> 
+                            blur the line between resilience and continuity. ServiceNow's approach integrates both 
+                            into the IRM suite, sharing the same CMDB foundation and risk data. This means a 
+                            single risk event can simultaneously trigger a BCP activation <em>and</em> update 
+                            the resilience posture of affected business services.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Critical Business Services -->
+                <section class="content-section" id="critical-services">
+                    <h2>Critical Business Services</h2>
+                    <p>
+                        The foundation of operational resilience is identifying and mapping your 
+                        <strong>Critical Business Services (CBS)</strong> — the customer-facing or 
+                        internally essential services that, if disrupted, would cause unacceptable harm 
+                        to customers, the market, or the organization itself.
+                    </p>
+
+                    <h3>Examples of Critical Business Services</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Industry</th>
+                                    <th>Critical Business Service</th>
+                                    <th>Impact Tolerance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Banking</td>
+                                    <td>Online Payment Processing</td>
+                                    <td>Max 2-hour disruption</td>
+                                </tr>
+                                <tr>
+                                    <td>Healthcare</td>
+                                    <td>Electronic Health Records Access</td>
+                                    <td>Max 30-minute disruption</td>
+                                </tr>
+                                <tr>
+                                    <td>Insurance</td>
+                                    <td>Claims Processing</td>
+                                    <td>Max 4-hour disruption</td>
+                                </tr>
+                                <tr>
+                                    <td>Retail</td>
+                                    <td>E-commerce Platform</td>
+                                    <td>Max 1-hour disruption</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        In ServiceNow, Critical Business Services are defined in the <strong>CMDB</strong> using 
+                        the <code>cmdb_ci_service</code> table (or its child tables). They connect to the 
+                        <strong>CSDM (Common Service Data Model)</strong> framework, which maps the relationship 
+                        between business services, technical services, and the infrastructure supporting them.
+                    </p>
+                </section>
+
+                <!-- Business Impact Analysis -->
+                <section class="content-section" id="bia">
+                    <h2>Business Impact Analysis (BIA)</h2>
+                    <p>
+                        The <strong>Business Impact Analysis</strong> is the foundational assessment that bridges 
+                        risk management with continuity planning. It quantifies what happens when a critical service 
+                        goes down — in terms of financial impact, customer harm, regulatory penalties, and 
+                        reputational damage.
+                    </p>
+
+                    <h3>Key BIA Outputs</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Definition</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>RTO (Recovery Time Objective)</strong></td>
+                                    <td>Maximum acceptable downtime before the business impact becomes unacceptable</td>
+                                    <td>Payment processing must recover within 2 hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>RPO (Recovery Point Objective)</strong></td>
+                                    <td>Maximum acceptable data loss measured in time — how far back can you afford to roll back?</td>
+                                    <td>Transaction data can lose at most 15 minutes of records</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MTPD (Maximum Tolerable Period of Disruption)</strong></td>
+                                    <td>Absolute maximum time a service can be unavailable before causing permanent damage</td>
+                                    <td>Core banking: 24 hours before regulatory action</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Financial Impact</strong></td>
+                                    <td>Dollar cost per hour/day of downtime including lost revenue, SLA penalties, and remediation costs</td>
+                                    <td>$250K/hour for e-commerce platform outage</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">BIA to Recovery Strategy Flow</div>
+                        <div class="mermaid">
+                        flowchart LR
+                            A["Identify Critical<br/>Business Services"] --> B["Conduct Business<br/>Impact Analysis"]
+                            B --> C["Define RTO/RPO<br/>& Impact Tolerances"]
+                            C --> D["Map Dependencies<br/>(CMDB)"]
+                            D --> E["Design Recovery<br/>Strategies"]
+                            E --> F["Create Business<br/>Continuity Plans"]
+                            F --> G["Test & Exercise<br/>Plans"]
+
+                            style A fill:transparent,stroke:#10b981,color:#d1d5db
+                            style B fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style C fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                            style D fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style E fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style F fill:transparent,stroke:#06b6d4,color:#d1d5db
+                            style G fill:transparent,stroke:#10b981,color:#d1d5db
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dependency Mapping -->
+                <section class="content-section" id="dependency-mapping">
+                    <h2>CMDB Dependency Mapping</h2>
+                    <p>
+                        The power of ServiceNow's approach to resilience lies in its integration with the 
+                        <strong>CMDB</strong>. Rather than maintaining separate spreadsheets of dependencies, 
+                        the platform uses real-time CMDB relationship data to understand how infrastructure 
+                        components, applications, and services are connected.
+                    </p>
+
+                    <h3>Dependency Layers</h3>
+                    <div class="diagram-block">
+                        <div class="diagram-title">Service Dependency Stack</div>
+                        <div class="mermaid">
+                        flowchart TB
+                            CBS["Critical Business Service<br/>(Online Banking)"]
+                            TS1["Technical Service<br/>(Payment API)"]
+                            TS2["Technical Service<br/>(Auth Service)"]
+                            APP1["Application<br/>(Payment Gateway App)"]
+                            APP2["Application<br/>(Identity Provider)"]
+                            INFRA1["Infrastructure<br/>(DB Cluster - Primary)"]
+                            INFRA2["Infrastructure<br/>(Load Balancer)"]
+                            INFRA3["Infrastructure<br/>(Auth Server)"]
+                            VENDOR["Third-Party<br/>(Cloud Provider)"]
+
+                            CBS --> TS1
+                            CBS --> TS2
+                            TS1 --> APP1
+                            TS2 --> APP2
+                            APP1 --> INFRA1
+                            APP1 --> INFRA2
+                            APP2 --> INFRA3
+                            INFRA1 --> VENDOR
+                            INFRA2 --> VENDOR
+                            INFRA3 --> VENDOR
+
+                            style CBS fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style TS1 fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style TS2 fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style APP1 fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style APP2 fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style INFRA1 fill:transparent,stroke:#10b981,color:#d1d5db
+                            style INFRA2 fill:transparent,stroke:#10b981,color:#d1d5db
+                            style INFRA3 fill:transparent,stroke:#10b981,color:#d1d5db
+                            style VENDOR fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <p>
+                        This dependency mapping enables <strong>impact analysis</strong> — if a database cluster 
+                        goes down, the system can instantly trace upward through the dependency chain to identify 
+                        which business services are affected and alert the appropriate teams.
+                    </p>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">CSDM Alignment</div>
+                        <p>
+                            For dependency mapping to work effectively, your CMDB must follow the 
+                            <strong>Common Service Data Model (CSDM)</strong> framework. CSDM defines 
+                            the standard layers — Business Service → Technical Service → Application → 
+                            Infrastructure — and the relationships between them. Without CSDM, dependency 
+                            queries return incomplete or inaccurate results.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Recovery Planning -->
+                <section class="content-section" id="recovery-planning">
+                    <h2>Recovery Planning & BCP</h2>
+                    <p>
+                        Once BIA and dependency mapping are complete, the next step is creating actionable 
+                        <strong>Business Continuity Plans (BCPs)</strong> and <strong>Disaster Recovery (DR) 
+                        procedures</strong> for each critical service.
+                    </p>
+
+                    <h3>Plan Components</h3>
+                    <ul>
+                        <li><strong>Recovery Teams</strong> — Defined roles and responsibilities for each phase of recovery (assessment, containment, recovery, restoration).</li>
+                        <li><strong>Communication Plans</strong> — Escalation paths, stakeholder notifications, and public communication templates.</li>
+                        <li><strong>Recovery Procedures</strong> — Step-by-step technical and business procedures for restoring each critical service.</li>
+                        <li><strong>Resource Requirements</strong> — Pre-identified alternate facilities, backup systems, and emergency contacts.</li>
+                        <li><strong>Testing Schedule</strong> — Tabletop exercises, simulations, and full failover tests to validate plan effectiveness.</li>
+                    </ul>
+
+                    <h3>Recovery Strategy Selection</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Strategy</th>
+                                    <th>RTO</th>
+                                    <th>Cost</th>
+                                    <th>Use Case</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Hot Standby</strong></td>
+                                    <td>Minutes</td>
+                                    <td>Highest</td>
+                                    <td>Mission-critical services (payments, trading)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Warm Standby</strong></td>
+                                    <td>Hours</td>
+                                    <td>Medium</td>
+                                    <td>Important services (email, CRM)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cold Standby</strong></td>
+                                    <td>Days</td>
+                                    <td>Lowest</td>
+                                    <td>Non-critical services (reporting, archives)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cloud Failover</strong></td>
+                                    <td>Minutes to Hours</td>
+                                    <td>Variable</td>
+                                    <td>Cloud-native services with multi-region capability</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Crisis Management -->
+                <section class="content-section" id="crisis-management">
+                    <h2>Crisis Management Workflows</h2>
+                    <p>
+                        When a disruption occurs, ServiceNow provides <strong>crisis management</strong> 
+                        capabilities that coordinate the organizational response in real time.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Crisis Management Timeline</div>
+                        <div class="mermaid">
+                        flowchart LR
+                            A["Disruption<br/>Detected"] --> B["Assess<br/>Impact"]
+                            B --> C["Activate<br/>BCP"]
+                            C --> D["Notify<br/>Stakeholders"]
+                            D --> E["Execute Recovery<br/>Procedures"]
+                            E --> F["Monitor<br/>Progress"]
+                            F --> G["Service<br/>Restored"]
+                            G --> H["Post-Incident<br/>Review"]
+
+                            style A fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style B fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style C fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                            style D fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style E fill:transparent,stroke:#06b6d4,color:#d1d5db
+                            style F fill:transparent,stroke:#10b981,color:#d1d5db
+                            style G fill:transparent,stroke:#10b981,color:#d1d5db
+                            style H fill:transparent,stroke:#6b7280,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <h3>Key Capabilities</h3>
+                    <ul>
+                        <li><strong>Automated BCP Activation</strong> — Major incidents or specific event types can automatically activate the relevant BCP and notify recovery teams.</li>
+                        <li><strong>Real-Time Task Tracking</strong> — Recovery tasks are tracked in real time, with progress dashboards showing which procedures are complete and which are blocked.</li>
+                        <li><strong>Stakeholder Communication</strong> — Automated notifications via email, SMS, and ServiceNow Connect for internal communication, plus pre-drafted external communications.</li>
+                        <li><strong>Post-Incident Review</strong> — After recovery, the platform facilitates lessons-learned reviews, updating BCPs and resilience plans based on what was learned during the actual event.</li>
+                    </ul>
+                </section>
+
+                <!-- Developer Patterns -->
+                <section class="content-section" id="developer-resilience">
+                    <h2>Developer Patterns</h2>
+                    <p>
+                        Developers working with Operational Resilience and BCM in ServiceNow commonly 
+                        encounter these scenarios.
+                    </p>
+
+                    <h3>Common Development Tasks</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Approach</th>
+                                    <th>Key Considerations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Automated BIA questionnaire distribution</td>
+                                    <td>Flow Designer with scheduled triggers based on BIA review cycles</td>
+                                    <td>Ensure questionnaires are linked to the correct business service in CMDB</td>
+                                </tr>
+                                <tr>
+                                    <td>Custom dependency impact analysis</td>
+                                    <td>Script Include using <code>GlideRelatedList</code> or the Relationship API to traverse CMDB relationships</td>
+                                    <td>Performance — deep dependency traversals on large CMDBs can be expensive</td>
+                                </tr>
+                                <tr>
+                                    <td>BCP activation from Major Incident</td>
+                                    <td>Business Rule on <code>incident</code> table that triggers a Flow when priority = 1 and affected CI maps to a critical service</td>
+                                    <td>Avoid duplicate activations — use state checks on the BCP record</td>
+                                </tr>
+                                <tr>
+                                    <td>Custom resilience dashboard</td>
+                                    <td>Performance Analytics with custom indicators tracking RTO compliance, BCP coverage, and test results</td>
+                                    <td>Use breakdowns by business unit, service tier, and geography</td>
+                                </tr>
+                                <tr>
+                                    <td>Integration with external alerting (PagerDuty, etc.)</td>
+                                    <td>IntegrationHub spoke or custom webhook to trigger external alerting when BCP is activated</td>
+                                    <td>Include recovery task details and stakeholder contacts in the payload</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Code Pattern: Find Affected Business Services from CI</h3>
+                    <div class="code-block">
+                        <div class="code-label">Server-Side Script — Trace CI Impact to Business Services</div>
+                        <pre><code>// Script Include: ResilienceUtils
+var ResilienceUtils = Class.create();
+ResilienceUtils.prototype = {
+    initialize: function() {},
+
+    getAffectedBusinessServices: function(ciSysId) {
+        var affectedServices = [];
+        var rel = new GlideRecord('cmdb_rel_ci');
+        
+        // Find upstream dependencies (services that depend on this CI)
+        rel.addQuery('child', ciSysId);
+        rel.addQuery('type.name', 'Depends on::Used by');
+        rel.query();
+        
+        while (rel.next()) {
+            var parentCI = rel.parent.getRefRecord();
+            if (parentCI.sys_class_name == 'cmdb_ci_service') {
+                affectedServices.push({
+                    sysId: parentCI.getUniqueValue(),
+                    name: parentCI.getValue('name'),
+                    isCritical: parentCI.getValue('busines_criticality') == '1'
+                });
+            } else {
+                // Recursively check upstream
+                var upstream = this.getAffectedBusinessServices(
+                    parentCI.getUniqueValue()
+                );
+                affectedServices = affectedServices.concat(upstream);
+            }
+        }
+        return affectedServices;
+    },
+
+    type: 'ResilienceUtils'
+};</code></pre>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Performance Warning</div>
+                        <p>
+                            Recursive dependency traversal can be <strong>extremely expensive</strong> on 
+                            large CMDBs. Always set a maximum recursion depth (e.g., 5 levels) and cache 
+                            results where possible. For production use, consider using the 
+                            <strong>Service Mapping</strong> or <strong>Dependency Views</strong> APIs 
+                            which are optimized for this purpose.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/tprm" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Third-Party Risk Management</span>
+                    </a>
+                    <a href="/irm/continuous-monitoring" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Continuous Monitoring & Control Testing</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

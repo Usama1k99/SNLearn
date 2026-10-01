@@ -1,0 +1,507 @@
+<%- include('../../partials/head', { title: 'Continuous Monitoring & Control Testing — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#why-continuous" class="toc-link">Why Continuous Monitoring?</a>
+                        <a href="#indicator-types" class="toc-link">Indicator Types</a>
+                        <a href="#attestation" class="toc-link">Attestation Workflows</a>
+                        <a href="#ccm" class="toc-link">Continuous Control Monitoring</a>
+                        <a href="#now-assist" class="toc-link">Now Assist AI for IRM</a>
+                        <a href="#performance-analytics" class="toc-link">Performance Analytics</a>
+                        <a href="#developer-monitoring" class="toc-link">Developer Patterns</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Continuous Monitoring & Control Testing</span>
+                    </div>
+                    <h1 class="content-title">Continuous Monitoring & <span class="gradient-text">Control Testing</span></h1>
+                    <p class="content-subtitle">
+                        Move from periodic, manual compliance checks to automated, real-time monitoring. 
+                        Understand indicators, attestation workflows, CCM, AI-powered risk management with 
+                        Now Assist, and how to build dashboards that keep your risk posture visible.
+                    </p>
+                </div>
+
+                <!-- Why Continuous Monitoring -->
+                <section class="content-section" id="why-continuous">
+                    <h2>Why Continuous Monitoring?</h2>
+                    <p>
+                        Traditional GRC operated on a <strong>periodic assessment model</strong> — controls were 
+                        tested once a quarter or once a year, and the organization operated blind between assessments. 
+                        A control could fail on Day 2 and not be discovered until Day 90 at the next audit cycle.
+                    </p>
+                    <p>
+                        <strong>Continuous Monitoring</strong> closes this gap by automating data collection and 
+                        validation in real time. Instead of asking "Was this control effective last quarter?", 
+                        the system answers "Is this control effective <em>right now</em>?" — and alerts you 
+                        immediately when it isn't.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Approach</th>
+                                    <th>Periodic (Traditional)</th>
+                                    <th>Continuous (IRM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Testing Frequency</strong></td>
+                                    <td>Quarterly / Annually</td>
+                                    <td>Daily / Real-time</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Detection Time</strong></td>
+                                    <td>Weeks to months</td>
+                                    <td>Minutes to hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Evidence Quality</strong></td>
+                                    <td>Self-reported, point-in-time</td>
+                                    <td>System-generated, continuous</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Audit Readiness</strong></td>
+                                    <td>Requires manual preparation</td>
+                                    <td>Always audit-ready</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resource Cost</strong></td>
+                                    <td>High (manual effort each cycle)</td>
+                                    <td>Lower after initial setup (automated)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Indicator Types -->
+                <section class="content-section" id="indicator-types">
+                    <h2>Indicator Types</h2>
+                    <p>
+                        <strong>Indicators</strong> are the backbone of continuous monitoring in ServiceNow IRM. 
+                        They are automated checks that evaluate whether a control is operating effectively. 
+                        When an indicator detects a deviation from the expected state, it can automatically 
+                        flag the control as non-compliant and create remediation issues.
+                    </p>
+
+                    <h3>Three Types of Indicators</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>How It Works</th>
+                                    <th>Use Case</th>
+                                    <th>Effort</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Manual Indicator</strong></td>
+                                    <td>A human reviews evidence and manually sets the indicator result (Pass/Fail)</td>
+                                    <td>Physical security checks, procedural reviews, qualitative assessments</td>
+                                    <td>High (requires human judgment each cycle)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Automated Indicator</strong></td>
+                                    <td>Queries a ServiceNow table and evaluates the result against a threshold (e.g., "count of unpatched servers < 5")</td>
+                                    <td>CMDB checks, configuration compliance, SLA monitoring</td>
+                                    <td>Low (set-and-forget after configuration)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Scripted Indicator</strong></td>
+                                    <td>Runs a custom server-side script that performs complex logic and returns a Pass/Fail result</td>
+                                    <td>Multi-table validation, cross-system checks, complex business logic</td>
+                                    <td>Medium (requires development and testing)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Indicator Execution Flow</div>
+                        <div class="mermaid">
+                        flowchart LR
+                            A["Scheduled Job<br/>(Nightly Run)"] --> B["Execute<br/>Indicator"]
+                            B --> C{"Result?"}
+                            C -->|"Pass"| D["Update Control<br/>Status: Compliant"]
+                            C -->|"Fail"| E["Update Control<br/>Status: Non-Compliant"]
+                            E --> F["Auto-Create<br/>Issue"]
+                            F --> G["Assign to<br/>Control Owner"]
+                            D --> H["Log Evidence<br/>& Timestamp"]
+                            E --> H
+
+                            style A fill:transparent,stroke:#6b7280,color:#d1d5db
+                            style B fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style C fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                            style D fill:transparent,stroke:#10b981,color:#d1d5db
+                            style E fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style F fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style G fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style H fill:transparent,stroke:#06b6d4,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Indicator Limitations</div>
+                        <p>
+                            Indicators are <strong>not weighted</strong> — they are evaluated equally when 
+                            calculating a control's overall compliance status. If you need weighted impact 
+                            (e.g., a critical security indicator should matter more than a documentation check), 
+                            you must handle that logic separately through custom scoring models or Risk 
+                            Assessment Methodology (RAM) configuration.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Attestation Workflows -->
+                <section class="content-section" id="attestation">
+                    <h2>Attestation Workflows</h2>
+                    <p>
+                        <strong>Attestation</strong> is the periodic, survey-based process where control owners 
+                        manually confirm that controls are implemented and operating effectively. While continuous 
+                        monitoring automates many checks, attestation remains essential for controls that require 
+                        human judgment.
+                    </p>
+
+                    <h3>Attestation Lifecycle</h3>
+                    <div class="diagram-block">
+                        <div class="diagram-title">Attestation Cycle</div>
+                        <div class="mermaid">
+                        flowchart LR
+                            A["Generate<br/>Attestation"] --> B["Assign to<br/>Control Owner"]
+                            B --> C["Owner Reviews<br/>Control Evidence"]
+                            C --> D{"Attestation<br/>Result"}
+                            D -->|"Effective"| E["Control Status:<br/>Compliant"]
+                            D -->|"Ineffective"| F["Create Issue<br/>& Remediate"]
+                            D -->|"N/A"| G["Mark as<br/>Not Applicable"]
+
+                            style A fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style B fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                            style C fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style D fill:transparent,stroke:#6b7280,color:#d1d5db
+                            style E fill:transparent,stroke:#10b981,color:#d1d5db
+                            style F fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style G fill:transparent,stroke:#6b7280,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <h3>Attestation vs Automated Testing</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Attestation</th>
+                                    <th>Automated Testing</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>How</strong></td>
+                                    <td>Survey sent to control owner</td>
+                                    <td>Script/query executed by system</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Frequency</strong></td>
+                                    <td>Quarterly / Semi-annually</td>
+                                    <td>Daily / Real-time</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Best For</strong></td>
+                                    <td>Procedural controls, physical security, governance</td>
+                                    <td>Technical controls, configuration checks, data validation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Evidence</strong></td>
+                                    <td>Human-verified, includes context and judgment</td>
+                                    <td>System-generated, objective and repeatable</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Continuous Control Monitoring -->
+                <section class="content-section" id="ccm">
+                    <h2>Continuous Control Monitoring (CCM)</h2>
+                    <p>
+                        <strong>CCM</strong> combines indicators and automated testing into a unified framework 
+                        that provides real-time visibility into the effectiveness of your entire control environment.
+                    </p>
+
+                    <h3>CCM Components</h3>
+                    <ul>
+                        <li><strong>Control Tests</strong> — Scheduled or event-driven tests that validate specific control attributes.</li>
+                        <li><strong>Threshold Monitoring</strong> — Alerts triggered when metrics cross predefined thresholds (e.g., > 10 unresolved vulnerabilities on a critical server).</li>
+                        <li><strong>Trend Analysis</strong> — Performance Analytics tracks control effectiveness over time, identifying degradation trends before they become failures.</li>
+                        <li><strong>Automated Issue Creation</strong> — When a control test fails, the system automatically creates a GRC Issue linked to the control and assigns it to the control owner.</li>
+                        <li><strong>Evidence Collection</strong> — Each test execution generates timestamped evidence records, maintaining a continuous audit trail.</li>
+                    </ul>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Scheduled Job: GRC Indicator Nightly Run</div>
+                        <p>
+                            The <code>GRC indicator nightly run</code> is the out-of-the-box Scheduled Job that 
+                            executes all active indicators. It runs by default at 2:00 AM server time. If your 
+                            indicators aren't producing results, the first troubleshooting step is to verify 
+                            this job is active and running successfully. Check: <strong>System Definition → 
+                            Scheduled Jobs → GRC indicator nightly run</strong>.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Now Assist AI -->
+                <section class="content-section" id="now-assist">
+                    <h2>Now Assist AI for IRM</h2>
+                    <p>
+                        ServiceNow's <strong>Now Assist</strong> embeds generative AI directly into IRM workflows, 
+                        reducing manual effort and improving risk decision quality. These AI capabilities are 
+                        available in recent releases (Xanadu, Yokohama, and beyond).
+                    </p>
+
+                    <h3>AI Capabilities in IRM</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Capability</th>
+                                    <th>What It Does</th>
+                                    <th>Business Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Risk Summarization</strong></td>
+                                    <td>Generates concise summaries of long issue descriptions, audit reports, and risk assessments</td>
+                                    <td>Saves 30-40% time for risk managers reviewing records</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk Identification</strong></td>
+                                    <td>AI agents analyze entity context, industry patterns, and internal libraries to suggest potential risks</td>
+                                    <td>Discovers risks that manual processes miss</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Control Recommendations</strong></td>
+                                    <td>Suggests control objectives based on regulatory requirements and existing control framework</td>
+                                    <td>Accelerates control design and reduces duplication</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>De-Duplication</strong></td>
+                                    <td>Identifies redundant controls, policies, and risk statements across the organization</td>
+                                    <td>Reduces maintenance overhead and improves clarity</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Agentic Issue Resolution</strong></td>
+                                    <td>AI agents can route issues to appropriate teams, suggest remediation actions, and draft remediation plans</td>
+                                    <td>Faster mean time to resolution for compliance issues</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">AI Risk Governance</div>
+                        <p>
+                            ServiceNow IRM also provides capabilities for <strong>governing AI risks</strong> 
+                            within your organization. As AI adoption grows, IRM can be used to register AI models 
+                            as entities, assess their risks (bias, hallucination, data privacy), and monitor 
+                            their compliance with emerging AI regulations (EU AI Act, NIST AI RMF).
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Performance Analytics -->
+                <section class="content-section" id="performance-analytics">
+                    <h2>Performance Analytics: KPIs, KRIs & KCIs</h2>
+                    <p>
+                        ServiceNow IRM includes <strong>out-of-the-box Performance Analytics</strong> dashboards 
+                        that provide data-driven insights for risk and compliance stakeholders.
+                    </p>
+
+                    <h3>Key Metrics</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric Type</th>
+                                    <th>What It Measures</th>
+                                    <th>Examples</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>KPI (Key Performance Indicator)</strong></td>
+                                    <td>How well the risk program is performing</td>
+                                    <td>% of controls tested on schedule, Average issue resolution time, Audit completion rate</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>KRI (Key Risk Indicator)</strong></td>
+                                    <td>Early warning signals that risk is increasing</td>
+                                    <td>Number of critical risks above appetite, Trend of failed controls, Vendor risk score changes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>KCI (Key Control Indicator)</strong></td>
+                                    <td>Effectiveness of individual controls</td>
+                                    <td>Control failure rate, Days since last attestation, Number of open remediation tasks per control</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>OOTB Dashboards</h3>
+                    <ul>
+                        <li><strong>Compliance Overview</strong> — Aggregate view of control effectiveness, policy exceptions, and compliance posture by business unit.</li>
+                        <li><strong>Risk Overview</strong> — Heat maps showing risk distribution by impact/likelihood, risk trends over time, and top risks by business area.</li>
+                        <li><strong>Policy Exception Overview</strong> — Active exceptions, expiring exceptions, and exception approval trends.</li>
+                        <li><strong>Audit Status</strong> — Open audits, audit findings by severity, and remediation progress.</li>
+                    </ul>
+                </section>
+
+                <!-- Developer Patterns -->
+                <section class="content-section" id="developer-monitoring">
+                    <h2>Developer Patterns</h2>
+
+                    <h3>Writing Scripted Indicators</h3>
+                    <p>
+                        Scripted indicators run as server-side scripts and must return a result that maps to 
+                        Pass/Fail. Here's a practical example.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-label">Scripted Indicator — Check All Servers Have Encrypted Storage</div>
+                        <pre><code>// This script runs against each entity (GRC Profile)
+// and checks if all associated servers have encrypted storage
+
+(function() {
+    var entitySysId = current.getValue('source_id'); // The entity's source CI
+    
+    var serverGR = new GlideRecord('cmdb_ci_server');
+    serverGR.addQuery('company', entitySysId);
+    serverGR.addQuery('operational_status', '1'); // Operational only
+    serverGR.query();
+    
+    var totalServers = 0;
+    var encryptedServers = 0;
+    
+    while (serverGR.next()) {
+        totalServers++;
+        if (serverGR.getValue('disk_encryption') == 'true') {
+            encryptedServers++;
+        }
+    }
+    
+    // Pass if ALL operational servers have encryption
+    if (totalServers == 0) {
+        result = 'not_applicable';
+    } else if (encryptedServers == totalServers) {
+        result = 'pass';  // 100% encrypted
+    } else {
+        result = 'fail';  // Some servers unencrypted
+        result_details = encryptedServers + '/' + totalServers + 
+            ' servers have encrypted storage';
+    }
+})();</code></pre>
+                    </div>
+
+                    <h3>Custom PA (Performance Analytics) Indicator</h3>
+                    <div class="code-block">
+                        <div class="code-label">Script Include — Calculate Control Effectiveness Score</div>
+                        <pre><code>var ControlEffectivenessUtils = Class.create();
+ControlEffectivenessUtils.prototype = {
+    initialize: function() {},
+
+    // Returns effectiveness percentage (0-100)
+    calculateEffectiveness: function(entitySysId) {
+        var controlGR = new GlideRecord('sn_compliance_control');
+        controlGR.addQuery('profile', entitySysId);
+        controlGR.addQuery('state', 'monitor'); // Active controls only
+        controlGR.query();
+
+        var total = 0;
+        var effective = 0;
+
+        while (controlGR.next()) {
+            total++;
+            var lastResult = controlGR.getValue('last_indicator_result');
+            if (lastResult == 'pass' || lastResult == 'compliant') {
+                effective++;
+            }
+        }
+
+        if (total == 0) return -1; // No controls to measure
+        return Math.round((effective / total) * 100);
+    },
+
+    type: 'ControlEffectivenessUtils'
+};</code></pre>
+                    </div>
+
+                    <h3>Troubleshooting Indicators</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Problem</th>
+                                    <th>Likely Cause</th>
+                                    <th>Fix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Indicator not producing results</td>
+                                    <td>Scheduled Job <code>GRC indicator nightly run</code> is disabled or failing</td>
+                                    <td>Verify the job is active in System Definition → Scheduled Jobs</td>
+                                </tr>
+                                <tr>
+                                    <td>Indicator shows "pass" but control shows "non-compliant"</td>
+                                    <td>Multiple indicators on the control — one is failing while another passes</td>
+                                    <td>Check ALL indicators linked to the control, not just one</td>
+                                </tr>
+                                <tr>
+                                    <td>Scripted indicator timeout</td>
+                                    <td>Script queries too many records without optimization</td>
+                                    <td>Use indexed fields, <code>getValue()</code>, and limit the result set</td>
+                                </tr>
+                                <tr>
+                                    <td>Issue not auto-created on indicator failure</td>
+                                    <td>Auto-create issue is not enabled on the indicator configuration</td>
+                                    <td>Enable "Auto-create issue on failure" on the indicator record</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/operational-resilience" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Operational Resilience & BCM</span>
+                    </a>
+                    <a href="/irm/issues-remediation" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Issues, Remediation & Exceptions</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

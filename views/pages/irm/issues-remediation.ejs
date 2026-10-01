@@ -1,0 +1,524 @@
+<%- include('../../partials/head', { title: 'Issues, Remediation & Exceptions — IRM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'irm' }) %>
+
+<main class="irm-page">
+        <div class="irm-page-layout">
+            <aside class="irm-sidebar">
+                <%- include('../../partials/sidebar-nav', { module: 'irm', moduleLabel: 'IRM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+                <div class="sidebar-section toc-section">
+                    <div class="sidebar-label">On This Page</div>
+                    <nav class="sidebar-nav">
+                        <a href="#issue-overview" class="toc-link">Issues in IRM</a>
+                        <a href="#issue-lifecycle" class="toc-link">Issue Lifecycle</a>
+                        <a href="#remediation-tasks" class="toc-link">Remediation Tasks</a>
+                        <a href="#exception-management" class="toc-link">Exception Management</a>
+                        <a href="#risk-treatment" class="toc-link">Risk Treatment Plans</a>
+                        <a href="#grc-workspace" class="toc-link">GRC Workspace & Dashboards</a>
+                        <a href="#developer-issues" class="toc-link">Developer Patterns</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="irm-content">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <a href="/irm">IRM</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>Issues, Remediation & Exceptions</span>
+                    </div>
+                    <h1 class="content-title">Issues, Remediation & <span class="gradient-text">Exceptions</span></h1>
+                    <p class="content-subtitle">
+                        When controls fail, audits reveal gaps, or policies can't be met — IRM's issue management 
+                        framework tracks every finding from detection through remediation or exception. Understand 
+                        the full lifecycle, risk treatment strategies, and GRC workspaces that tie it all together.
+                    </p>
+                </div>
+
+                <!-- Issue Overview -->
+                <section class="content-section" id="issue-overview">
+                    <h2>Issues in IRM</h2>
+                    <p>
+                        An <strong>Issue</strong> in ServiceNow IRM represents a gap, finding, or deficiency 
+                        that needs to be addressed. Issues are the reactive side of risk management — they are 
+                        created when something goes wrong (a control fails, an audit identifies a weakness, or 
+                        a compliance requirement is not met).
+                    </p>
+
+                    <h3>How Issues Get Created</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Trigger</th>
+                                    <th>Auto-Created?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Control Indicator Failure</strong></td>
+                                    <td>An automated or scripted indicator returns a "Fail" result</td>
+                                    <td>Yes — if "auto-create issue" is enabled on the indicator</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Failed Attestation</strong></td>
+                                    <td>A control owner attests that a control is ineffective</td>
+                                    <td>Yes — system auto-generates an issue linked to the control</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Audit Finding</strong></td>
+                                    <td>An auditor documents a finding during an audit engagement</td>
+                                    <td>Manual — auditor creates the issue from the audit workbench</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk Event</strong></td>
+                                    <td>A risk materializes (a security incident, compliance breach, etc.)</td>
+                                    <td>Can be automated via Flow Designer or Business Rule</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Manual Reporting</strong></td>
+                                    <td>A stakeholder identifies and reports a gap or concern</td>
+                                    <td>Manual — user creates the issue directly</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Vendor Assessment</strong></td>
+                                    <td>A TPRM assessment reveals vendor non-compliance</td>
+                                    <td>Semi-automated — triggered from assessment review</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-card info-card--important">
+                        <div class="info-card-title">Issue Linkage</div>
+                        <p>
+                            Issues in IRM are always linked to their source context — a specific control, risk, 
+                            entity, or audit engagement. This linkage is critical because it enables roll-up 
+                            reporting (e.g., "How many open issues does Entity X have?") and ensures that 
+                            resolving an issue updates the compliance status of the parent control or risk.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Issue Lifecycle -->
+                <section class="content-section" id="issue-lifecycle">
+                    <h2>Issue Lifecycle</h2>
+                    <p>
+                        GRC Issues follow a structured state flow from creation to closure. Each state transition 
+                        represents a distinct phase of the investigation and remediation process.
+                    </p>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">GRC Issue State Flow</div>
+                        <div class="mermaid">
+                        stateDiagram-v2
+                            [*] --> New
+                            New --> Analyze : Assigned for investigation
+                            Analyze --> Respond : Root cause identified
+                            Respond --> Review : Remediation complete
+                            Review --> Closed : Verified effective
+                            Review --> Respond : Rework needed
+                            Analyze --> Accepted : Risk accepted
+                            Accepted --> Closed : Acceptance approved
+                        </div>
+                    </div>
+
+                    <h3>State Descriptions</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>State</th>
+                                    <th>Description</th>
+                                    <th>Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>New</strong></td>
+                                    <td>Issue is created and awaiting triage. Assignment group and priority are set.</td>
+                                    <td>Issue Creator / System</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Analyze</strong></td>
+                                    <td>Issue is being investigated. Root cause analysis, impact assessment, and stakeholder communication occur here.</td>
+                                    <td>Issue Assignee</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Respond</strong></td>
+                                    <td>Active remediation. Remediation tasks are created and tracked. This is where the actual fix happens.</td>
+                                    <td>Remediation Owner(s)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Review</strong></td>
+                                    <td>Remediation is complete and under review. A manager or auditor validates that the fix is effective.</td>
+                                    <td>Issue Manager / Auditor</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Accepted</strong></td>
+                                    <td>The risk is accepted rather than remediated (requires formal approval with justification and expiration date).</td>
+                                    <td>Risk Owner / Senior Leadership</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Closed</strong></td>
+                                    <td>Issue is resolved (remediated or formally accepted). The parent control/risk status is updated.</td>
+                                    <td>System / Issue Manager</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Remediation Tasks -->
+                <section class="content-section" id="remediation-tasks">
+                    <h2>Remediation Tasks</h2>
+                    <p>
+                        Remediation tasks are the <strong>actionable work items</strong> created to resolve 
+                        a GRC issue. A single issue can have multiple remediation tasks assigned to different 
+                        teams or individuals, allowing parallel workstreams for complex remediation efforts.
+                    </p>
+
+                    <h3>Remediation Task Properties</h3>
+                    <ul>
+                        <li><strong>Parent Issue</strong> — Every remediation task is linked to exactly one GRC Issue.</li>
+                        <li><strong>Assignment</strong> — Can be assigned to a specific user or assignment group.</li>
+                        <li><strong>Due Date</strong> — Calculated based on issue severity and organizational SLAs.</li>
+                        <li><strong>Evidence</strong> — Remediation owners can attach evidence (screenshots, config exports, logs) to demonstrate that the fix was implemented.</li>
+                        <li><strong>State Flow</strong> — Open → In Progress → Complete → Verified.</li>
+                    </ul>
+
+                    <div class="diagram-block">
+                        <div class="diagram-title">Issue to Remediation Task Breakdown</div>
+                        <div class="mermaid">
+                        flowchart TB
+                            ISSUE["GRC Issue<br/>Firewall Rules Non-Compliant"]
+                            RT1["Remediation Task 1<br/>Update firewall rules<br/>(Network Team)"]
+                            RT2["Remediation Task 2<br/>Update documentation<br/>(Security Team)"]
+                            RT3["Remediation Task 3<br/>Re-run compliance scan<br/>(GRC Team)"]
+
+                            ISSUE --> RT1
+                            ISSUE --> RT2
+                            ISSUE --> RT3
+
+                            style ISSUE fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style RT1 fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style RT2 fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style RT3 fill:transparent,stroke:#10b981,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--tip">
+                        <div class="info-card-title">Issue Closure Gate</div>
+                        <p>
+                            An issue cannot move to the <strong>Closed</strong> state until all of its 
+                            remediation tasks are marked as <strong>Complete</strong> or <strong>Cancelled</strong>. 
+                            This gate ensures that no issue is prematurely closed while work remains outstanding. 
+                            This is enforced by an OOTB Business Rule on the <code>sn_grc_issue</code> table.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Exception Management -->
+                <section class="content-section" id="exception-management">
+                    <h2>Exception Management</h2>
+                    <p>
+                        Sometimes a policy or control requirement <strong>cannot be met</strong> — perhaps 
+                        due to technical limitations, cost constraints, or business priorities. Rather than 
+                        ignoring the non-compliance, organizations use <strong>exceptions</strong> to formally 
+                        document, approve, and track these deviations.
+                    </p>
+
+                    <h3>Exception Lifecycle</h3>
+                    <div class="diagram-block">
+                        <div class="diagram-title">Exception Request Flow</div>
+                        <div class="mermaid">
+                        flowchart LR
+                            A["Request<br/>Exception"] --> B["Justify &<br/>Document"]
+                            B --> C["Risk Assessment<br/>(Impact Analysis)"]
+                            C --> D["Manager<br/>Review"]
+                            D -->|"Approved"| E["Active Exception<br/>(Time-Bound)"]
+                            D -->|"Denied"| F["Must Remediate"]
+                            E --> G["Expiration<br/>Review"]
+                            G -->|"Renew"| D
+                            G -->|"Resolve"| H["Exception<br/>Closed"]
+
+                            style A fill:transparent,stroke:#3b82f6,color:#d1d5db
+                            style B fill:transparent,stroke:#8b5cf6,color:#d1d5db
+                            style C fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style D fill:transparent,stroke:#6b7280,color:#d1d5db
+                            style E fill:transparent,stroke:#10b981,color:#d1d5db
+                            style F fill:transparent,stroke:#ef4444,color:#d1d5db
+                            style G fill:transparent,stroke:#f59e0b,color:#d1d5db
+                            style H fill:transparent,stroke:#6b7280,color:#d1d5db
+                        </div>
+                    </div>
+
+                    <h3>Exception Requirements</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Business Justification</strong></td>
+                                    <td>Clear explanation of why the requirement cannot be met and the business rationale.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk Assessment</strong></td>
+                                    <td>Quantified assessment of the risk introduced by the exception (impact, likelihood, residual risk).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compensating Controls</strong></td>
+                                    <td>Alternative measures implemented to mitigate the risk (e.g., additional monitoring, manual checks).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Expiration Date</strong></td>
+                                    <td>Exceptions must be time-bound (typically 6-12 months). Permanent exceptions are strongly discouraged.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Approval Chain</strong></td>
+                                    <td>Minimum two levels of approval — the control owner's manager and the risk committee or CISO.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Risk Treatment Plans -->
+                <section class="content-section" id="risk-treatment">
+                    <h2>Risk Treatment Plans</h2>
+                    <p>
+                        While issues and remediation are <strong>reactive</strong> (fixing something that's 
+                        already broken), <strong>risk treatment plans</strong> are <strong>proactive</strong> — 
+                        strategic responses to identified risks before they materialize into incidents.
+                    </p>
+
+                    <h3>The Four Treatment Strategies</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Strategy</th>
+                                    <th>Description</th>
+                                    <th>When to Use</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span style="color:#10b981;font-weight:600;">Mitigate</span></td>
+                                    <td>Implement controls to reduce the likelihood or impact of the risk</td>
+                                    <td>Risk is within appetite after mitigation; cost of controls is justified</td>
+                                    <td>Deploy MFA to reduce unauthorized access risk</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:#3b82f6;font-weight:600;">Transfer</span></td>
+                                    <td>Shift the financial impact to a third party (insurance, outsourcing)</td>
+                                    <td>Risk impact is primarily financial; transfer is cost-effective</td>
+                                    <td>Purchase cyber insurance for data breach liability</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:#ef4444;font-weight:600;">Avoid</span></td>
+                                    <td>Eliminate the risk entirely by discontinuing the activity that creates it</td>
+                                    <td>Risk exceeds appetite and cannot be adequately mitigated</td>
+                                    <td>Stop collecting unnecessary PII to avoid privacy risk</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:#f59e0b;font-weight:600;">Accept</span></td>
+                                    <td>Acknowledge the risk and take no additional action (requires formal approval)</td>
+                                    <td>Risk is within appetite; cost of mitigation exceeds potential impact</td>
+                                    <td>Accept minor availability risk for non-critical internal tool</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        In ServiceNow, risk treatment is managed through <strong>Risk Response Tasks</strong> 
+                        linked to specific risk records. These tasks track the implementation of the chosen 
+                        treatment strategy and provide audit evidence of risk management decisions.
+                    </p>
+                </section>
+
+                <!-- GRC Workspace & Dashboards -->
+                <section class="content-section" id="grc-workspace">
+                    <h2>GRC Workspace & Dashboards</h2>
+                    <p>
+                        ServiceNow provides specialized <strong>workspaces</strong> that give risk and compliance 
+                        teams a unified, single-pane-of-glass view for managing their daily work.
+                    </p>
+
+                    <h3>Key Workspaces</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Workspace</th>
+                                    <th>Primary Users</th>
+                                    <th>Key Features</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Risk Workspace</strong></td>
+                                    <td>Risk Managers, Risk Analysts</td>
+                                    <td>Risk register, risk assessments, treatment plans, risk heat maps, entity risk rollup</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Issue Workspace</strong></td>
+                                    <td>Issue Owners, Remediation Teams</td>
+                                    <td>Open issues, remediation task tracking, SLA compliance, issue aging reports</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compliance Workspace</strong></td>
+                                    <td>Compliance Officers, Control Owners</td>
+                                    <td>Control status overview, attestation management, policy exceptions, authority document tracking</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Audit Workspace</strong></td>
+                                    <td>Internal Auditors</td>
+                                    <td>Audit planning, engagement tracking, evidence management, finding documentation</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Dashboard Visualizations</h3>
+                    <ul>
+                        <li><strong>Risk Heat Maps</strong> — 2D matrix plotting risks by impact (Y-axis) and likelihood (X-axis). Color-coded by risk severity.</li>
+                        <li><strong>Control Effectiveness Donut Charts</strong> — Percentage breakdown of compliant, non-compliant, and untested controls.</li>
+                        <li><strong>Issue Aging Bar Charts</strong> — Time-based view showing how long issues have been open, grouped by severity.</li>
+                        <li><strong>Trend Lines</strong> — Performance Analytics trend charts showing risk posture changes over time.</li>
+                        <li><strong>Entity Risk Rollup</strong> — Aggregated risk scores per entity (business unit, application, vendor) with drill-down capability.</li>
+                    </ul>
+                </section>
+
+                <!-- Developer Patterns -->
+                <section class="content-section" id="developer-issues">
+                    <h2>Developer Patterns</h2>
+                    <p>
+                        Developers working with IRM issues, remediation, and exceptions commonly encounter 
+                        these implementation and customization scenarios.
+                    </p>
+
+                    <h3>Common Development Tasks</h3>
+                    <div class="table-responsive">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Approach</th>
+                                    <th>Key Tables</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Auto-create issues from external findings (pen test reports, etc.)</td>
+                                    <td>Scripted REST API that creates <code>sn_grc_issue</code> records with proper linkage to controls/entities</td>
+                                    <td><code>sn_grc_issue</code>, <code>sn_compliance_control</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Custom remediation SLA calculation</td>
+                                    <td>Business Rule on <code>sn_grc_issue</code> that calculates due date based on severity, entity criticality, and regulatory requirements</td>
+                                    <td><code>sn_grc_issue</code>, <code>sn_grc_remediation_task</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Exception expiration notifications</td>
+                                    <td>Flow Designer with scheduled trigger that queries active exceptions nearing expiration and sends notifications</td>
+                                    <td><code>sn_grc_exception</code>, Flow Designer</td>
+                                </tr>
+                                <tr>
+                                    <td>Custom risk heat map widget</td>
+                                    <td>Service Portal widget using PA (Performance Analytics) API to render dynamic heat map data</td>
+                                    <td><code>sn_risk_risk</code>, PA API</td>
+                                </tr>
+                                <tr>
+                                    <td>Integrate issues with ITSM incidents</td>
+                                    <td>Flow Designer that creates a linked Incident when a critical GRC issue is created, enabling ITSM teams to track the technical fix</td>
+                                    <td><code>sn_grc_issue</code>, <code>incident</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Code Pattern: Auto-Create Issue from External Finding</h3>
+                    <div class="code-block">
+                        <div class="code-label">Scripted REST API — Create GRC Issue from External Source</div>
+                        <pre><code>// Scripted REST API: POST /api/x_custom/grc_issues
+(function process(request, response) {
+    var body = request.body.data;
+    
+    // Validate required fields
+    if (!body.finding_title || !body.control_sys_id) {
+        response.setStatus(400);
+        response.setBody({
+            error: 'Missing required fields: finding_title, control_sys_id'
+        });
+        return;
+    }
+    
+    var issueGR = new GlideRecord('sn_grc_issue');
+    issueGR.initialize();
+    issueGR.setValue('short_description', body.finding_title);
+    issueGR.setValue('description', body.finding_details || '');
+    issueGR.setValue('priority', body.severity || '3');
+    issueGR.setValue('state', 'new');
+    
+    // Link to the control
+    issueGR.setValue('control', body.control_sys_id);
+    
+    // Get the entity from the control
+    var controlGR = new GlideRecord('sn_compliance_control');
+    if (controlGR.get(body.control_sys_id)) {
+        issueGR.setValue('profile', controlGR.getValue('profile'));
+    }
+    
+    // Set source for traceability
+    issueGR.setValue('source', 'External Pen Test');
+    
+    var sysId = issueGR.insert();
+    
+    response.setStatus(201);
+    response.setBody({
+        result: {
+            sys_id: sysId,
+            number: issueGR.getValue('number'),
+            message: 'GRC Issue created successfully'
+        }
+    });
+})(request, response);</code></pre>
+                    </div>
+
+                    <div class="info-card info-card--warning">
+                        <div class="info-card-title">Avoid Using Table API for GRC Records</div>
+                        <p>
+                            Do <strong>not</strong> use the standard Table API (<code>/api/now/table/sn_grc_issue</code>) 
+                            to create GRC records from external systems. The Table API bypasses critical UI policies, 
+                            state flow validation, and business rules that ensure data integrity. Always use 
+                            <strong>Scripted REST APIs</strong> or <strong>IntegrationHub</strong> to enforce 
+                            business logic and maintain proper audit trails.
+                        </p>
+                    </div>
+                </section>
+
+                <nav class="page-nav">
+                    <a href="/irm/continuous-monitoring" class="page-nav-link">
+                        <span class="page-nav-label">← Previous</span>
+                        <span class="page-nav-title">Continuous Monitoring & Control Testing</span>
+                    </a>
+                    <a href="/irm/developer-patterns" class="page-nav-link page-nav-link--next">
+                        <span class="page-nav-label">Next →</span>
+                        <span class="page-nav-title">Developer Patterns & APIs</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>
