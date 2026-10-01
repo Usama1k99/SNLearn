@@ -45,8 +45,8 @@
                         roles in protecting an organization's ability to deliver critical services.
                     </p>
 
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Aspect</th>
@@ -107,8 +107,8 @@
                     </p>
 
                     <h3>Examples of Critical Business Services</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Industry</th>
@@ -160,8 +160,8 @@
                     </p>
 
                     <h3>Key BIA Outputs</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Metric</th>
@@ -301,8 +301,8 @@
                     </ul>
 
                     <h3>Recovery Strategy Selection</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Strategy</th>
@@ -390,8 +390,8 @@
                     </p>
 
                     <h3>Common Development Tasks</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Task</th>
@@ -431,8 +431,12 @@
 
                     <h3>Code Pattern: Find Affected Business Services from CI</h3>
                     <div class="code-block">
-                        <div class="code-label">Server-Side Script — Trace CI Impact to Business Services</div>
-                        <pre><code>// Script Include: ResilienceUtils
+                        <div class="code-header">
+                            <span class="code-lang">JavaScript — Resilience Utils Script Include</span>
+                            <button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button>
+                        </div>
+                        <div class="code-body">
+                            <pre><code class="language-javascript">// Script Include: ResilienceUtils
 var ResilienceUtils = Class.create();
 ResilienceUtils.prototype = {
     initialize: function() {},
@@ -467,6 +471,7 @@ ResilienceUtils.prototype = {
 
     type: 'ResilienceUtils'
 };</code></pre>
+                        </div>
                     </div>
 
                     <div class="info-card info-card--warning">

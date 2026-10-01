@@ -94,8 +94,8 @@
                     </div>
 
                     <h3>Stage Breakdown</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Stage</th>
@@ -185,8 +185,8 @@
                     </p>
 
                     <h3>Risk Tier Classification</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Tier</th>
@@ -261,8 +261,8 @@
                         <code>sn_vdr_risk_asmt_*</code> tables.
                     </p>
 
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Table</th>
@@ -358,8 +358,8 @@
                     </p>
 
                     <h3>Common Developer Tasks</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Task</th>
@@ -399,8 +399,12 @@
 
                     <h3>Code Pattern: Query Vendors by Risk Tier</h3>
                     <div class="code-block">
-                        <div class="code-label">Server-Side Script — Find All Critical Vendors Due for Reassessment</div>
-                        <pre><code>// Script Include: VendorRiskUtils
+                        <div class="code-header">
+                            <span class="code-lang">JavaScript — Server-Side Script Include</span>
+                            <button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button>
+                        </div>
+                        <div class="code-body">
+                            <pre><code class="language-javascript">// Script Include: VendorRiskUtils
 var VendorRiskUtils = Class.create();
 VendorRiskUtils.prototype = {
     initialize: function() {},
@@ -429,6 +433,7 @@ VendorRiskUtils.prototype = {
 
     type: 'VendorRiskUtils'
 };</code></pre>
+                        </div>
                     </div>
 
                     <div class="info-card info-card--tip">

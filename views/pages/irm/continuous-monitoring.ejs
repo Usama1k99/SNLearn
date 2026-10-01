@@ -51,8 +51,8 @@
                         immediately when it isn't.
                     </p>
 
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Approach</th>
@@ -102,8 +102,8 @@
                     </p>
 
                     <h3>Three Types of Indicators</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Type</th>
@@ -204,8 +204,8 @@
                     </div>
 
                     <h3>Attestation vs Automated Testing</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Aspect</th>
@@ -278,8 +278,8 @@
                     </p>
 
                     <h3>AI Capabilities in IRM</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Capability</th>
@@ -337,8 +337,8 @@
                     </p>
 
                     <h3>Key Metrics</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Metric Type</th>
@@ -386,8 +386,12 @@
                     </p>
 
                     <div class="code-block">
-                        <div class="code-label">Scripted Indicator — Check All Servers Have Encrypted Storage</div>
-                        <pre><code>// This script runs against each entity (GRC Profile)
+                        <div class="code-header">
+                            <span class="code-lang">JavaScript — Scripted Indicator Definition</span>
+                            <button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button>
+                        </div>
+                        <div class="code-body">
+                            <pre><code class="language-javascript">// This script runs against each entity (GRC Profile)
 // and checks if all associated servers have encrypted storage
 
 (function() {
@@ -419,12 +423,17 @@
             ' servers have encrypted storage';
     }
 })();</code></pre>
+                        </div>
                     </div>
 
                     <h3>Custom PA (Performance Analytics) Indicator</h3>
                     <div class="code-block">
-                        <div class="code-label">Script Include — Calculate Control Effectiveness Score</div>
-                        <pre><code>var ControlEffectivenessUtils = Class.create();
+                        <div class="code-header">
+                            <span class="code-lang">JavaScript — PA Control Effectiveness Score</span>
+                            <button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button>
+                        </div>
+                        <div class="code-body">
+                            <pre><code class="language-javascript">var ControlEffectivenessUtils = Class.create();
 ControlEffectivenessUtils.prototype = {
     initialize: function() {},
 
@@ -452,11 +461,12 @@ ControlEffectivenessUtils.prototype = {
 
     type: 'ControlEffectivenessUtils'
 };</code></pre>
+                        </div>
                     </div>
 
                     <h3>Troubleshooting Indicators</h3>
-                    <div class="table-responsive">
-                        <table class="styled-table">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Problem</th>

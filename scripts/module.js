@@ -102,6 +102,36 @@ function initActiveSidebar() {
 
 // -- Diagram Controls: Zoom, Pan & Fullscreen --
 function setupDiagramControls() {
+    // 1. Auto-wrap/normalize any orphaned .mermaid or .diagram-container in a .diagram-block
+    document.querySelectorAll('.mermaid').forEach((mermaidContainer) => {
+        let block = mermaidContainer.closest('.diagram-block');
+        if (!block) {
+            const container = mermaidContainer.closest('.diagram-container');
+            if (container) {
+                container.classList.remove('diagram-container');
+                container.classList.add('diagram-block');
+                block = container;
+            } else {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'diagram-block';
+                mermaidContainer.parentNode.insertBefore(wrapper, mermaidContainer);
+                wrapper.appendChild(mermaidContainer);
+                block = wrapper;
+            }
+        }
+
+        // Ensure title exists if none present
+        let titleEl = block.querySelector('.diagram-title');
+        if (!titleEl && !block.querySelector('.diagram-header-row')) {
+            const heading = block.closest('section')?.querySelector('h2, h3, .section-title');
+            const titleText = heading ? (heading.textContent.trim() + ' Diagram') : 'Architecture & Process Diagram';
+            titleEl = document.createElement('div');
+            titleEl.className = 'diagram-title';
+            titleEl.textContent = titleText;
+            block.insertBefore(titleEl, mermaidContainer);
+        }
+    });
+
     document.querySelectorAll('.diagram-block').forEach((block, idx) => {
         const mermaidContainer = block.querySelector('.mermaid');
         if (!mermaidContainer || block.querySelector('.diagram-toolbar')) return;
@@ -322,9 +352,13 @@ async function initMermaid() {
         });
 
         // Explicitly trigger Mermaid rendering for all .mermaid elements
-        await mermaid.run({
-            querySelector: '.mermaid'
-        });
+        try {
+            await mermaid.run({
+                querySelector: '.mermaid'
+            });
+        } catch (mermaidErr) {
+            console.warn('Notice while rendering Mermaid diagrams:', mermaidErr);
+        }
 
         // Setup diagram toolbar controls and post-render styling
         setupDiagramControls();

@@ -2697,3 +2697,88 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     }
 })();
 
+// ============================================
+// GLOBAL CODE BLOCKS & COPY FUNCTIONALITY
+// ============================================
+(function() {
+    function initGlobalCodeBlocks() {
+        document.querySelectorAll('.code-block').forEach((block) => {
+            let header = block.querySelector('.code-header') || block.querySelector('.code-label');
+            if (!header) {
+                header = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML = '<span class="code-lang">Code</span>';
+                block.insertBefore(header, block.firstChild);
+            }
+            if (!header.querySelector('.code-copy')) {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'code-copy';
+                copyBtn.type = 'button';
+                copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+                copyBtn.textContent = 'Copy';
+                header.appendChild(copyBtn);
+            }
+            const pre = block.querySelector('pre');
+            if (pre && !pre.closest('.code-body')) {
+                const body = document.createElement('div');
+                body.className = 'code-body';
+                block.insertBefore(body, pre);
+                body.appendChild(pre);
+            }
+        });
+    }
+
+    function showCopiedFeedback(btn) {
+        const origText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.color = 'var(--accent-primary, #10b981)';
+        btn.style.fontWeight = '600';
+        setTimeout(() => {
+            btn.textContent = origText;
+            btn.style.color = '';
+            btn.style.fontWeight = '';
+        }, 2000);
+    }
+
+    function fallbackCopy(text, btn) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback(btn);
+        } catch (err) {}
+        document.body.removeChild(textarea);
+    }
+
+    // Global delegated click handler for any .code-copy button
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.code-copy');
+        if (!btn) return;
+        const block = btn.closest('.code-block') || btn.closest('.code-snippet') || btn.parentElement;
+        const codeEl = block ? block.querySelector('code, pre') : null;
+        if (!codeEl) return;
+
+        const textToCopy = codeEl.textContent || '';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showCopiedFeedback(btn);
+            }).catch(() => {
+                fallbackCopy(textToCopy, btn);
+            });
+        } else {
+            fallbackCopy(textToCopy, btn);
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGlobalCodeBlocks);
+    } else {
+        initGlobalCodeBlocks();
+    }
+})();
+
+
