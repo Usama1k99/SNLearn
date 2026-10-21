@@ -9,7 +9,7 @@ const SimulatorData = {
     'sn_si_incident': {
         label: 'Security Incidents',
         table: 'sn_si_incident',
-        icon: '🛡️',
+        icon: '',
         description: 'Core security incident records created from SIEM alerts, user reports, or automated detections. Extends the platform task table.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -186,7 +186,7 @@ const SimulatorData = {
     'sn_si_task': {
         label: 'SIR Tasks',
         table: 'sn_si_task',
-        icon: '📋',
+        icon: '',
         description: 'Sub-tasks spawned from security incidents, typically created by playbooks. Each task represents a specific response activity.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -309,7 +309,7 @@ const SimulatorData = {
     'sn_ti_observable': {
         label: 'Observables',
         table: 'sn_ti_observable',
-        icon: '🔍',
+        icon: '',
         description: 'Indicators of Compromise (IoCs) — IPs, domains, file hashes, URLs — tracked by Threat Intelligence and linked to security incidents.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -424,7 +424,7 @@ const SimulatorData = {
     'sn_ti_indicator': {
         label: 'Indicators',
         table: 'sn_ti_indicator',
-        icon: '🎯',
+        icon: '',
         description: 'Threat Indicators imported from external Threat Intelligence feeds (e.g., STIX/TAXII). Master records that can match against observables.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -499,7 +499,7 @@ const SimulatorData = {
     'sn_vul_entry': {
         label: 'Vulnerability Entries',
         table: 'sn_vul_entry',
-        icon: '📄',
+        icon: '',
         description: 'Vulnerability definitions (CVEs) imported from NVD and scanner feeds. Each entry represents a unique vulnerability, not a specific instance on an asset.',
         fields: [
             { name: 'id', label: 'Vulnerability ID', type: 'string' },
@@ -605,7 +605,7 @@ const SimulatorData = {
     'sn_vul_detection': {
         label: 'Detections',
         table: 'sn_vul_detection',
-        icon: '📡',
+        icon: '',
         description: 'Raw detection records imported from third-party scanners (Qualys, Tenable). Serves as evidence linking a scanner finding to a Vulnerable Item.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -681,7 +681,7 @@ const SimulatorData = {
     'sn_vul_vulnerable_item': {
         label: 'Vulnerable Items',
         table: 'sn_vul_vulnerable_item',
-        icon: '⚠️',
+        icon: '',
         description: 'A specific vulnerability on a specific CI — the core Vulnerability Response record. Links a vulnerability entry to a CMDB configuration item.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -826,7 +826,7 @@ const SimulatorData = {
     'sn_vul_vulnerability': {
         label: 'Remediation Tasks',
         table: 'sn_vul_vulnerability',
-        icon: '🔧',
+        icon: '',
         description: 'Remediation tasks that group multiple Vulnerable Items for assignment and tracking. Extends the platform task table.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },

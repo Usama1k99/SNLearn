@@ -9,7 +9,7 @@ const IrmSimulatorData = {
     'sn_grc_profile': {
         label: 'Entities (Profiles)',
         table: 'sn_grc_profile',
-        icon: '🏢',
+        icon: '',
         description: 'The foundation of IRM. People, places, objects, or things that need to be monitored for compliance and risk (e.g., servers, departments, vendors).',
         fields: [
             { name: 'name', label: 'Name', type: 'string' },
@@ -97,7 +97,7 @@ const IrmSimulatorData = {
     'sn_compliance_authority_document': {
         label: 'Authority Documents',
         table: 'sn_compliance_authority_document',
-        icon: '🏛️',
+        icon: '',
         description: 'External regulations, standards, or frameworks that the organization must comply with (e.g., GDPR, ISO 27001, HIPAA).',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -149,7 +149,7 @@ const IrmSimulatorData = {
     'sn_compliance_citation': {
         label: 'Citations',
         table: 'sn_compliance_citation',
-        icon: '🔖',
+        icon: '',
         description: 'Individual clauses or requirements extracted from an Authority Document.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -205,7 +205,7 @@ const IrmSimulatorData = {
     'sn_compliance_policy': {
         label: 'Policies',
         table: 'sn_compliance_policy',
-        icon: '📜',
+        icon: '',
         description: 'Internal directives, standards, or procedures that the organization must follow to remain compliant.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -278,7 +278,7 @@ const IrmSimulatorData = {
     'sn_compliance_control_objective': {
         label: 'Control Objectives',
         table: 'sn_compliance_control_objective',
-        icon: '🎯',
+        icon: '',
         description: 'Specific, actionable requirements derived from a Policy. These act as templates to generate actual Controls on Entities.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -345,7 +345,7 @@ const IrmSimulatorData = {
     'sn_compliance_control': {
         label: 'Controls',
         table: 'sn_compliance_control',
-        icon: '✅',
+        icon: '',
         description: 'The actual implementation of a Control Objective on a specific Entity. This is what gets attested and continuously monitored.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -417,7 +417,7 @@ const IrmSimulatorData = {
     'sn_risk_risk': {
         label: 'Risks',
         table: 'sn_risk_risk',
-        icon: '⚠️',
+        icon: '',
         description: 'A specific risk tied to an Entity, detailing what could go wrong, its probability, and its impact.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -493,7 +493,7 @@ const IrmSimulatorData = {
     'sn_grc_issue': {
         label: 'Issues',
         table: 'sn_grc_issue',
-        icon: '🚩',
+        icon: '',
         description: 'Generated when a Control fails, a Risk occurs, or an Audit finds a deficiency. Issues track the remediation effort.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },

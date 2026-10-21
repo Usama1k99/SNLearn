@@ -1,9 +1,9 @@
-<%- include('../../partials/head', { title: 'Hardware Asset Management | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Hardware Asset Management (HAM Pro) | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'ham' }) %>
 
 <main class="irm-hub">
-        <div class="container">
-            
+    <div class="container">
+        
         <div class="irm-hub-header">
             <div class="breadcrumb">
                 <a href="/">Home</a>
@@ -13,61 +13,141 @@
             <div class="irm-title-row">
                 <div class="irm-icon-badge">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
                     </svg>
                 </div>
                 <div>
-                    <h1 class="irm-hub-title">Hardware Asset <span class="gradient-text">Management</span></h1>
+                    <h1 class="irm-hub-title">Hardware Asset <span class="gradient-text">Management (HAM Pro)</span></h1>
                     <p class="irm-hub-subtitle">
-                        Master the full lifecycle of physical assets from procurement to disposal. Understand the synchronization between financial records and operational CIs.
+                        End-to-end operational and financial governance of physical enterprise assets. Master Common Services Data Model (CSDM 4.0) lifecycle synchronization, multi-echelon stockroom logistics, mobile barcode auditing, automated hardware refresh, and audited 6-stage disposal.
                     </p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid-4" style="margin-top: 28px; gap: 16px;">
+                <div class="card-basic" style="text-align: center; padding: 18px 12px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #10b981;">CSDM 4.0</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Standard Lifecycle Mapping</div>
+                </div>
+                <div class="card-basic" style="text-align: center; padding: 18px 12px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #3b82f6;">Bi-Directional</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Asset-to-CI Sync Engine</div>
+                </div>
+                <div class="card-basic" style="text-align: center; padding: 18px 12px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #8b5cf6;">6-Stage HADO</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Audited Disposal Workflow</div>
+                </div>
+                <div class="card-basic" style="text-align: center; padding: 18px 12px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #f59e0b;">Mobile Agent</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Barcode &amp; RFID Blind Audits</div>
                 </div>
             </div>
         </div>
 
         <div class="pages-grid">
+            <!-- Page 1: Overview & Architecture -->
             <a href="/ham/overview" class="module-card-horizontal page-card">
                 <span class="page-card-number">01</span>
-                <h3 class="page-card-title">Overview & Architecture</h3>
-                <p class="page-card-desc">The high-level architecture of HAM, core tables, and the standard hardware asset lifecycle.</p>
+                <h3 class="page-card-title">Overview &amp; Architecture</h3>
+                <p class="page-card-desc">
+                    The dual architecture of HAM Pro: Financial Asset Governance vs. Operational CI Management. Explore CSDM 4.0 lifecycle stages, the Content Service normalization library, and the Asset-CI Synchronizer.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">CSDM 4.0 Model</span>
+                    <span class="topic-tag">Asset-CI Sync</span>
+                    <span class="topic-tag">Hardware Normalization</span>
+                </div>
             </a>
+
+            <!-- Page 2: Asset & CI Data Model -->
             <a href="/ham/data-model" class="module-card-horizontal page-card">
                 <span class="page-card-number">02</span>
-                <h3 class="page-card-title">Asset & CI Data Model</h3>
-                <p class="page-card-desc">Deep dive into alm_hardware, cmdb_ci, and how Model Categories sync financial and operational records.</p>
+                <h3 class="page-card-title">Asset &amp; CI Data Model</h3>
+                <p class="page-card-desc">
+                    Comprehensive relational schema across alm_asset, alm_hardware, cmdb_model_category, and cmdb_ci. Includes complete field-level dictionary maps and the state-substate translation matrix.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">Master ERD</span>
+                    <span class="topic-tag">Model Categories</span>
+                    <span class="topic-tag">State-Substatus Matrix</span>
+                </div>
             </a>
+
+            <!-- Page 3: Procurement Lifecycle -->
             <a href="/ham/procurement" class="module-card-horizontal page-card">
                 <span class="page-card-number">03</span>
-                <h3 class="page-card-title">Procurement Lifecycle</h3>
-                <p class="page-card-desc">Follow the money: Requests, Purchase Orders, Receiving Slips, and automatic asset creation.</p>
+                <h3 class="page-card-title">Procurement &amp; Sourcing</h3>
+                <p class="page-card-desc">
+                    The financial acquisition pipeline: Service Catalog requests, sourcing evaluation (stock vs. transfer vs. vendor PO), purchase order lines, receiving slip processing, and automated asset record creation.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">Sourcing Engine</span>
+                    <span class="topic-tag">Purchase Orders</span>
+                    <span class="topic-tag">Receiving Automation</span>
+                </div>
             </a>
+
+            <!-- Page 4: Stockrooms & Inventory -->
             <a href="/ham/inventory" class="module-card-horizontal page-card">
                 <span class="page-card-number">04</span>
-                <h3 class="page-card-title">Stockrooms & Inventory</h3>
-                <p class="page-card-desc">Learn how to manage physical inventory using Stockrooms, Stock Rules, and Transfer Orders.</p>
+                <h3 class="page-card-title">Stockrooms, Transfers &amp; Audits</h3>
+                <p class="page-card-desc">
+                    Multi-tier inventory logistics: Hub-and-spoke stockrooms, automated restocking rules, multi-stage Transfer Orders, mobile barcode/RFID audits with blind reconciliation, and loaner device workflows.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">Stock Rules</span>
+                    <span class="topic-tag">Transfer Orders</span>
+                    <span class="topic-tag">Mobile Inventory Audits</span>
+                </div>
             </a>
+
+            <!-- Page 5: Disposal & Retirement -->
             <a href="/ham/disposal" class="module-card-horizontal page-card">
                 <span class="page-card-number">05</span>
-                <h3 class="page-card-title">Disposal & Retirement</h3>
-                <p class="page-card-desc">The end-of-life process: Disposal Orders, lease returns, data sanitization, and compliance requirements.</p>
+                <h3 class="page-card-title">Disposal, Refresh &amp; Sustainability</h3>
+                <p class="page-card-desc">
+                    Hardware Asset Disposal Orders (HADO) through all 6 mandatory stages: Verify, Schedule, Transit, Vendor Confirmation, and Certificate of Destruction (CoD) documentation with NIST 800-88 sanitization.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">6-Stage HADO</span>
+                    <span class="topic-tag">Asset Refresh Orders</span>
+                    <span class="topic-tag">Scope 3 ESG Metrics</span>
+                </div>
             </a>
+
+            <!-- Page 6: Developer Patterns & APIs -->
             <a href="/ham/developer-patterns" class="module-card-horizontal page-card">
                 <span class="page-card-number">06</span>
-                <h3 class="page-card-title">Developer Patterns & APIs</h3>
-                <p class="page-card-desc">Asset-CI sync Business Rules, Flow Designer automation, REST API patterns, and common customizations.</p>
+                <h3 class="page-card-title">Developer Patterns &amp; APIs</h3>
+                <p class="page-card-desc">
+                    Scoped sn_hamp APIs, safe AssetAndCISynchronizer customization, automated stock rule evaluator scripts, barcode sanitize transform maps, scheduled jobs, and debugging race conditions.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">Scoped APIs</span>
+                    <span class="topic-tag">Sync Business Rules</span>
+                    <span class="topic-tag">Diagnostic Scripts</span>
+                </div>
             </a>
+
+            <!-- Page 7: Process Simulator -->
             <a href="/ham/simulator" class="module-card-horizontal page-card">
                 <span class="page-card-number">07</span>
                 <h3 class="page-card-title">Process Simulator</h3>
-                <p class="page-card-desc">Interactive playground to trace Assets, Contracts, and Purchase Orders through their actual database states.</p>
+                <p class="page-card-desc">
+                    Interactive enterprise testbed featuring 8 relational HAM tables with 35+ realistic records. Trace hardware models, assets, CMDB CIs, stockrooms, transfer orders, POs, and disposal orders.
+                </p>
+                <div class="page-card-topics">
+                    <span class="topic-tag">8 Enterprise Tables</span>
+                    <span class="topic-tag">Interactive Inspector</span>
+                    <span class="topic-tag">State Machine Tracing</span>
+                </div>
             </a>
         </div>
         
-        </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

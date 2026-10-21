@@ -398,7 +398,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         const stateText = window.invertColors ? 'ACTIVE (INVERTED)' : 'INACTIVE (NORMAL)';
 
         console.log(
-            `%c[${devInfo.deviceType}] 🌓 Invert Colors toggled -> State: ${stateText} | Accent: ${activeColor}`,
+            `%c[${devInfo.deviceType}] Invert Colors toggled -> State: ${stateText} | Accent: ${activeColor}`,
             `color: ${activeColor}; font-weight: bold; font-family: monospace; font-size: 12px; padding: 2px 6px; background: rgba(0,0,0,0.6); border: 1px solid ${activeColor}; border-radius: 4px;`
         );
 
@@ -1328,7 +1328,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         <div class="theme-modal shortcuts-modal-container" style="width: 380px; max-width: 92vw;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <div class="theme-modal-title" style="margin-bottom: 0; text-align: left; font-size: 1.15rem;">Quick Actions</div>
-                <button class="shortcuts-close-btn" aria-label="Close" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;">✕</button>
+                <button class="shortcuts-close-btn" aria-label="Close" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;">&times;</button>
             </div>
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Tap any action to execute, or use keyboard hotkeys.</div>
             <div class="shortcuts-actions-list" style="display: flex; flex-direction: column; gap: 8px;">
@@ -1399,7 +1399,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
         overlay.classList.remove('active');
 
         const devInfo = window.getDetailedDeviceInfo ? window.getDetailedDeviceInfo() : { deviceType: (window.innerWidth <= 768 ? 'Mobile' : 'PC / Desktop') };
-        console.log(`%c[${devInfo.deviceType}] 📱 Quick Action Executed: ${action}`, 'color: #3b82f6; font-weight: bold; font-family: monospace; font-size: 11px;');
+        console.log(`%c[${devInfo.deviceType}] Quick Action Executed: ${action}`, 'color: #3b82f6; font-weight: bold; font-family: monospace; font-size: 11px;');
 
         if (action === 'search') {
             if (window.openCommandPalette) {
@@ -1481,7 +1481,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             '  \\___ \\| . ` | |    / _ \\/ _` | \'__| \'_ \\\n' +
             '  ____) | |\\  | |___|  __/ (_| | |  | | | |\n' +
             ' |_____/|_| \\_|______\\___|\\__,_|_|  |_| |_|\n\n' +
-            '⚡ SNLearn — ServiceNow Learning Hub\n' +
+            'SNLearn — ServiceNow Learning Hub\n' +
             'Press Ctrl+K to open Search Box | Alt+H for Shortcuts.',
             `color: ${color}; font-weight: bold; font-family: monospace; font-size: 12px;`
         );
@@ -1576,7 +1576,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     overlay.innerHTML = `
         <div class="cmd-palette-modal">
             <div class="cmd-palette-header">
-                <span class="cmd-palette-icon">🔍</span>
+                <span class="cmd-palette-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
                 <input type="text" class="cmd-palette-input" placeholder="Search pages..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="cmd-palette-results"></div>
@@ -2095,18 +2095,18 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     const overlay = document.createElement('div');
     overlay.className = 'konami-overlay';
     overlay.innerHTML = `
-        <div class="konami-title">🎮 DEVELOPER MODE UNLOCKED</div>
+        <div class="konami-title">DEVELOPER MODE UNLOCKED</div>
         <div class="konami-stats">
-            <div style="color: var(--accent-primary); font-weight: bold; margin-bottom: 8px;">⚡ ServiceNow Learning Hub Telemetry</div>
+            <div style="color: var(--accent-primary); font-weight: bold; margin-bottom: 8px;">ServiceNow Learning Hub Telemetry</div>
             <div style="border-bottom: 1px dashed rgba(255,255,255,0.2); margin-bottom: 10px;"></div>
-            <div>📱 Device Type: <span id="konamiDeviceType" style="color: #6ee7b7; font-weight: bold;"></span></div>
-            <div>🏷️ Device Model: <span id="konamiDeviceName" style="color: #6ee7b7; font-weight: bold;"></span></div>
-            <div>💻 Operating System: <span id="konamiOS" style="color: #93c5fd;"></span></div>
-            <div>🌐 Browser & Engine: <span id="konamiBrowser" style="color: #c4b5fd;"></span></div>
-            <div>📐 Viewport & Screen: <span id="konamiViewport" style="color: #fde047;"></span></div>
-            <div>⚡ GPU / Renderer: <span id="konamiGPU" style="color: #f472b6;"></span></div>
-            <div>🔑 Active Session ID: <span id="konamiSessionId" style="color: #e2e8f0;"></span></div>
-            <div>🎨 Current Theme: <span id="konamiTheme" style="color: #e2e8f0;"></span></div>
+            <div>Device Type: <span id="konamiDeviceType" style="color: #6ee7b7; font-weight: bold;"></span></div>
+            <div>Device Model: <span id="konamiDeviceName" style="color: #6ee7b7; font-weight: bold;"></span></div>
+            <div>Operating System: <span id="konamiOS" style="color: #93c5fd;"></span></div>
+            <div>Browser & Engine: <span id="konamiBrowser" style="color: #c4b5fd;"></span></div>
+            <div>Viewport & Screen: <span id="konamiViewport" style="color: #fde047;"></span></div>
+            <div>GPU / Renderer: <span id="konamiGPU" style="color: #f472b6;"></span></div>
+            <div>Active Session ID: <span id="konamiSessionId" style="color: #e2e8f0;"></span></div>
+            <div>Current Theme: <span id="konamiTheme" style="color: #e2e8f0;"></span></div>
             <div style="margin-top: 16px; color: #94a3b8; font-size: 11px;">Press ESC or tap anywhere to close</div>
         </div>
     `;
@@ -2237,12 +2237,12 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 
         if (step === total) {
             console.log(
-                `%c[${devicePrefix}] 🎮 Konami Sequence Completed: ${step}/${total} (${moveName}) -> Developer Mode Unlocked!`,
+                `%c[${devicePrefix}] Konami Sequence Completed: ${step}/${total} (${moveName}) -> Developer Mode Unlocked!`,
                 `color: ${color}; font-weight: bold; font-family: monospace; font-size: 12px; padding: 3px 6px; background: rgba(0,0,0,0.5); border: 1px solid ${color}; border-radius: 4px;`
             );
         } else {
             console.log(
-                `%c[${devicePrefix}] 🎮 Konami Sequence: ${step}/${total} (${moveName})`,
+                `%c[${devicePrefix}] Konami Sequence: ${step}/${total} (${moveName})`,
                 `color: ${color}; font-weight: 600; font-family: monospace; font-size: 11px; padding: 1px 4px;`
             );
         }
@@ -2317,7 +2317,7 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
             desktopTimer = setTimeout(() => { 
                 if (desktopIndex > 0) {
                     desktopIndex = 0;
-                    console.log('%c[PC / Desktop] ⏱️ Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
+                    console.log('%c[PC / Desktop] Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
                 }
             }, 4000);
 
@@ -2336,15 +2336,15 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 desktopTimer = setTimeout(() => { 
                     if (desktopIndex > 0) {
                         desktopIndex = 0;
-                        console.log('%c[PC / Desktop] ⏱️ Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
+                        console.log('%c[PC / Desktop] Konami sequence timed out (4s inactive)', 'color: #94a3b8; font-family: monospace; font-size: 11px;');
                     }
                 }, 4000);
                 const devInfo = getDetailedDeviceInfo();
-                logKonamiProgress(devInfo.deviceType, 1, desktopSequence.length, '↑ Up');
+                logKonamiProgress(devInfo.deviceType, 1, desktopSequence.length, 'Up');
             } else if (desktopIndex > 0) {
                 const devInfo = getDetailedDeviceInfo();
                 console.log(
-                    `%c[${devInfo.deviceType}] ❌ Sequence reset (received: "${e.key}", expected: "${keyLabels[expected] || expected}")`,
+                    `%c[${devInfo.deviceType}] Sequence reset (received: "${e.key}", expected: "${keyLabels[expected] || expected}")`,
                     `color: #ef4444; font-family: monospace; font-size: 11px;`
                 );
                 desktopIndex = 0;
@@ -2703,6 +2703,20 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
 (function() {
     function initGlobalCodeBlocks() {
         document.querySelectorAll('.code-block').forEach((block) => {
+            // Ignore formula blocks, equation blocks, or blocks explicitly marked as no-header
+            if (block.classList.contains('formula-block') || 
+                block.classList.contains('equation-block') || 
+                block.classList.contains('formula-box') || 
+                block.dataset.noHeader === 'true') {
+                return;
+            }
+            // If the element contains no pre or code tag, it is a single-line text or formula callout, not a code block!
+            const pre = block.querySelector('pre');
+            const code = block.querySelector('code');
+            if (!pre && !code) {
+                return;
+            }
+
             let header = block.querySelector('.code-header') || block.querySelector('.code-label');
             if (!header) {
                 header = document.createElement('div');
@@ -2718,7 +2732,6 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
                 copyBtn.textContent = 'Copy';
                 header.appendChild(copyBtn);
             }
-            const pre = block.querySelector('pre');
             if (pre && !pre.closest('.code-body')) {
                 const body = document.createElement('div');
                 body.className = 'code-body';

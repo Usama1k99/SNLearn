@@ -1,74 +1,360 @@
-<%- include('../../partials/head', { title: 'Developer Patterns — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Developer Patterns & APIs — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#sgc" class="toc-link">Service Graph Connectors</a><a href="#custom-metrics" class="toc-link">Custom License Metrics</a><a href="#flow" class="toc-link">Flow Designer</a>
-                    </nav>
-                </div>
-            </aside>
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#custom-metrics" class="toc-link">Custom License Metrics</a>
+                    <a href="#ire-payloads" class="toc-link">IRE Ingestion Payloads</a>
+                    <a href="#flow-designer" class="toc-link">Flow Designer Reclamation</a>
+                    <a href="#programmatic-apis" class="toc-link">Programmatic SAM APIs</a>
+                    <a href="#diagnostic-scripts" class="toc-link">Diagnostic Background Scripts</a>
+                </nav>
+            </div>
+        </aside>
 
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Developer Patterns</span>
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Developer Patterns</span>
+                </div>
+                <h1 class="content-title">Developer Patterns, <span class="gradient-text">Scripting & APIs</span></h1>
+                <p class="content-subtitle">
+                    How ServiceNow developers build custom license metrics, construct robust IRE ingestion payloads, orchestrate client reclamation flows, and interact with the SAM Pro calculation engine programmatically.
+                </p>
+            </div>
+
+            <!-- 1. Custom Metrics -->
+            <section class="content-section" id="custom-metrics">
+                <h2>Scripting Custom License Metrics</h2>
+                <p>
+                    While ServiceNow provides out-of-the-box publisher packs for Microsoft, Oracle, IBM, and VMware, enterprise contracts frequently contain bespoke commercial licensing terms. For instance, a backup software vendor might license by <em>"Total Managed Terabytes"</em>, or an industrial IoT app might license by <em>"Connected Gateway Devices"</em>.
+                </p>
+                <p>
+                    Developers can implement custom licensing logic by extending the SAM metric framework using a custom Script Include attached to a <strong>Custom License Metric (<code>samp_custom_license_metric_definition</code>)</strong> record:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header"><span class="code-lang">JavaScript — Custom License Metric Script Include</span><button class="code-copy">Copy</button></div>
+                    <div class="code-body">
+<pre><code>var CustomStorageMetricCalculator = Class.create();
+CustomStorageMetricCalculator.prototype = {
+    initialize: function(softwareModelGr) {
+        this.softwareModelGr = softwareModelGr;
+    },
+
+    /**
+     * Calculates the total consumed rights for a storage-based software model.
+     * Metric: 1 License Right = Every 500 GB of attached SAN/NAS storage.
+     * @return {Number} Total rights required
+     */
+    calculateRightsRequired: function() {
+        var totalStorageGB = 0;
+        var rightsRequired = 0;
+
+        // Query all active installations of this software model
+        var grInstall = new GlideRecord('cmdb_sam_sw_install');
+        grInstall.addQuery('discovery_model.software_model', this.softwareModelGr.getUniqueValue());
+        grInstall.addQuery('install_status', 'installed');
+        grInstall.query();
+
+        var processedServers = [];
+
+        while (grInstall.next()) {
+            var serverSysId = grInstall.getValue('installed_on');
+            if (processedServers.indexOf(serverSysId) !== -1) {
+                continue; // Avoid counting the same server twice
+            }
+            processedServers.push(serverSysId);
+
+            // Query attached storage capacity from CMDB disk table
+            var grDisk = new GlideRecord('cmdb_ci_disk');
+            grDisk.addQuery('computer', serverSysId);
+            grDisk.query();
+
+            while (grDisk.next()) {
+                totalStorageGB += parseFloat(grDisk.getValue('capacity_gb') || 0);
+            }
+        }
+
+        // Apply contract conversion: 1 license per 500 GB (rounded up)
+        rightsRequired = Math.ceil(totalStorageGB / 500);
+
+        gs.info('[SAM Custom Metric] Model: ' + this.softwareModelGr.display_name + 
+                ' | Total Storage: ' + totalStorageGB + ' GB | Rights Required: ' + rightsRequired);
+
+        return rightsRequired;
+    },
+
+    type: 'CustomStorageMetricCalculator'
+};</code></pre>
                     </div>
-                    <h1 class="content-title">Developer <span class="gradient-text">Patterns</span></h1>
-                    <p class="content-subtitle">
-                        How developers extend SAM using integrations, custom metric scripts, and automation workflows.
-                    </p>
                 </div>
 
-                <section class="content-section" id="sgc">
-                    <h2>Service Graph Connectors (Data Ingestion)</h2>
+                <div class="info-card info-card--tip" style="margin-top: 16px;">
+                    <div class="info-card-title">Integration with the Reconciliation Engine</div>
                     <p>
-                        SAM is useless without data. Developers frequently configure <strong>Service Graph Connectors (SGC)</strong> to ingest installation data from third-party sources.
+                        When the scheduled reconciliation job executes, it queries all software models. If a model is bound to a custom license metric, the engine instantiates your Script Include, invokes the calculation method, and automatically writes the output to <code>samp_license_metric_result</code>.
                     </p>
-                    <p>
-                        Unlike legacy Transform Maps, SGCs use the robust Identification and Reconciliation Engine (IRE). This ensures that a server imported from AWS and the same server imported from SCCM merge into a single CI, rather than creating duplicates which would ruin SAM counts.
-                    </p>
-                </section>
+                </div>
+            </section>
 
-                <section class="content-section" id="custom-metrics">
-                    <h2>Scripting Custom License Metrics</h2>
-                    <p>
-                        While ServiceNow provides OOTB metrics (Per User, Per Core), enterprise contracts often have highly bespoke licensing terms (e.g., "Per Terabyte of Storage Managed"). 
-                    </p>
-                    <p>
-                        Developers can write Custom License Metric scripts using server-side JavaScript. This script runs during the Reconciliation engine execution to dynamically calculate the rights required based on custom logic querying the CMDB.
-                    </p>
-                </section>
+            <!-- 2. IRE Payloads -->
+            <section class="content-section" id="ire-payloads">
+                <h2>Service Graph Connectors & IRE Ingestion Payloads</h2>
+                <p>
+                    Direct database insertion into <code>cmdb_sam_sw_install</code> using <code>gr.insert()</code> is an anti-pattern that creates orphaned records and duplicate CIs. In modern ServiceNow implementations, developers must format software inventory payloads using the <strong>Identification & Reconciliation Engine (IRE)</strong> API:
+                </p>
 
-                <section class="content-section" id="flow">
-                    <h2>Automating Reclamation via Flow Designer</h2>
+                <div class="code-block">
+                    <div class="code-header"><span class="code-lang">JavaScript — IRE JSON Payload for Software Installation</span><button class="code-copy">Copy</button></div>
+                    <div class="code-body">
+<pre><code>// Constructing an IRE identification and relationship payload
+var irePayload = {
+    items: [
+        {
+            className: 'cmdb_ci_server',
+            values: {
+                name: 'DB-PROD-SQL01',
+                serial_number: 'VMware-42 1b 88 c9',
+                ip_address: '10.200.4.15'
+            }
+        },
+        {
+            className: 'cmdb_sam_sw_install',
+            values: {
+                display_name: 'Microsoft SQL Server 2019 Standard',
+                publisher: 'Microsoft Corporation',
+                version: '15.0.2000.5',
+                install_date: gs.nowDateTime(),
+                last_used: gs.nowDateTime(),
+                uninstall_string: 'MsiExec.exe /X{87B9F100-34A1-4F29-92DF-39F224BC1900}'
+            }
+        }
+    ],
+    relations: [
+        {
+            parent: 0, // References cmdb_ci_server item
+            child: 1,  // References cmdb_sam_sw_install item
+            type: 'Installed on::Installs'
+        }
+    ]
+};
+
+// Execute IRE processing through IdentificationEngine Script Include
+var jsonString = JSON.stringify(irePayload);
+var sourceName = 'CustomServiceGraphConnector';
+var output = sn_cmdb.IdentificationEngine.createOrUpdateCI(sourceName, jsonString);
+
+gs.info('IRE Execution Output: ' + output);</code></pre>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important" style="margin-top: 16px;">
+                    <div class="info-card-title">Multi-Source Precedence Rules</div>
                     <p>
-                        To close the loop on Reclamation, developers build Flow Designer actions that reach out to client management tools. 
+                        By utilizing the IRE, developers leverage Reconciliation Rules. If Microsoft Intune reports an installation with version <code>15.0</code> and a manual spreadsheet import tries to overwrite it with <code>14.0</code>, the IRE checks Discovery Source precedence rules to protect authoritative data from being corrupted.
                     </p>
-                    <div class="code-block">
-                        <div class="code-header"><span class="code-lang">JavaScript</span><button class="code-copy">Copy</button></div>
-                        <div class="code-body">
-<pre><code>// Example Flow Designer conceptual logic for Software Removal
-if (reclamationTask.state == 'approved_for_removal') {
-    var sccmAction = new sn_sccm.ClientAction();
-    sccmAction.triggerUninstall(
-        reclamationTask.ci.mac_address, 
-        reclamationTask.software_model.package_id
-    );
-    reclamationTask.state = 'work_in_progress';
+                </div>
+            </section>
+
+            <!-- 3. Flow Designer -->
+            <section class="content-section" id="flow-designer">
+                <h2>Automating Reclamation via Flow Designer Subflows</h2>
+                <p>
+                    When a Reclamation Candidate (<code>samp_sw_reclamation_candidate</code>) moves to the state <code>Approved for Removal</code>, Flow Designer orchestrates zero-touch client uninstallation. Below is the pattern developers use to connect SAM to client management spokes:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Reclamation Subflow Execution Steps</div>
+                    <div class="mermaid">
+                    graph LR
+                        TRG["Trigger: Candidate State<br/>Changes to Approved for Removal"] --> CHK{"Inspect Target Device OS<br/>Windows vs macOS"}
+                        CHK -->|"Windows / SCCM"| ACT1["Call SCCM Spoke<br/>Invoke Silent MSI Uninstall"]
+                        CHK -->|"macOS / Jamf"| ACT2["Call Jamf Spoke<br/>Trigger App Removal Policy"]
+                        
+                        ACT1 --> VER["Wait for Discovery Scan<br/>Confirm Package Absent"]
+                        ACT2 --> VER
+                        
+                        VER --> REV["Revoke Allocation<br/>Delete/Update alm_entitlement_user"]
+                        REV --> CLS["Update Candidate State<br/>Set to Closed Complete"]
+
+                        classDef trigger fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef action fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef finish fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+
+                        class TRG trigger
+                        class CHK,ACT1,ACT2,VER,REV action
+                        class CLS finish
+                    </div>
+                </div>
+
+                <div class="code-block" style="margin-top: 20px;">
+                    <div class="code-header"><span class="code-lang">JavaScript — Allocation Revocation Script Step</span><button class="code-copy">Copy</button></div>
+                    <div class="code-body">
+<pre><code>(function execute(inputs, outputs) {
+    var candidateId = inputs.candidate_sys_id;
+    var grCandidate = new GlideRecord('samp_sw_reclamation_candidate');
+    
+    if (grCandidate.get(candidateId)) {
+        var userSysId = grCandidate.getValue('user');
+        var swModelSysId = grCandidate.getValue('software_model');
+
+        // Locate active user allocation record
+        var grAlloc = new GlideRecord('alm_entitlement_user');
+        grAlloc.addQuery('assigned_to', userSysId);
+        grAlloc.addQuery('license.software_model', swModelSysId);
+        grAlloc.query();
+
+        if (grAlloc.next()) {
+            var licenseSysId = grAlloc.getValue('license');
+            grAlloc.deleteRecord(); // Revoke allocation
+
+            // Decrement allocated_rights counter on parent entitlement
+            var grLic = new GlideRecord('alm_license');
+            if (grLic.get(licenseSysId)) {
+                var currentAllocated = parseInt(grLic.getValue('allocated_rights') || 0, 10);
+                grLic.setValue('allocated_rights', Math.max(0, currentAllocated - 1));
+                grLic.update();
+            }
+
+            outputs.success = true;
+            outputs.status_message = 'Allocation revoked; 1 license right returned to entitlement pool.';
+        } else {
+            outputs.success = true;
+            outputs.status_message = 'No direct user allocation found (unallocated installation reclaimed).';
+        }
+    }
+})(inputs, outputs);</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Programmatic APIs -->
+            <section class="content-section" id="programmatic-apis">
+                <h2>Programmatic SAM Script Includes & APIs</h2>
+                <p>
+                    Developers can trigger reconciliation on demand, query license compliance, and invoke normalization programmatically using internal SAM Pro APIs:
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header"><span class="code-lang">JavaScript — Triggering Reconciliation via Script</span><button class="code-copy">Copy</button></div>
+                    <div class="code-body">
+<pre><code>// Running on-demand reconciliation for a single publisher via background script
+var publisherSysId = '2b735231c61122750033d59bc470a1a5'; // Microsoft core_company sys_id
+var reconRunObj = new sn_samp.SAMPReconciliationRunAPI();
+
+var options = {
+    publisher: publisherSysId,
+    group: '', // Optional specific software group
+    subgroup: '',
+    run_date: gs.nowDateTime()
+};
+
+var runId = reconRunObj.startReconciliation(options);
+gs.info('Initiated On-Demand Reconciliation Job. Run ID: ' + runId);</code></pre>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip" style="margin-top: 16px;">
+                    <div class="info-card-title">Querying Effective License Position via REST / Table API</div>
+                    <p>
+                        To expose SAM metrics to third-party BI tools (Power BI, Tableau) or custom portal widgets, developers query the <code>samp_license_metric_result</code> endpoint:
+                    </p>
+                    <div class="code-block" style="margin-top: 8px;">
+                        <pre><code>GET /api/now/table/samp_license_metric_result?sysparm_query=compliance_status=non_compliant^ORDERBYDESCtrue_up_cost&sysparm_fields=software_model.display_name,rights_owned,rights_used,over_under,true_up_cost</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Diagnostic Scripts -->
+            <section class="content-section" id="diagnostic-scripts">
+                <h2>Essential SAM Diagnostic & Maintenance Scripts</h2>
+                <p>
+                    Three indispensable scripts every ServiceNow SAM developer should keep in their diagnostic toolkit:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Diagnostic 1: Identifying Unnormalized Discovery Models with Installs</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <div class="code-block">
+                                    <pre><code>// Diagnostic: Find unnormalized discovery models sorted by highest install count
+var gr = new GlideAggregate('cmdb_sam_sw_install');
+gr.addNullQuery('discovery_model.software_model');
+gr.addAggregate('COUNT', 'discovery_model');
+gr.orderByAggregate('COUNT', 'discovery_model');
+gr.query();
+
+while (gr.next()) {
+    var count = gr.getAggregate('COUNT', 'discovery_model');
+    var discModelId = gr.getValue('discovery_model');
+    gs.info('Unmapped Discovery Model: ' + gr.discovery_model.display_name + ' | Installs: ' + count);
 }</code></pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </section>
-        
-            </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Diagnostic 2: Detecting Orphaned Software Allocations</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <div class="code-block">
+                                    <pre><code>// Diagnostic: Find allocations assigned to inactive/terminated employees
+var grAlloc = new GlideRecord('alm_entitlement_user');
+grAlloc.addQuery('assigned_to.active', false);
+grAlloc.query();
+
+while (grAlloc.next()) {
+    gs.warn('Orphaned License: ' + grAlloc.license.display_name + 
+            ' held by inactive user: ' + grAlloc.assigned_to.name + 
+            ' (Allocation SysID: ' + grAlloc.getUniqueValue() + ')');
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Diagnostic 3: Verifying ESXi Host CPU Cores for Core Licensing</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <div class="code-block">
+                                    <pre><code>// Diagnostic: Identify ESXi hosts with missing or zero CPU core counts
+var grHost = new GlideRecord('cmdb_ci_esx_server');
+grHost.addQuery('cpu_core_count', '<=', 0).addOrCondition('cpu_core_count', 'NULL');
+grHost.query();
+
+while (grHost.next()) {
+    gs.error('Invalid Host CPU Topology: ' + grHost.name + 
+             ' has missing cpu_core_count! Server licensing calculations will fail.');
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

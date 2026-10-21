@@ -273,7 +273,7 @@ if (!g_user.hasRole('itil')) {
                 <div class="feature-grid">
                     <div class="feature-card">
                         <div class="feature-card-header">
-                            <h4>❌ Never Run Synchronous GlideRecord on Client</h4>
+                            <h4>Never Run Synchronous GlideRecord on Client</h4>
                         </div>
                         <p>
                             Calling <code>var gr = new GlideRecord(...)</code> in a Client Script makes synchronous database round-trips 
@@ -283,7 +283,7 @@ if (!g_user.hasRole('itil')) {
 
                     <div class="feature-card">
                         <div class="feature-card-header">
-                            <h4>✅ Check `isLoading` in `onChange` Scripts</h4>
+                            <h4>Check `isLoading` in `onChange` Scripts</h4>
                         </div>
                         <p>
                             Always include <code>if (isLoading || newValue === '') return;</code> at the top of <code>onChange</code> scripts 

@@ -538,7 +538,7 @@ gs.info('Created issue: ' + issue.number);</code></pre>
                     <h2>Common Pitfalls</h2>
 
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Writing Directly to M2M Tables</div>
+                        <div class="info-card-title">Writing Directly to M2M Tables</div>
                         <p>
                             Inserting or deleting records directly in M2M join tables (e.g., 
                             <code>sn_grc_m2m_cont_ref_control</code>) can corrupt data relationships. 
@@ -547,7 +547,7 @@ gs.info('Created issue: ' + issue.number);</code></pre>
                     </div>
 
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Ignoring Application Scope</div>
+                        <div class="info-card-title">Ignoring Application Scope</div>
                         <p>
                             IRM tables are scoped to <code>sn_grc</code>, <code>sn_compliance</code>, etc. 
                             If your custom scripts or integrations don't run in the correct scope, they may 
@@ -556,7 +556,7 @@ gs.info('Created issue: ' + issue.number);</code></pre>
                     </div>
 
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Over-Customizing Control Generation</div>
+                        <div class="info-card-title">Over-Customizing Control Generation</div>
                         <p>
                             The Content Reference mechanism automatically generates controls based on Entity 
                             Type and Control Objective combinations. Custom scripts that also generate controls 
@@ -566,7 +566,7 @@ gs.info('Created issue: ' + issue.number);</code></pre>
                     </div>
 
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Not Handling "Not Applicable" in Indicators</div>
+                        <div class="info-card-title">Not Handling "Not Applicable" in Indicators</div>
                         <p>
                             Always handle the case where an indicator can't determine pass/fail (e.g., 
                             the entity has no associated CI). Returning <code>'not_applicable'</code> is 

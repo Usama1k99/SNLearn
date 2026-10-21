@@ -1,73 +1,360 @@
-<%- include('../../partials/head', { title: 'Reconciliation & ELP — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Reconciliation & Publisher Packs — SAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#elp" class="toc-link">Effective License Position (ELP)</a><a href="#metrics" class="toc-link">License Metrics</a><a href="#complex-rules" class="toc-link">Downgrades & Complex Rules</a>
-                    </nav>
-                </div>
-            </aside>
-
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Reconciliation</span>
-                    </div>
-                    <h1 class="content-title"><span class="gradient-text">Reconciliation</span></h1>
-                    <p class="content-subtitle">
-                        The mathematical heart of SAM. It calculates the financial compliance gap by comparing what you own against what you use.
-                    </p>
-                </div>
-
-                <section class="content-section" id="elp">
-                    <h2>The Effective License Position (ELP)</h2>
-                    <p>
-                        Reconciliation is typically run as a scheduled job (e.g., weekly) or on-demand. The primary output is the <strong>Effective License Position (ELP)</strong>.
-                    </p>
-                    <p>The core formula is simple, but the application is highly complex:</p>
-                    <div class="code-block" style="text-align:center; padding: 20px; font-size: 1.2rem; font-weight: bold; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
-                        Rights Owned - Rights Used = True-up Cost (or Surplus)
-                    </div>
-                    <p>
-                        If the result is negative, the organization is <strong>Non-Compliant</strong> and facing audit risk. If positive, they have unused shelf-ware and are over-spending.
-                    </p>
-                </section>
-
-                <section class="content-section" id="metrics">
-                    <h2>License Metrics</h2>
-                    <p>
-                        You cannot just count installations. Publishers sell software using highly complex "License Metrics" which the Reconciliation engine must compute mathematically:
-                    </p>
-                    <ul>
-                        <li><strong>Per User:</strong> Counts the unique users accessing the software, regardless of how many devices they install it on.</li>
-                        <li><strong>Per Device:</strong> Licenses the specific machine. Anyone logging into that machine can use it.</li>
-                        <li><strong>Per Core (Microsoft SQL/Oracle):</strong> Counts the physical or virtual CPU cores on the server hosting the software. Highly complex in clustered VM environments.</li>
-                        <li><strong>SaaS Subscriptions:</strong> Tied directly to active accounts on platforms like Salesforce or Zoom.</li>
-                    </ul>
-                </section>
-
-                <section class="content-section" id="complex-rules">
-                    <h2>Downgrade Rights and Suites</h2>
-                    <p>The reconciliation engine is intelligent enough to apply complex software rights automatically:</p>
-                    <div class="info-card">
-                        <div class="info-card-title">Downgrade Rights</div>
-                        <p>If you own Entitlements for "Windows Server 2022", but the engine discovers an installation of "Windows Server 2019", it will automatically use the 2022 license to cover the older version, saving you from purchasing outdated licenses.</p>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-card-title">Software Suites</div>
-                        <p>If Discovery finds Word, Excel, and PowerPoint installed on the same machine, the engine infers that this is actually "Microsoft Office Professional" and requires a single Suite license, rather than three individual licenses.</p>
-                    </div>
-                </section>
-        
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#elp" class="toc-link">Effective License Position</a>
+                    <a href="#7-step-algorithm" class="toc-link">7-Step Reconciliation Flow</a>
+                    <a href="#microsoft-pack" class="toc-link">Microsoft Publisher Pack</a>
+                    <a href="#oracle-pack" class="toc-link">Oracle Core Factor & VMware</a>
+                    <a href="#ibm-pack" class="toc-link">IBM PVU & Sub-Capacity</a>
+                    <a href="#other-packs" class="toc-link">Engineering & Floating Packs</a>
+                    <a href="#results-hierarchy" class="toc-link">Results Schema & Debugging</a>
+                </nav>
             </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Reconciliation</span>
+                </div>
+                <h1 class="content-title">Reconciliation & <span class="gradient-text">Publisher Packs</span></h1>
+                <p class="content-subtitle">
+                    The mathematical computation core of SAM Pro. Translates server hardware topology, virtualization clusters, downgrade rights trees, and complex vendor licensing rules into the definitive Effective License Position (ELP).
+                </p>
+            </div>
+
+            <!-- 1. ELP -->
+            <section class="content-section" id="elp">
+                <h2>The Effective License Position (ELP)</h2>
+                <p>
+                    The ultimate goal of Software Asset Management is calculating the <strong>Effective License Position (ELP)</strong>. The ELP answers the critical business question: <em>"Across our entire enterprise, what is our legal standing for every software product we consume?"</em>
+                </p>
+
+                <div class="formula-block">
+                    <div class="formula-content">
+                        <em>Rights Owned</em> (Active Entitlements) <span class="formula-operator">−</span> <em>Rights Consumed</em> (Normalized Installs) <span class="formula-operator">=</span> <em>Over/Under Position (ELP)</em>
+                    </div>
+                    <div class="formula-caption">Effective License Position Equation</div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div class="card-basic">
+                        <h4 style="color: #ef4444;">Non-Compliant (Shortfall / Deficit)</h4>
+                        <p>
+                            When <code>Rights Owned < Rights Consumed</code>, the delta is negative. The organization is legally non-compliant and exposed to catastrophic audit true-up fines. SAM Pro calculates the <strong>True-Up Liability</strong> using the unit cost specified on the Entitlement record.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4 style="color: #10b981;">Over-Licensed (Surplus / Shelfware)</h4>
+                        <p>
+                            When <code>Rights Owned > Rights Consumed</code>, the delta is positive. The organization holds unallocated shelfware licenses. SAM Pro calculates the <strong>Shelfware Waste</strong> to inform procurement contract negotiations during renewal periods.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 7-Step Algorithm -->
+            <section class="content-section" id="7-step-algorithm">
+                <h2>The 7-Step Reconciliation Algorithm</h2>
+                <p>
+                    Reconciliation is far more than counting rows in a database table. It is a multi-pass algorithmic evaluation that traverses hardware clustering, checks contract dates, and resolves multi-tier software hierarchies:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">The 7-Step Reconciliation Processing Sequence</div>
+                    <div class="mermaid">
+                    graph TD
+                        S1["Step 1: Scope Definition<br/>Global / Single Publisher / Specific Group"] --> S2["Step 2: Topology Traversal<br/>Resolve ESXi Hosts, Clusters & Sockets"]
+                        S2 --> S3["Step 3: Metric Calculation<br/>Apply Vendor Algorithmic Multipliers"]
+                        S3 --> S4["Step 4: Entitlement Pooling<br/>Verify Active Dates & Maintenance"]
+                        S4 --> S5["Step 5: Downgrade / Upgrade Rights<br/>Cascade Newer Entitlements to Older Installs"]
+                        S5 --> S6["Step 6: Suite Recognition<br/>Collapse Component Installs into Suite Parents"]
+                        S6 --> S7["Step 7: Allocation Prioritization<br/>Assigned Users Consume First; Remainder to Pool"]
+
+                        S7 --> OUT["Final Output: Effective License Position<br/>samp_reconciliation_result & Metric Records"]
+
+                        classDef step fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef finish fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+
+                        class S1,S2,S3,S4,S5,S6,S7 step
+                        class OUT finish
+                    </div>
+                </div>
+
+                <div class="accordion" style="margin-top: 20px;">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Step 5: Downgrade Rights Hierarchy Traversal</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Enterprise contracts often grant "Downgrade Rights". If your company purchased 100 licenses of <strong>Windows Server 2022</strong>, but discovery locates 40 servers still running <strong>Windows Server 2019</strong> and 20 servers running <strong>Windows Server 2016</strong>, SAM Pro automatically applies the 2022 license pool to satisfy the older versions, avoiding false non-compliance alerts.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Step 6: Suite Component Recognition</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    If discovery detects Microsoft Word, Microsoft Excel, Microsoft PowerPoint, and Microsoft Outlook all installed on a single computer, a naive tool would count 4 separate license requirements. SAM Pro evaluates the <code>cmdb_m2m_suite_model</code> definition and collapses all four components into a single <strong>Microsoft Office 365 ProPlus</strong> suite requirement.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Microsoft Pack -->
+            <section class="content-section" id="microsoft-pack">
+                <h2>Microsoft Publisher Pack: Core Minimums & Hybrid Benefit</h2>
+                <p>
+                    Microsoft licensing is notorious for complex physical host constraints and virtualization minimums. The ServiceNow Microsoft Publisher Pack hardcodes these rules natively:
+                </p>
+
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">Microsoft SQL Server (Per Core)</div>
+                        <ul>
+                            <li><strong>Physical Server Licensing:</strong> Must license all physical cores on the server, with a strict minimum of <strong>4 cores per physical processor</strong>.</li>
+                            <li><strong>Virtual Machine Licensing:</strong> Must license all virtual CPUs (vCPUs) allocated to the VM, with a minimum of <strong>4 core licenses per VM</strong>.</li>
+                            <li><strong>Active/Passive Clustering:</strong> Passive failover nodes require zero additional licenses <em>only if</em> active Software Assurance (SA) is maintained on the primary node.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Microsoft Windows Server (Per Core)</div>
+                        <ul>
+                            <li><strong>8-Core Processor Minimum:</strong> Every physical processor must be licensed with at least 8 core rights.</li>
+                            <li><strong>16-Core Server Minimum:</strong> Every physical server must be licensed with at least 16 core rights, even if the physical machine only possesses 8 cores.</li>
+                            <li><strong>Standard vs Datacenter:</strong> Windows Server Standard entitles you to run 2 virtual instances per fully licensed server; Datacenter grants unlimited virtual instances.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip" style="margin-top: 16px;">
+                    <div class="info-card-title">Azure Hybrid Benefit (AHUB) Optimization</div>
+                    <p>
+                        SAM Pro tracks on-premises Windows Server and SQL Server core licenses with active Software Assurance that are eligible for <strong>Azure Hybrid Benefit (AHUB)</strong>. By applying existing on-premises licenses to Microsoft Azure virtual machines, organizations reduce cloud compute costs by up to 85% compared to standard pay-as-you-go rates.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 4. Oracle Pack -->
+            <section class="content-section" id="oracle-pack">
+                <h2>Oracle Publisher Pack: Core Factor Table & Soft Partitioning Risk</h2>
+                <p>
+                    Oracle Corporation executes the most financially punitive software audits in the enterprise software industry. SAM Pro is designed specifically to withstand an Oracle License Management Services (LMS) audit.
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">The Oracle Processor Core Factor Multiplier</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Oracle Database Enterprise Edition is licensed under the <strong>Processor</strong> metric. However, an Oracle Processor is not a physical chip; it is computed by multiplying physical CPU cores by the vendor's Multi-Core Factor:
+                                </p>
+                                <div class="formula-block">
+                                    <div class="formula-content">
+                                        <em>Oracle Processors Required</em> <span class="formula-operator">=</span> <em>Total Physical Cores</em> <span class="formula-operator">×</span> <em>Core Factor Multiplier</em>
+                                    </div>
+                                    <div class="formula-caption">Oracle Multi-Core Processor Calculation Equation</div>
+                                </div>
+                                <div class="data-table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Hardware Processor Architecture</th>
+                                                <th>Core Factor Multiplier</th>
+                                                <th>Calculation Example (32 Physical Cores)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Intel Xeon / AMD EPYC (Multicore)</td>
+                                                <td><strong>0.50</strong></td>
+                                                <td>32 Cores × 0.5 = <strong>16 Oracle Processor Licenses</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td>IBM POWER8 / POWER9</td>
+                                                <td><strong>1.00</strong></td>
+                                                <td>32 Cores × 1.0 = <strong>32 Oracle Processor Licenses</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sun / Oracle SPARC T-Series</td>
+                                                <td><strong>0.75</strong></td>
+                                                <td>32 Cores × 0.75 = <strong>24 Oracle Processor Licenses</strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">The VMware Soft Partitioning Audit Trap</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <div class="info-card info-card--danger">
+                                    <div class="info-card-title">Critical Compliance Risk</div>
+                                    <p>
+                                        Oracle contractual policy explicitly refuses to recognize VMware vSphere ESXi as a "Hard Partition". In an audit, if a single Oracle Database VM runs inside a VMware cluster, Oracle claims licensing liability for <strong>every single physical ESXi host in that cluster</strong> (and in vSphere 6.0+, across every host reachable via vMotion in the entire vCenter datacenter).
+                                    </p>
+                                </div>
+                                <p>
+                                    SAM Pro models this exact topology constraint. It evaluates cluster isolation and provides immediate warnings if Oracle workloads are discovered on unsegmented hypervisor clusters.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Database Options Tracking (v$option)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Oracle DB includes high-cost optional feature packs (Partitioning, Advanced Security, Diagnostics Pack, Tuning Pack) that are installed by default. If a developer accidentally executes a command touching one of these features, Oracle considers the entire server liable for the option license. SAM Pro queries database telemetry to verify whether options are actively used or merely installed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. IBM Pack -->
+            <section class="content-section" id="ibm-pack">
+                <h2>IBM Publisher Pack: PVU & Sub-Capacity Licensing</h2>
+                <p>
+                    IBM software (WebSphere, DB2, MQ) is governed primarily by <strong>Processor Value Unit (PVU)</strong> metrics:
+                </p>
+
+                <div class="grid-2">
+                    <div class="card-basic">
+                        <h4>Full Capacity vs Sub-Capacity</h4>
+                        <p>
+                            Under <strong>Full Capacity</strong>, you must license all physical cores on the server machine. Under <strong>Sub-Capacity</strong>, you only license the virtual processor cores (vCPUs) allocated to the VM partition running the IBM software, reducing licensing costs by up to 90%.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>IBM Certified ILMT Alternative</h4>
+                        <p>
+                            Historically, IBM contractually required customers to deploy IBM License Metric Tool (ILMT) every 90 days to qualify for sub-capacity pricing. <strong>ServiceNow SAM Pro is officially certified by IBM</strong> as an authorized alternative to ILMT, allowing enterprises to decommission dedicated ILMT servers and manage IBM compliance natively inside ServiceNow.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Other Packs -->
+            <section class="content-section" id="other-packs">
+                <h2>VMware, SAP & Engineering Applications</h2>
+                <p>
+                    SAM Pro provides purpose-built models for other complex enterprise publishers:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">VMware by Broadcom Core Metric Evolution</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Following Broadcom's acquisition of VMware, licensing transitioned from perpetual Per-CPU to subscription <strong>Per-Core</strong> bundles (VMware Cloud Foundation - VCF, VMware vSphere Foundation - VVF) with a mandatory minimum of 16 cores per CPU socket. SAM Pro models both legacy perpetual socket entitlements and modern subscription core licensing.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Engineering Applications & Concurrent Floating Licenses</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    CAD, simulation, and EDA software (Autodesk AutoCAD, Dassault CATIA, ANSYS, MATLAB) is sold as <strong>Concurrent / Floating licenses</strong> managed by license servers like FlexNet (FlexLM), DSLS, and Reprise RLM.
+                                </p>
+                                <p>
+                                    SAM Pro connects directly to license server logs to track <strong>Peak Concurrent Usage</strong> versus purchased pool capacity. This allows enterprises to right-size expensive engineering licenses and eliminate denial-of-license bottlenecks for engineering teams.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Results Hierarchy -->
+            <section class="content-section" id="results-hierarchy">
+                <h2>Reconciliation Results Hierarchy & Debugging</h2>
+                <p>
+                    When reconciliation completes, the output is saved in a structured relational hierarchy for reporting:
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Result Table</th>
+                                <th>Granularity Level</th>
+                                <th>Key Fields</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>samp_reconciliation_result</code></td>
+                                <td>Header / Entire Run</td>
+                                <td>Run Date, Scope, Total True-Up Cost, Over-Licensed Cost</td>
+                            </tr>
+                            <tr>
+                                <td><code>samp_license_metric_result</code></td>
+                                <td>Software Model + Metric</td>
+                                <td>Model, Metric, Rights Owned, Rights Used, Over/Under Delta</td>
+                            </tr>
+                            <tr>
+                                <td><code>samp_sw_license_position</code></td>
+                                <td>Publisher Summary</td>
+                                <td>Publisher Name, Total Compliance %, Net Financial Risk</td>
+                            </tr>
+                            <tr>
+                                <td><code>samp_remediation_option</code></td>
+                                <td>Actionable Fix</td>
+                                <td>Option Type (Purchase, Reclaim), Cost, Recommended Quantity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

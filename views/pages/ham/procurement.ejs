@@ -1,4 +1,4 @@
-<%- include('../../partials/head', { title: 'Procurement Lifecycle — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Procurement & Sourcing Lifecycle — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'ham' }) %>
 
 <main class="irm-page">
@@ -8,9 +8,11 @@
             <div class="sidebar-section toc-section">
                 <div class="sidebar-label">On This Page</div>
                 <nav class="sidebar-nav">
-                    <a href="#request-phase" class="toc-link">1. The Request Phase</a>
-                    <a href="#po-phase" class="toc-link">2. Purchase Orders</a>
-                    <a href="#receiving-phase" class="toc-link">3. Receiving Slips</a>
+                    <a href="#catalog-pipeline" class="toc-link">1. Service Catalog Pipeline</a>
+                    <a href="#sourcing-engine" class="toc-link">2. Sourcing Engine Decisions</a>
+                    <a href="#po-lifecycle" class="toc-link">3. Purchase Orders &amp; Lines</a>
+                    <a href="#receiving-mechanics" class="toc-link">4. Receiving Slips &amp; Creation</a>
+                    <a href="#asn-edi" class="toc-link">5. ASN Manifest Ingestion</a>
                 </nav>
             </div>
         </aside>
@@ -22,77 +24,245 @@
                     <span class="breadcrumb-sep">›</span>
                     <a href="/ham">HAM</a>
                     <span class="breadcrumb-sep">›</span>
-                    <span>Procurement Lifecycle</span>
+                    <span>Procurement &amp; Sourcing</span>
                 </div>
-                <h1 class="content-title">Procurement <span class="gradient-text">Lifecycle</span></h1>
+                <h1 class="content-title">Procurement, Sourcing &amp; <span class="gradient-text">Receiving Mechanics</span></h1>
                 <p class="content-subtitle">
-                    Follow the money: Learn how ServiceNow translates Service Catalog requests into Purchase Orders, and eventually into physical assets.
+                    Follow the capital lifecycle: Discover how user catalog requests trigger automated sourcing evaluation, Purchase Order execution, and automated asset generation at the loading dock.
                 </p>
             </div>
 
-            <section class="content-section" id="request-phase">
-                <h2 class="section-title">1. The Request Phase</h2>
-                <div class="prose">
-                    <p>
-                        The hardware lifecycle usually begins in the <strong>Service Catalog</strong>. A user requests a new laptop, generating a Request (<code>sc_request</code>) and a Requested Item (<code>sc_req_item</code>). 
-                    </p>
-                    <p>
-                        If the item is not currently available in a local Stockroom, the system (via workflow) can automatically generate a Procurement Task to buy the item from a vendor.
-                    </p>
-                </div>
-            </section>
+            <!-- 1. Service Catalog Pipeline -->
+            <section class="content-section" id="catalog-pipeline">
+                <h2>1. The Service Catalog Sourcing Pipeline</h2>
+                <p>
+                    In an enterprise running ServiceNow HAM Pro, hardware acquisition rarely starts as an ad-hoc purchase. It begins when an employee, project manager, or automated onboarding workflow requests hardware through the <strong>Service Catalog</strong>.
+                </p>
+                <p>
+                    The catalog request progresses through a 3-tier transactional hierarchy:
+                </p>
+                <ul>
+                    <li><strong>Request (<code>sc_request</code>):</strong> The shopping cart container capturing total financial approval, requester information, and billing cost center.</li>
+                    <li><strong>Requested Item (<code>sc_req_item</code> / RITM):</strong> The specific hardware item requested (e.g., "Developer Laptop Bundle: Apple MacBook Pro 16 + Dual Dell 4K Monitors").</li>
+                    <li><strong>Catalog Task (<code>sc_task</code>):</strong> The fulfillment instructions for technical teams (e.g., provisioning, asset tagging, imaging).</li>
+                </ul>
 
-            <section class="content-section" id="po-phase">
-                <h2 class="section-title">2. Purchase Orders (<code>proc_po</code>)</h2>
-                <div class="prose">
-                    <p>
-                        A <strong>Purchase Order (PO)</strong> is a formal request sent to a vendor (like Dell or Apple) to buy hardware. 
-                    </p>
-                </div>
-                
-                <div class="grid-2">
-                    <div class="page-card">
-                        <h3>Purchase Order <code>[proc_po]</code></h3>
-                        <p>The parent record containing the Vendor, Ship-to address, total cost, and PO status (Requested, Ordered, Pending Delivery).</p>
-                    </div>
-                    <div class="page-card">
-                        <h3>PO Line Item <code>[proc_po_item]</code></h3>
-                        <p>Child records detailing exactly <em>what</em> is being ordered. (e.g., Line 1: 50x Laptops, Line 2: 50x Docks).</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="content-section" id="receiving-phase">
-                <h2 class="section-title">3. Receiving Slips (<code>proc_rec_slip</code>)</h2>
-                <div class="prose">
-                    <p>
-                        When a delivery truck arrives at the loading dock, IT staff use the <strong>Receiving</strong> module. They create a <strong>Receiving Slip</strong> against the Purchase Order.
-                    </p>
-                    <p>
-                        This is the magical moment in HAM: When a Receiving Slip Line is submitted, ServiceNow <strong>automatically generates the Asset records</strong> (<code>alm_hardware</code>) and assigns them to the receiving Stockroom.
-                    </p>
-                </div>
-                
-                <div class="diagram-block">
-                    <div class="diagram-title">Receiving &amp; Automated Asset Creation Flow</div>
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">End-to-End Procurement, Sourcing &amp; Asset Creation Flow</div>
                     <div class="mermaid">
-                    flowchart TD
-                        PO[Purchase Order: Ordered] --> Dock[Box Arrives at Dock]
-                        Dock --> Rec[Create Receiving Slip]
-                        Rec --> RecLine[Add Receiving Slip Line: Qty 5]
-                        RecLine -->|Submit| Magic{ServiceNow Automation}
+                    graph TD
+                        Req["Catalog Request<br/>(sc_request / sc_req_item)"] --> Approval{"Financial Approval<br/>Manager / Cost Center"}
+                        Approval -->|Approved| Sourcing["Sourcing Engine<br/>clm_sourcing"]
                         
-                        Magic --> Asset1[Create Asset 1: In Stock]
-                        Magic --> Asset2[Create Asset 2: In Stock]
-                        Magic --> Asset5[Create Asset 3-5...]
+                        Sourcing --> StockCheck{"Local Stockroom<br/>Available?"}
+                        StockCheck -->|Yes| LocalPick["Reserve and Generate<br/>Warehouse Pick Task"]
                         
-                        classDef default fill:#1f2937,stroke:#374151,color:#e5e7eb
-                        classDef highlight fill:#10b981,stroke:#047857,color:#ffffff
-                        class Magic highlight
+                        StockCheck -->|No| RegionalCheck{"Regional Hub<br/>Available?"}
+                        RegionalCheck -->|Yes| GenTO["Generate Transfer Order<br/>(alm_transfer_order)"]
+                        
+                        RegionalCheck -->|No| GenPO["Generate Purchase Order<br/>(proc_po / proc_po_item)"]
+                        GenPO --> Vendor["Send EDI / API to Vendor<br/>(Dell / Apple / CDW)"]
+                        
+                        Vendor --> Ship["Freight Shipment In Transit<br/>(ASN Ingested)"]
+                        Ship --> Dock["Loading Dock Arrival<br/>Receiving Slip (proc_rec_slip)"]
+                        
+                        Dock --> AutoAsset["Automated Asset Generation<br/>alm_hardware created"]
+                        AutoAsset --> Link["Asset Linked to RITM and Reserved<br/>State: In Stock / Reserved"]
+                        
+                        classDef default fill:#161b26,stroke:#334155,stroke-width:1px,color:#f8fafc
+                        classDef highlight fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef blue fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        classDef amber fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+                        class Sourcing,AutoAsset highlight
+                        class GenPO,GenTO blue
+                        class StockCheck,RegionalCheck amber
                     </div>
                 </div>
             </section>
+
+            <!-- 2. Sourcing Engine Decisions -->
+            <section class="content-section" id="sourcing-engine">
+                <h2>2. Sourcing Engine Decisions</h2>
+                <p>
+                    When a catalog item is configured with a valid hardware model (<code>cmdb_hardware_product_model</code>) and the <code>Sourceable</code> flag is true, ServiceNow activates the <strong>Sourcing Engine</strong>. Instead of blindly issuing purchase orders and wasting budget, the engine evaluates existing enterprise stock across three operational pathways:
+                </p>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">Path 1: Local Allocation</div>
+                        <h4>Immediate Stock Fulfillment</h4>
+                        <p>
+                            If an asset of the requested model is currently sitting in the requester's local office stockroom in state <code>In Stock / Available</code>, the system immediately reserves it:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>Asset state transitions to <code>In Stock / Reserved</code>.</li>
+                            <li>Binds <code>alm_hardware.request_line</code> directly to the RITM.</li>
+                            <li>Generates a local stockroom staging/picking task.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">Path 2: Transfer Order</div>
+                        <h4>Inter-Stockroom Logistics</h4>
+                        <p>
+                            If the local stockroom is depleted but a regional warehouse has surplus inventory, the engine generates an <strong>Automated Transfer Order</strong>:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>Selects the nearest warehouse based on location hierarchy.</li>
+                            <li>Reserves the asset at the source stockroom.</li>
+                            <li>Initiates shipping prep and freight carrier tracking.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-tertiary); font-weight: 700; margin-bottom: 6px;">Path 3: Vendor Procurement</div>
+                        <h4>Purchase Order Generation</h4>
+                        <p>
+                            When enterprise-wide inventory is exhausted, the engine initiates vendor procurement:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>Combines like requests into batch PO lines.</li>
+                            <li>Applies negotiated vendor contract discount tiers.</li>
+                            <li>Routes for secondary financial authorization if PO exceeds threshold.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Purchase Orders & Lines -->
+            <section class="content-section" id="po-lifecycle">
+                <h2>3. Purchase Orders &amp; Line Items</h2>
+                <p>
+                    A <strong>Purchase Order (PO)</strong> is a legally binding contract sent to a hardware manufacturer or distributor. In ServiceNow, procurement is structured into header records and granular line items.
+                </p>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <h3>Purchase Order (<code>proc_po</code>)</h3>
+                        <p>
+                            The parent commercial instrument containing enterprise procurement metadata:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>PO Number:</strong> Standard tracking string (e.g., <code>PO100482</code>).</li>
+                            <li><strong>Vendor:</strong> Master company record from <code>core_company</code> (e.g., Dell Direct).</li>
+                            <li><strong>Ship-to Stockroom:</strong> Target delivery warehouse (<code>alm_stockroom</code>).</li>
+                            <li><strong>Total Amount:</strong> Aggregated sum of all child PO lines.</li>
+                            <li><strong>Status:</strong> Requested, Approved, Ordered, Received, Canceled.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card-basic">
+                        <h3>PO Line Item (<code>proc_po_item</code>)</h3>
+                        <p>
+                            The atomic line item specifying exact hardware items, quantities, and cost centers:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Model:</strong> References <code>cmdb_hardware_product_model</code>.</li>
+                            <li><strong>Vendor Part Number:</strong> Manufacturer SKU identifier.</li>
+                            <li><strong>Ordered Quantity:</strong> Total units purchased.</li>
+                            <li><strong>Unit Cost:</strong> Contracted unit purchase price.</li>
+                            <li><strong>Cost Center / GL Account:</strong> General ledger budget code for ERP reconciliation (SAP/Oracle Financials).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Receiving Slips & Creation -->
+            <section class="content-section" id="receiving-mechanics">
+                <h2>4. Receiving Slips &amp; Automated Asset Generation</h2>
+                <p>
+                    When delivery trucks arrive at an enterprise loading dock, warehouse technicians process shipments through the <strong>Receiving</strong> interface. In HAM Pro, receiving is where financial promises translate into physical tracked records.
+                </p>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <h4>Receiving Slip (<code>proc_rec_slip</code>)</h4>
+                        <p>
+                            Represents the physical delivery event. Tracks the carrier tracking number, packing slip invoice number, receiving stockroom, and receiving technician timestamp.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Receiving Slip Item (<code>proc_rec_slip_item</code>)</h4>
+                        <p>
+                            Child records detailing the quantity received against each specific PO line. Automatically handles <strong>partial shipments</strong> (e.g., 50 servers ordered on Line 1; 30 received on Monday, 20 on Wednesday).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important" style="margin-top: 24px;">
+                    <div class="info-card-title">The Automated Asset Creation Trigger</div>
+                    <p>
+                        When a technician clicks <strong>Receive</strong> on a Receiving Slip Line, ServiceNow executes the core receiving engine:
+                    </p>
+                    <ol style="margin: 8px 0 0 20px; line-height: 1.8;">
+                        <li>It reads the ordered quantity and model category. If the category is serialized hardware (<code>alm_hardware</code>), it immediately inserts $N$ separate records in <code>alm_hardware</code>.</li>
+                        <li>It automatically applies the stockroom location from the receiving slip header.</li>
+                        <li>It sets the initial Asset State to <code>In Stock</code> and Substate to <code>Available</code> (or <code>Reserved</code> if pre-allocated to an RITM).</li>
+                        <li>It sets the Asset <code>cost</code> equal to the unit cost from the PO line, permanently recording acquisition basis for financial depreciation.</li>
+                        <li>It immediately fires the <code>AssetAndCISynchronizer</code> to generate corresponding records in <code>cmdb_ci_hardware</code>.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- 5. ASN Manifest Ingestion -->
+            <section class="content-section" id="asn-edi">
+                <h2>5. Advanced Shipment Notification (ASN) &amp; EDI Ingestion</h2>
+                <p>
+                    In mature enterprise environments, waiting for physical boxes to arrive before entering data into ServiceNow introduces bottlenecks. Top-tier hardware vendors (Dell, HP, Lenovo, Apple) provide automated <strong>Advanced Shipment Notifications (ASN / EDI 856)</strong>.
+                </p>
+                <div class="data-table-wrapper" style="margin-top: 16px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Procurement Milestone</th>
+                                <th>Data Ingestion Mechanism</th>
+                                <th>Asset State in ServiceNow</th>
+                                <th>Business Benefit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>PO Placed</strong></td>
+                                <td>ServiceNow IntegrationHub EDI 850</td>
+                                <td><em>None (PO Line created)</em></td>
+                                <td>Locks in contracted pricing and triggers vendor manufacturing queue.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vendor Ships (ASN)</strong></td>
+                                <td>Inbound EDI 856 / Vendor API</td>
+                                <td><code>In Stock / In Transit</code></td>
+                                <td>Pre-populates serial numbers, MAC addresses, and carrier tracking before physical arrival.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dock Scanned</strong></td>
+                                <td>Agent Mobile Barcode Scan</td>
+                                <td><code>In Stock / Available</code></td>
+                                <td>Scan matches pre-staged ASN serials in under 2 seconds; zero manual typing errors.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Automated Pre-Imaging</strong></td>
+                                <td>PXE Boot / Intune Autopilot / Jamf</td>
+                                <td><code>In Stock / Staged</code></td>
+                                <td>Serial number binds to Microsoft Autopilot hash; laptop configured automatically.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Navigation Links -->
+            <nav class="page-nav" style="margin-top: 40px;">
+                <a href="/ham/data-model" class="page-nav-link">
+                    <span class="page-nav-label">Previous Section</span>
+                    <span class="page-nav-title">Asset &amp; CI Data Model</span>
+                </a>
+                <a href="/ham/inventory" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Section</span>
+                    <span class="page-nav-title">Stockrooms, Transfers &amp; Audits</span>
+                </a>
+            </nav>
         </div>
     </div>
 </main>
+
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -8,10 +8,11 @@
             <div class="sidebar-section toc-section">
                 <div class="sidebar-label">On This Page</div>
                 <nav class="sidebar-nav">
-                    <a href="#what-is-ham" class="toc-link">What is HAM?</a>
-                    <a href="#core-tables" class="toc-link">Core Tables</a>
-                    <a href="#cmdb-integration" class="toc-link">CMDB Integration</a>
-                    <a href="#asset-lifecycle" class="toc-link">Asset Lifecycle</a>
+                    <a href="#core-architecture" class="toc-link">1. Core Architecture: Asset vs CI</a>
+                    <a href="#csdm-lifecycle" class="toc-link">2. CSDM 4.0 Lifecycle Stages</a>
+                    <a href="#sync-engine" class="toc-link">3. Asset-CI Synchronization</a>
+                    <a href="#normalization-engine" class="toc-link">4. Hardware Normalization</a>
+                    <a href="#platform-evolution" class="toc-link">5. Washington DC &amp; Xanadu</a>
                 </nav>
             </div>
         </aside>
@@ -23,146 +24,371 @@
                     <span class="breadcrumb-sep">›</span>
                     <a href="/ham">HAM</a>
                     <span class="breadcrumb-sep">›</span>
-                    <span>Overview & Architecture</span>
+                    <span>Overview &amp; Architecture</span>
                 </div>
-                <h1 class="content-title">Hardware Asset <span class="gradient-text">Management</span></h1>
+                <h1 class="content-title">HAM Pro Architecture &amp; <span class="gradient-text">CSDM Lifecycle</span></h1>
                 <p class="content-subtitle">
-                    End-to-end visibility and automation of the hardware lifecycle. Manage IT physical assets from procurement to disposal, fully integrated with the CMDB.
+                    The foundational duality of physical IT governance: Unifying financial, contractual ownership in the Asset Repository with operational, technical topology in the CMDB.
                 </p>
             </div>
 
-            <section class="content-section" id="what-is-ham">
-                <h2 class="section-title">What is HAM?</h2>
-                <div class="prose">
+            <!-- 1. Core Architecture -->
+            <section class="content-section" id="core-architecture">
+                <h2>1. Core Architecture: The Asset vs. CI Duality</h2>
+                <p>
+                    Every physical computer, server, router, and peripheral in an enterprise exists simultaneously in two distinct realms: the <strong>Financial/Legal Realm</strong> and the <strong>Technical/Operational Realm</strong>. In ServiceNow, failing to recognize this fundamental duality is the leading cause of failed ITAM and CMDB implementations.
+                </p>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">The Financial &amp; Contractual Realm</div>
+                        <h3 style="margin-top: 0;">Hardware Asset (<code>alm_hardware</code>)</h3>
+                        <p>
+                            Tracks <em>what we own, where it came from, and who pays for it</em>:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Financial Value:</strong> Purchase price, freight cost, residual book value, salvage value, and accumulated depreciation schedules.</li>
+                            <li><strong>Contractual Bounds:</strong> Master Service Agreements (MSAs), lease return commitments, warranty coverage dates, and maintenance vendors.</li>
+                            <li><strong>Physical Custody:</strong> Assigned end-user, owning cost center, stockroom storage bin, and in-transit bill of lading.</li>
+                            <li><strong>Procurement Audit:</strong> Linked Purchase Order (<code>proc_po</code>), receiving slip timestamp, and invoice line.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">The Technical &amp; Operational Realm</div>
+                        <h3 style="margin-top: 0;">Configuration Item (<code>cmdb_ci_hardware</code>)</h3>
+                        <p>
+                            Tracks <em>what the device is doing, how it connects, and which business services it supports</em>:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li><strong>Operational State:</strong> In Use, In Maintenance, Degraded, Staged, or Decommissioned.</li>
+                            <li><strong>Technical Attributes:</strong> Hostname, IPv4/IPv6 addresses, MAC addresses, firmware build, and operating system kernel version.</li>
+                            <li><strong>Relationship Graph:</strong> Upstream business service dependencies, hypervisor clustering, network switch ports, and power distribution units.</li>
+                            <li><strong>ITSM Telemetry:</strong> Active incidents, change window approvals, problem root-cause records, and vulnerability findings.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip" style="margin-top: 24px;">
+                    <div class="info-card-title">Architectural Axiom: Not Every Asset is a CI</div>
                     <p>
-                        ServiceNow Hardware Asset Management (HAM) automates the IT lifecycle of physical assets on a single platform. It tracks the financial, contractual, and physical details of hardware. 
-                    </p>
-                    <p>
-                        While the CMDB tracks the operational and technical status of a Configuration Item (CI), HAM tracks its financial value, ownership, and warranty information. The true power of HAM is its seamless synchronization with the CMDB, ensuring that when an asset changes state, its corresponding CI is updated automatically.
+                        A high-end data center rack server is both an <strong>Asset</strong> (financial ledger, lease, depreciation) and a <strong>CI</strong> (IP address, services hosted, network dependencies). Conversely, a bulk pallet of 200 USB keyboards in a warehouse is an <strong>Asset</strong> (consumable inventory item tracked by quantity in <code>alm_consumable</code>), but having 200 individual CI records in the CMDB would create catastrophic operational noise. HAM Pro uses <strong>Model Categories</strong> to enforce exactly when an item spawns an Asset, a CI, or both.
                     </p>
                 </div>
             </section>
 
-            <section class="content-section" id="core-tables">
-                <h2 class="section-title">Core Tables Architecture</h2>
-                <div class="prose">
-                    <p>HAM relies on a robust hierarchy of tables extending from the core Asset application.</p>
-                </div>
-                <div class="grid-2">
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
-                        </div>
-                        <h3>Hardware Asset <code>[alm_hardware]</code></h3>
-                        <p>Extends <code>alm_asset</code>. The primary table for servers, laptops, and networking gear. It tracks status, substatus, stockroom, cost, and assignment.</p>
-                    </div>
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                        </div>
-                        <h3>Hardware Model <code>[cmdb_hardware_product_model]</code></h3>
-                        <p>Defines the specifications of a product (e.g., Apple MacBook Pro 14"). Holds End of Life (EOL) and warranty definitions.</p>
-                    </div>
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        </div>
-                        <h3>Consumables <code>[alm_consumable]</code></h3>
-                        <p>Tracks bulk items that are not individually tracked by serial number (e.g., keyboards, mice, cables). Extends <code>alm_asset</code>.</p>
-                    </div>
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                        </div>
-                        <h3>Stockrooms <code>[alm_stockroom]</code></h3>
-                        <p>Physical locations where assets are stored. Crucial for inventory management and sourcing requests.</p>
-                    </div>
-                </div>
-            </section>
+            <!-- 2. CSDM 4.0 Lifecycle Stages -->
+            <section class="content-section" id="csdm-lifecycle">
+                <h2>2. CSDM 4.0 Standard Lifecycle Model</h2>
+                <p>
+                    Historically, ServiceNow asset and configuration records suffered from competing state fields: <code>install_status</code> on <code>alm_asset</code>, <code>install_status</code> on <code>cmdb_ci</code>, and <code>operational_status</code> on hardware CIs. In recent releases (Washington DC and Xanadu), ServiceNow standardized hardware tracking under the <strong>Common Services Data Model (CSDM 4.0)</strong> unified lifecycle framework.
+                </p>
+                <p>
+                    Under CSDM 4.0, every hardware record is governed by two standardized fields:
+                </p>
+                <ul>
+                    <li><code>lifecycle_stage</code>: The overarching high-level phase in the asset's lifespan.</li>
+                    <li><code>lifecycle_stage_status</code>: The granular operational condition within that stage.</li>
+                </ul>
 
-            <section class="content-section" id="cmdb-integration">
-                <h2 class="section-title">Asset & CI Synchronization</h2>
-                <div class="prose">
-                    <p>The <strong>Asset-CI Mapping</strong> process automatically creates and links a CI when a Hardware Asset is created (and vice versa) based on Model Categories.</p>
-                </div>
-                
-                <div class="diagram-block">
-                    <div class="diagram-title">Hardware Asset &amp; CI Synchronization Flow</div>
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">CSDM 4.0 Hardware Lifecycle State Machine</div>
                     <div class="mermaid">
-                    flowchart LR
-                        Model[Hardware Model] -->|Defines| Category[Model Category]
-                        Category -->|Links| Asset[alm_hardware]
-                        Category -->|Links| CI[cmdb_ci_computer]
+                    stateDiagram-v2
+                        direction LR
                         
-                        Asset <-->|Syncs Status/State| CI
+                        state "1. Planning" as S1 {
+                            [*] --> Requested
+                            Requested --> Approved
+                        }
                         
-                        classDef default fill:#1f2937,stroke:#374151,color:#e5e7eb
-                        classDef asset fill:#10b981,stroke:#047857,color:#ffffff
-                        classDef ci fill:#3b82f6,stroke:#1d4ed8,color:#ffffff
-                        class Asset asset
-                        class CI ci
+                        state "2. Sourcing / Staging" as S2 {
+                            Ordered --> In_Transit
+                            In_Transit --> In_Stockroom
+                            In_Stockroom --> Prepped
+                        }
+                        
+                        state "3. Operational" as S3 {
+                            Deployed --> In_Use
+                            In_Use --> Under_Repair
+                            Under_Repair --> In_Use
+                            In_Use --> Loaner_Custody
+                        }
+                        
+                        state "4. Retirement" as S4 {
+                            Decommissioned --> Pending_Disposal
+                            Pending_Disposal --> Vendor_Departure
+                        }
+                        
+                        state "5. Disposed" as S5 {
+                            Sanitized --> Destroyed
+                            Sanitized --> Sold_Resold
+                            Sanitized --> Donated
+                        }
+                        
+                        S1 --> S2: Purchase Order Executed
+                        S2 --> S3: Deployed to User / Rack
+                        S3 --> S4: Refresh / EOL Reached
+                        S4 --> S5: HADO Completed
                     </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>CSDM Lifecycle Stage</th>
+                                <th>Lifecycle Stage Status</th>
+                                <th>Legacy Asset State / Substate</th>
+                                <th>Legacy CI Operational Status</th>
+                                <th>Real-World Hardware Context</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Planning</strong></td>
+                                <td><code>Requested</code></td>
+                                <td>Ordered / Pre-allocated</td>
+                                <td>Non-Operational / Planned</td>
+                                <td>End-user catalog request submitted; awaiting manager approval.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sourcing</strong></td>
+                                <td><code>In Transit</code></td>
+                                <td>In Stock / In Transit</td>
+                                <td>Non-Operational / Pending</td>
+                                <td>Freight shipment moving from vendor factory to central warehouse.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Staging</strong></td>
+                                <td><code>In Stockroom</code></td>
+                                <td>In Stock / Available</td>
+                                <td>Non-Operational / Staged</td>
+                                <td>Asset received at loading dock, verified, and placed on warehouse shelf.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operational</strong></td>
+                                <td><code>In Use</code></td>
+                                <td>In Use / —</td>
+                                <td>Operational / In Service</td>
+                                <td>Laptop handed to employee or server racked in production cluster.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operational</strong></td>
+                                <td><code>Under Repair</code></td>
+                                <td>In Stock / Pending Repair</td>
+                                <td>Non-Operational / Maintenance</td>
+                                <td>Device with failed motherboard sent to OEM depot under warranty.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retirement</strong></td>
+                                <td><code>Pending Disposal</code></td>
+                                <td>In Stock / Pending Disposal</td>
+                                <td>Non-Operational / Retired</td>
+                                <td>Aged equipment pulled from service, awaiting HADO batch pickup.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disposed</strong></td>
+                                <td><code>Destroyed</code></td>
+                                <td>Retired / Disposed</td>
+                                <td>Non-Operational / Terminated</td>
+                                <td>Hard drives shredded by certified e-waste partner with attached CoD.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
-            <section class="content-section" id="asset-lifecycle">
-                <h2 class="section-title">The Complete Hardware Lifecycle</h2>
-                <div class="prose">
-                    <p>HAM uses automated workflows to manage assets through <strong>eight distinct phases</strong>, from initial planning to final disposal. Each phase has specific states, substates, and automated actions that ensure data accuracy and prevent ghost assets.</p>
-                </div>
-                <div class="diagram-block">
-                    <div class="diagram-title">The Complete Hardware Lifecycle Flow</div>
+            <!-- 3. Asset-CI Sync Engine -->
+            <section class="content-section" id="sync-engine">
+                <h2>3. The Asset-CI Synchronization Engine</h2>
+                <p>
+                    ServiceNow ensures that financial records and configuration records do not drift apart through the <strong>AssetAndCISynchronizer</strong> script include. This engine coordinates bi-directional synchronization through event-driven Business Rules.
+                </p>
+
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">Bi-Directional Asset-CI Synchronization Architecture</div>
                     <div class="mermaid">
                     graph TD
-                        subgraph "Planning & Request"
-                        A["Planning<br/>Identify Need / Check Reuse"] --> B["Request<br/>Service Catalog"]
+                        subgraph ProcurementFlow["Procurement and Receiving"]
+                            PO[Purchase Order Line] -->|Receive Box| Dock[Receiving Slip Line]
+                            Dock -->|Auto-Generates| NewAsset["Hardware Asset (alm_hardware)"]
                         end
 
-                        subgraph "Acquisition"
-                        B --> C["Procurement<br/>Purchase Order Created"]
-                        C --> D["Receiving<br/>Asset Record Created"]
+                        subgraph SyncBridge["Model Category Bridge (cmdb_model_category)"]
+                            NewAsset -->|Evaluates Model Category| BridgeCheck{"Enforce CI Verification?"}
+                            BridgeCheck -->|Yes: AssetAndCISynchronizer| NewCI["Configuration Item (cmdb_ci_computer)"]
                         end
 
-                        subgraph "Operational"
-                        D --> S["Stockroom<br/>State: In Stock"]
-                        S --> E["Deployment<br/>Assign to User / Location"]
-                        E --> F["In Use<br/>State: In Use"]
-                        F -.-> M["Repair<br/>State: In Maintenance"]
-                        F -.-> X["Missing<br/>State: Missing"]
-                        M -.->|Fixed| S
+                        subgraph DiscoveryFlow["Discovery and SGC Engine"]
+                            ACC[Service Graph / Discovery] -->|Payload Scan| DiscCI["Discovered CI Record"]
+                            DiscCI -->|Lookup Model Category| AutoAsset["Auto-Creates Missing Asset"]
                         end
 
-                        subgraph "End of Life"
-                        S -.->|Obsolete| G["Retirement<br/>State: Retired"]
-                        F --> G
-                        M -.->|Beyond Repair| G
-                        G --> H["Disposal<br/>Disposal Order Workflow"]
+                        subgraph BiDirectionalSync["Active Synchronized Fields"]
+                            NewAsset <-->|State and Install Status| NewCI
+                            NewAsset <-->|Assigned To| NewCI
+                            NewAsset <-->|Location| NewCI
+                            NewAsset <-->|Company and Cost Center| NewCI
                         end
 
-                        classDef plan fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
-                        classDef acquire fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
-                        classDef operate fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
-                        classDef eol fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef default fill:#161b26,stroke:#334155,stroke-width:1px,color:#f8fafc
+                        classDef highlight fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef warn fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+                        class BridgeCheck highlight
+                        class NewAsset,NewCI warn
+                    </div>
+                </div>
 
-                        class A,B plan
-                        class C,D acquire
-                        class E,F,S,M,X operate
-                        class G,H eol
+                <div class="grid-2">
+                    <div class="card-basic">
+                        <h4>Asset-to-CI Creation Rule</h4>
+                        <p>
+                            When a warehouse technician processes a receiving slip, the business rule <code>Create CI on insert</code> fires on <code>alm_asset</code>. It checks the linked Model Category:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>If <code>ci_class</code> is populated, it instantiates a CI of that exact target table (e.g. <code>cmdb_ci_server</code>).</li>
+                            <li>It binds <code>alm_hardware.ci</code> to the new CI and <code>cmdb_ci.asset</code> back to the asset.</li>
+                            <li>If <code>enforce_verification</code> is true, the CI is flagged as <em>Pending Verification</em> until technical credentials check out.</li>
+                        </ul>
+                    </div>
 
-                        click B "/ham/procurement#request-phase" "Request Phase"
-                        click C "/ham/procurement#po-phase" "Purchase Orders"
-                        click D "/ham/procurement#receiving-phase" "Receiving"
-                        click E "/ham/overview#cmdb-integration" "CMDB Integration"
-                        click F "/ham/inventory" "Inventory Management"
-                        click S "/ham/inventory" "Stockrooms"
-                        click M "/ham/inventory" "Maintenance & Repair"
-                        click X "/ham/inventory" "Missing Assets"
-                        click G "/ham/disposal#retirement" "Retirement"
-                        click H "/ham/disposal#disposal-orders" "Disposal Orders"
+                    <div class="card-basic">
+                        <h4>CI-to-Asset Creation Rule</h4>
+                        <p>
+                            When Agent Client Collector (ACC) or IP Discovery discovers an uncataloged server on the corporate network:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>ServiceNow Identification and Reconciliation Engine (IRE) reconciles the CI.</li>
+                            <li>Business rule <code>Create Asset on insert</code> checks if an existing asset has matching serial numbers.</li>
+                            <li>If no asset exists, it generates a new <code>alm_hardware</code> record, linking procurement cost as $0.00 until matched with an invoice.</li>
+                        </ul>
                     </div>
                 </div>
             </section>
+
+            <!-- 4. Normalization Engine -->
+            <section class="content-section" id="normalization-engine">
+                <h2>4. The HAM Pro Normalization Engine</h2>
+                <p>
+                    Raw discovery tools frequently ingest dirty, fragmented strings from BIOS and manufacturer labels. A single Dell server model might enter the system as <em>"Dell Inc. PowerEdge R740"</em>, <em>"Dell Computer Corp R740"</em>, or <em>"PowerEdge R740 XD"</em>.
+                </p>
+                <p>
+                    HAM Pro includes the <strong>Content Delivery Service (CDS)</strong>, which normalizes hardware models against ServiceNow's curated library of hundreds of thousands of enterprise models.
+                </p>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">Tier 1: Manufacturer</div>
+                        <h4>Company Normalization</h4>
+                        <p>
+                            Maps raw manufacturer strings (e.g., <em>"Hewlett-Packard"</em>, <em>"HP Corp"</em>, <em>"HPE"</em>) to the standardized <code>core_company</code> master record.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <div style="color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">Tier 2: Model &amp; Spec</div>
+                        <h4>Product Standardization</h4>
+                        <p>
+                            Cleans model numbers, device types, processor architectures, and form factors into a single canonical <code>cmdb_hardware_product_model</code> record.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <div style="color: var(--accent-tertiary); font-weight: 700; margin-bottom: 6px;">Tier 3: Lifecycles</div>
+                        <h4>Milestone Intelligence</h4>
+                        <p>
+                            Automatically populates critical lifecycle dates directly from manufacturer engineering feeds: EOM, EOS, EOL, and EOES.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper" style="margin-top: 24px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Milestone Acronym</th>
+                                <th>Full Milestone Name</th>
+                                <th>Definition</th>
+                                <th>HAM Pro Operational Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>EOM</strong></td>
+                                <td>End of Manufacturing</td>
+                                <td>The vendor ceases factory production of the hardware unit.</td>
+                                <td>Procurement warns buyers that replacement parts will shift to third-party inventory.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EOS</strong></td>
+                                <td>End of Sale</td>
+                                <td>The product can no longer be ordered directly through standard OEM price lists.</td>
+                                <td>Catalog managers deactivate the hardware model from standard employee request catalog items.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EOL</strong></td>
+                                <td>End of Life</td>
+                                <td>The primary commercial lifecycle has concluded; vendor transitions to maintenance mode.</td>
+                                <td>Automated scheduled jobs flag active assets as <em>Eligible for Refresh</em>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EOES</strong></td>
+                                <td>End of Extended Support</td>
+                                <td>Vendor discontinues all firmware patches, security updates, and technical hotfixes.</td>
+                                <td>Triggers high-priority SecOps risk flags; assets must be decommissioned immediately.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 5. Platform Evolution -->
+            <section class="content-section" id="platform-evolution">
+                <h2>5. Washington DC &amp; Xanadu Platform Evolution</h2>
+                <p>
+                    Recent ServiceNow releases have expanded HAM Pro beyond conventional inventory counting into proactive logistics automation:
+                </p>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <h4>Zero Touch Hardware Requests (Xanadu)</h4>
+                        <p>
+                            Automates the entire device fulfillment journey. When a new hire is onboarded, the system evaluates local stockroom inventory, generates picking tasks for technicians, triggers automated shipping label generation via carrier APIs, and updates asset tracking numbers without administrative manual entry.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Device as a Service (DaaS) Governance</h4>
+                        <p>
+                            Enterprises increasingly lease laptops and servers through subscription bundles. HAM Pro tracks recurring monthly billing, minimum lease terms, buyout options, and automatic return scheduling before penalty windows hit.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Inventory Repair Workflows</h4>
+                        <p>
+                            Manages defective hardware staging. Automatically routes broken devices through RMA verification, OEM depot shipment, loaner substitution, warranty cost recovery, and return inspection.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Enhanced Mobile RFID &amp; Barcode Scanning</h4>
+                        <p>
+                            Empowers stockroom teams using the ServiceNow Agent mobile app to conduct multi-scan blind audits, instantly matching 50+ barcodes simultaneously against expected stockroom manifests.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Links -->
+            <nav class="page-nav" style="margin-top: 40px;">
+                <a href="/ham" class="page-nav-link">
+                    <span class="page-nav-label">Previous</span>
+                    <span class="page-nav-title">HAM Hub Overview</span>
+                </a>
+                <a href="/ham/data-model" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Section</span>
+                    <span class="page-nav-title">Asset &amp; CI Data Model</span>
+                </a>
+            </nav>
         </div>
     </div>
 </main>
+
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

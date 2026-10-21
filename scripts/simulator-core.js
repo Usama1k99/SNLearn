@@ -31,7 +31,7 @@ function initSimulatorCore() {
         const btn = document.createElement('button');
         btn.className = 'sim-tab-btn' + (idx === 0 ? ' active' : '');
         btn.dataset.simTab = key;
-        btn.innerHTML = `<span class="sim-tab-icon">${tab.icon}</span><span class="sim-tab-label">${tab.label}</span>`;
+        btn.innerHTML = `<span class="sim-tab-label">${tab.label}</span>`;
         tabsContainer.appendChild(btn);
     });
 

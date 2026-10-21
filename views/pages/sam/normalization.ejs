@@ -2,78 +2,301 @@
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#content-library" class="toc-link">The Content Library</a><a href="#status" class="toc-link">Normalization Statuses</a><a href="#rules" class="toc-link">Normalization Rules</a>
-                    </nav>
-                </div>
-            </aside>
-
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Discovery & Normalization</span>
-                    </div>
-                    <h1 class="content-title"><span class="gradient-text">Normalization</span></h1>
-                    <p class="content-subtitle">
-                        Transforming messy, inconsistent raw strings into standard Publisher, Product, and Version names to make reconciliation mathematically possible.
-                    </p>
-                </div>
-
-                <section class="content-section" id="content-library">
-                    <h2>The Central Content Library</h2>
-                    <p>
-                        ServiceNow maintains a massive, cloud-based Content Library containing millions of Publisher Part Numbers (PPNs), publisher names, and product lifecycles. 
-                    </p>
-                    <p>
-                        When raw data is ingested into your instance, the Normalization Engine compares it against this library. By opting into the <strong>Content Service</strong>, instances securely send unrecognized strings to ServiceNow's research team, who continually add them to the global library.
-                    </p>
-                </section>
-
-                <section class="content-section" id="status">
-                    <h2>Normalization Statuses</h2>
-                    <p>Every Discovery Model evaluates to a specific Normalization Status:</p>
-                    
-                    <div class="info-card info-card--tip">
-                        <div class="info-card-title">Normalized</div>
-                        <p>A perfect match was found. Publisher, Product, and Version were definitively identified based on library rules.</p>
-                    </div>
-
-                    <div class="info-card info-card--warning">
-                        <div class="info-card-title">Partially Normalized</div>
-                        <p>Publisher and Product were identified, but the exact Version or Edition could not be determined. This often requires manual intervention.</p>
-                    </div>
-
-                    <div class="info-card info-card--warning">
-                        <div class="info-card-title">Publisher Normalized</div>
-                        <p>Only the Publisher (e.g., "Microsoft") was recognized. The product itself remains unknown to the library.</p>
-                    </div>
-
-                    <div class="info-card info-card--danger">
-                        <div class="info-card-title">Match Not Found</div>
-                        <p>The raw string is entirely unrecognized. This is common for proprietary, in-house developed software. You must create custom Normalization Rules for these.</p>
-                    </div>
-                </section>
-
-                <section class="content-section" id="rules">
-                    <h2>Custom Normalization Rules</h2>
-                    <p>
-                        For software not found in the Content Library, SAM administrators can create custom rules. 
-                    </p>
-                    <ul>
-                        <li><strong>Exact Match:</strong> Requires the raw string to match the specified condition exactly.</li>
-                        <li><strong>Pattern Match:</strong> Uses Regular Expressions (Regex) or "Starts With/Contains" logic. For example, any software containing "InHouse CRM v*" is automatically normalized to the custom Publisher "MyCorp".</li>
-                    </ul>
-                </section>
-        
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#discovery-pipeline" class="toc-link">Discovery Pipeline</a>
+                    <a href="#normalization-engine" class="toc-link">4-Tier Match Engine</a>
+                    <a href="#ppn-dmap" class="toc-link">PPNs & Discovery Maps</a>
+                    <a href="#content-service" class="toc-link">Content Delivery Service (CDS)</a>
+                    <a href="#statuses" class="toc-link">All Normalization Statuses</a>
+                    <a href="#custom-rules" class="toc-link">Custom Rules & In-House Apps</a>
+                </nav>
             </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Discovery & Normalization</span>
+                </div>
+                <h1 class="content-title">Discovery, Normalization & <span class="gradient-text">The Content Service</span></h1>
+                <p class="content-subtitle">
+                    Transforming raw, inconsistent registry strings and scanner artifacts into canonical Publisher, Product, Version, and Edition signatures to make licensing calculations mathematically valid.
+                </p>
+            </div>
+
+            <!-- 1. Discovery Pipeline -->
+            <section class="content-section" id="discovery-pipeline">
+                <h2>The Discovery Ingestion Pipeline</h2>
+                <p>
+                    Software Asset Management is only as reliable as the raw inventory fed into it. In modern enterprise environments, software data originates from multiple concurrent sources, ranging from endpoint management tools to virtualization hypervisors and SaaS APIs.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Multi-Source Ingestion through the IRE Framework</div>
+                    <div class="mermaid">
+                    graph LR
+                        SCCM["Microsoft SCCM / MECM<br/>Windows Endpoints"] --> SGC["Service Graph Connectors<br/>Identification & Reconciliation Engine (IRE)"]
+                        JAMF["Jamf Pro<br/>macOS Devices"] --> SGC
+                        INTUNE["Microsoft Intune<br/>Mobile & Remote PCs"] --> SGC
+                        ACC["Agent Client Collector<br/>ACC-V Real-Time Process"] --> SGC
+                        DISC["Network IP Discovery<br/>Data Center Discovery"] --> SGC
+
+                        SGC --> INSTALL["cmdb_sam_sw_install<br/>Software Installations"]
+                        INSTALL --> ENGINE["SAM Normalization Engine<br/>Matches against Content Library"]
+
+                        classDef source fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef ire fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                        classDef target fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+
+                        class SCCM,JAMF,INTUNE,ACC,DISC source
+                        class SGC ire
+                        class INSTALL,ENGINE target
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Role of the Identification & Reconciliation Engine (IRE)</div>
+                    <p>
+                        A developer must never bypass the IRE when ingesting software inventory. If an employee connects their laptop to the corporate network where both Microsoft Intune and SCCM report software, importing data via legacy Transform Maps will create duplicate CIs. 
+                    </p>
+                    <p>
+                        Service Graph Connectors utilize the IRE to identify the host machine first (by serial number, MAC address, and BIOS UUID). Software records are then attached to the single verified CI, preventing duplicate installations from inflating license deficit counts.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Normalization Engine -->
+            <section class="content-section" id="normalization-engine">
+                <h2>The 4-Tier Normalization Hierarchy</h2>
+                <p>
+                    Software vendors compile applications with arbitrary, messy metadata. A single software product like <strong>Adobe Acrobat Pro</strong> can be reported by discovery tools with over 80 variations: <em>"Adobe Sys Inc Acrobat DC"</em>, <em>"Acrobat Pro DC 2023.001"</em>, or <em>"ADOBE ACROBAT"</em>.
+                </p>
+                <p>
+                    The SAM Normalization Engine systematically resolves raw strings through a 4-tier hierarchical algorithm:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">The 4-Tier Normalization Sequence</div>
+                    <div class="mermaid">
+                    graph TD
+                        RAW["Raw Installation String<br/>e.g. 'MSFT SQL Svr 2019 Std x64 15.0.2000'"] --> TIER1["Tier 1: Canonical Publisher<br/>Resolves 'MSFT' → 'Microsoft'"]
+                        TIER1 --> TIER2["Tier 2: Product Family<br/>Resolves 'SQL Svr' → 'SQL Server'"]
+                        TIER2 --> TIER3["Tier 3: Major Version<br/>Resolves '15.0.2000' → '2019'"]
+                        TIER3 --> TIER4["Tier 4: Edition & Platform<br/>Resolves 'Std x64' → 'Standard' on Windows"]
+
+                        TIER4 --> RESULT["Canonical Discovery Model<br/>cmdb_sam_sw_discovery_model<br/>Status: Normalized"]
+
+                        classDef raw fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+                        classDef tier fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef finish fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+
+                        class RAW raw
+                        class TIER1,TIER2,TIER3,TIER4 tier
+                        class RESULT finish
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <h4>Why Edition Normalization Matters</h4>
+                        <p>
+                            Edition is the single biggest financial differentiator in software licensing. For example, <strong>Microsoft SQL Server Standard</strong> costs approximately $1,800 per 2-core pack, whereas <strong>Microsoft SQL Server Enterprise</strong> costs over $7,100 per 2-core pack. An engine that cannot distinguish editions will produce false multi-million dollar reconciliation variances.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Platform Standardization</h4>
+                        <p>
+                            Some vendors (like Adobe and JetBrains) license products differently across operating systems. The engine normalizes platform tags (Windows, macOS, Linux, UNIX) into standardized choice values to ensure cross-platform bundles and single-platform licenses are applied accurately.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. PPN & DMAP -->
+            <section class="content-section" id="ppn-dmap">
+                <h2>Publisher Part Numbers (PPNs) & Discovery Maps (DMAPs)</h2>
+                <p>
+                    Two foundational data structures automate the mapping between procurement purchase orders and technical software discovery:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Publisher Part Numbers (PPNs / SKUs)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    When an organization purchases software, the vendor invoice contains an industry-standard part number (e.g. <code>7NQ-00292</code> for Microsoft SQL Server Standard 2019 2-Core).
+                                </p>
+                                <p>
+                                    ServiceNow's Content Library maintains a curated dictionary of over <strong>15 million PPNs</strong>. When a license manager enters a PPN into an Entitlement record, SAM Pro automatically populates:
+                                </p>
+                                <ul>
+                                    <li>Publisher, Product, Version, and Edition</li>
+                                    <li>Applicable License Metric (e.g., Per Core)</li>
+                                    <li>Pre-configured Downgrade Rights ladder</li>
+                                    <li>The corresponding Discovery Map (DMAP)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Discovery Maps (DMAPs)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    A <strong>Discovery Map</strong> (<code>samp_sw_entitlement_definition</code>) acts as the bridge connecting Discovery Models to Software Models.
+                                </p>
+                                <p>
+                                    Instead of requiring an administrator to manually link every new discovered version of an app to a license, the DMAP defines criteria: <em>"Any Discovery Model where Publisher = Microsoft, Product = SQL Server, Version = 2019, Edition = Standard automatically satisfies this Software Model."</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Content Service -->
+            <section class="content-section" id="content-service">
+                <h2>The Central Content Delivery Service (CDS)</h2>
+                <p>
+                    Software releases, patch versions, and licensing terms change on a daily basis. Maintaining local regex rules for every software vendor in the world is impossible for any single enterprise.
+                </p>
+                <p>
+                    ServiceNow solves this through the <strong>Content Delivery Service (CDS)</strong>:
+                </p>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Automated Weekly Synchronization</div>
+                    <p>
+                        Every ServiceNow SAM Pro customer instance securely connects to ServiceNow's central cloud repository. Once a week, a scheduled job (<code>SAM - Download Content Service</code>) downloads newly curated signatures, publisher lifecycle dates (GA, EOS, EOL), and new PPN mappings.
+                    </p>
+                </div>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <h4>Opt-In Crowdsourced Intelligence</h4>
+                        <p>
+                            Enterprises can opt in to the <strong>Content Service Telemetry</strong>. When your discovery tools find an unmapped software string (resulting in a <em>Match Not Found</em> status), the instance strips all proprietary server names, usernames, and IP addresses, sending only the anonymous raw software string to ServiceNow's research team.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Continuous Human Curation</h4>
+                        <p>
+                            ServiceNow employs dedicated software licensing research teams who review unmapped strings, create new DMAPs, verify version lifecycles with publishers, and publish updates back to the global library in the next weekly update.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. All Normalization Statuses -->
+            <section class="content-section" id="statuses">
+                <h2>Comprehensive Breakdown of All Normalization Statuses</h2>
+                <p>
+                    Every Discovery Model evaluates to one of the following statuses in the <code>norm_status</code> field. Managing these statuses is the daily operational responsibility of a SAM Analyst:
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Definition & Cause</th>
+                                <th>Impact on Reconciliation</th>
+                                <th>Required Administrator Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-active">Normalized</span></td>
+                                <td>Full 4-tier match. Publisher, Product, Version, and Edition were definitively identified in the Content Library.</td>
+                                <td>Fully included in reconciliation. Accurate compliance metrics guaranteed.</td>
+                                <td>None. Automated process complete.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-pending">Partially Normalized</span></td>
+                                <td>Publisher and Product matched, but Version or Edition could not be determined from the discovery string.</td>
+                                <td>Included at high-level, but cannot match edition-specific core licenses (e.g. SQL Standard vs Enterprise).</td>
+                                <td>Inspect the installed machine or package metadata; specify the edition manually or refine discovery pattern.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-pending">Publisher Normalized</span></td>
+                                <td>Only the vendor name was recognized (e.g. "Oracle"), but the specific software product is unknown.</td>
+                                <td>Ignored during license compliance calculation; counts cannot be mapped to entitlements.</td>
+                                <td>Review product name with application owner; create custom normalization rule.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-closed">Match Not Found</span></td>
+                                <td>The raw string is completely unrecognized by the Central Content Library. Common for proprietary internal tools.</td>
+                                <td>Completely unmanaged by SAM. Excluded from license compliance.</td>
+                                <td>Determine if commercial or in-house. If commercial, submit to Content Service. If in-house, create Custom Rule.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-default">Manually Normalized</span></td>
+                                <td>A SAM administrator explicitly overridden the library suggestion or assigned custom fields to the Discovery Model.</td>
+                                <td>Treated as Normalized for all reconciliation calculations.</td>
+                                <td>Periodically review manual overrides to ensure they reflect valid contractual licensing models.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="sim-state-badge sim-badge-default">Ignored</span></td>
+                                <td>Software flagged as non-licensable (e.g., printer drivers, browser extensions, language packs, redistributable C++ runtimes).</td>
+                                <td>Permanently excluded from reconciliation to eliminate report clutter.</td>
+                                <td>None. Set automatically by CDS or manually by administrator rule.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 6. Custom Rules & In-House Apps -->
+            <section class="content-section" id="custom-rules">
+                <h2>Custom Normalization Rules & In-House Applications</h2>
+                <p>
+                    Every enterprise develops proprietary internal software (e.g. <em>"Acme Risk Portal v3.1"</em>) or purchases niche line-of-business tools not tracked in the global Content Library.
+                </p>
+
+                <div class="info-card">
+                    <div class="info-card-title">Types of Custom Normalization Rules</div>
+                    <ul>
+                        <li><strong>Exact Match Rules:</strong> Matches the raw publisher and product strings character-for-character.</li>
+                        <li><strong>Pattern & Regex Rules:</strong> Uses wildcard matching or Regular Expressions. For example, any software containing <code>Acme_Billing_Client_v*</code> automatically maps to Publisher: <em>Acme Corporation</em>, Product: <em>Billing System</em>.</li>
+                        <li><strong>Version Conversion Rules:</strong> Normalizes build numbers to commercial releases (e.g., mapping build <code>16.0.17126</code> to commercial version <code>2024</code>).</li>
+                    </ul>
+                </div>
+
+                <div class="code-block" style="margin-top: 16px;">
+                    <div class="code-header"><span class="code-lang">JavaScript</span><button class="code-copy">Copy</button></div>
+                    <div class="code-body">
+<pre><code>// Example background script to identify unnormalized custom applications
+var grDiscModel = new GlideRecord('cmdb_sam_sw_discovery_model');
+grDiscModel.addQuery('norm_status', 'match_not_found');
+grDiscModel.addQuery('in_content_library', false);
+grDiscModel.query();
+
+while (grDiscModel.next()) {
+    gs.info('Unmapped Application: ' + grDiscModel.display_name + 
+            ' | Raw Publisher: ' + grDiscModel.publisher + 
+            ' | Count of Installs: ' + grDiscModel.install_count);
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

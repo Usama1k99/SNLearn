@@ -802,6 +802,131 @@ table strong,
 }
 
 /* ============================================
+   GLOBAL FORMULA & EQUATION BLOCKS
+   Standard mathematical formula presentation
+   ============================================ */
+.formula-block,
+.equation-block,
+.formula-box {
+    display: block;
+    text-align: center;
+    padding: 22px 32px;
+    margin: 24px 0;
+    background: var(--bg-elevated, #1c1c28);
+    border: 1px solid var(--border-default, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-md, 8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    overflow-x: auto;
+}
+
+.formula-content,
+.formula-text {
+    font-family: "STIX Two Text", "STIX Two Math", "Cambria Math", "KaTeX_Math", "Latin Modern Math", "Georgia", "Times New Roman", serif;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--text-primary, #f1f5f9);
+    letter-spacing: 0.01em;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.formula-content i,
+.formula-content em,
+.formula-content .formula-var,
+.formula-content .formula-term,
+.formula-content .formula-highlight {
+    font-style: italic;
+    font-weight: 400;
+    color: inherit;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.formula-content .formula-operator,
+.formula-content .operator {
+    font-style: normal;
+    font-weight: 400;
+    color: inherit;
+    padding: 0 0.35em;
+}
+
+.formula-caption {
+    margin-top: 10px;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--text-muted, #94a3b8);
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-style: normal;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+    .formula-block,
+    .equation-block,
+    .formula-box {
+        padding: 16px 14px;
+    }
+    .formula-content,
+    .formula-text {
+        font-size: 1.05rem;
+        white-space: normal;
+    }
+}
+
+/* ============================================
+   GLOBAL LAYOUT GRIDS & BASIC CARDS
+   ============================================ */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+@media (max-width: 1024px) {
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-basic {
+    background: var(--bg-elevated, #1c1c28);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-md, 8px);
+    padding: var(--space-lg, 20px);
+    transition: border-color var(--transition-fast, 0.2s), background var(--transition-fast, 0.2s);
+}
+
+.card-basic:hover {
+    border-color: var(--border-accent, rgba(16, 185, 129, 0.3));
+}
+
+/* ============================================
    GLOBAL CODE BLOCKS & CODE SNIPPET BOXES
    ============================================ */
 .code-block,

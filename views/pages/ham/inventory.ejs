@@ -1,4 +1,4 @@
-<%- include('../../partials/head', { title: 'Stockrooms & Transfer Orders — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Stockrooms, Transfers & Mobile Audits — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'ham' }) %>
 
 <main class="irm-page">
@@ -8,9 +8,11 @@
             <div class="sidebar-section toc-section">
                 <div class="sidebar-label">On This Page</div>
                 <nav class="sidebar-nav">
-                    <a href="#stockrooms" class="toc-link">Stockrooms</a>
-                    <a href="#stock-rules" class="toc-link">Stock Rules</a>
-                    <a href="#transfer-orders" class="toc-link">Transfer Orders</a>
+                    <a href="#stockroom-network" class="toc-link">1. Stockroom Logistics Network</a>
+                    <a href="#stock-rules" class="toc-link">2. Automated Stock Rules</a>
+                    <a href="#transfer-orders" class="toc-link">3. Transfer Order Execution</a>
+                    <a href="#mobile-audit" class="toc-link">4. Mobile Inventory Audits</a>
+                    <a href="#loaner-management" class="toc-link">5. Loaner Asset Workflows</a>
                 </nav>
             </div>
         </aside>
@@ -22,74 +24,328 @@
                     <span class="breadcrumb-sep">›</span>
                     <a href="/ham">HAM</a>
                     <span class="breadcrumb-sep">›</span>
-                    <span>Stockrooms & Transfer Orders</span>
+                    <span>Stockrooms, Transfers &amp; Audits</span>
                 </div>
-                <h1 class="content-title">Inventory <span class="gradient-text">Management</span></h1>
+                <h1 class="content-title">Inventory Logistics, Stock Rules &amp; <span class="gradient-text">Mobile Audits</span></h1>
                 <p class="content-subtitle">
-                    Learn how HAM handles physical inventory locations, automated restocking, and moving assets across the globe.
+                    Manage multi-echelon warehousing, automated restock threshold algorithms, multi-stage transfer orders, mobile barcode/RFID auditing, and loaner fleet reservations.
                 </p>
             </div>
 
-            <section class="content-section" id="stockrooms">
-                <h2 class="section-title">Stockrooms (<code>alm_stockroom</code>)</h2>
-                <div class="prose">
-                    <p>
-                        A <strong>Stockroom</strong> is a physical or logical location where assets are stored when they are not in use. This could be a massive central warehouse, or a small IT closet in a regional office.
-                    </p>
-                    <p>
-                        When an asset is assigned to a stockroom, its State is typically <code>In Stock</code> and its Substate might be <code>Available</code> or <code>Reserved</code>.
-                    </p>
+            <!-- 1. Stockroom Logistics Network -->
+            <section class="content-section" id="stockroom-network">
+                <h2>1. The Multi-Echelon Stockroom Logistics Network</h2>
+                <p>
+                    A <strong>Stockroom (<code>alm_stockroom</code>)</strong> is a physical or logical storage space where unassigned assets reside while awaiting deployment, transfer, repair, or disposal. Large enterprises manage physical logistics through a <strong>Hub-and-Spoke</strong> hierarchy:
+                </p>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">Tier 1: Central Hub</div>
+                        <h4>Central Warehouses</h4>
+                        <p>
+                            High-volume regional distribution centers (e.g., Chicago Logistics Hub, Frankfurt Distribution Center). Receives direct bulk shipments from OEMs and holds primary buffer inventory.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">Tier 2: Regional Spoke</div>
+                        <h4>Office Tech Hubs &amp; Closets</h4>
+                        <p>
+                            Local campus stockrooms and IT supply closets. Holds 10–50 pre-imaged laptops and basic peripherals for same-day walkup support and immediate desk provisioning.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-tertiary); font-weight: 700; margin-bottom: 6px;">Tier 3: Specialized</div>
+                        <h4>Mobile, Courier &amp; Lockers</h4>
+                        <p>
+                            Field technician vans, in-transit virtual holding bins, smart lockers, and dedicated secure disposal storage cages awaiting vendor pickup.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper" style="margin-top: 24px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Stockroom Type</th>
+                                <th>Operational Purpose</th>
+                                <th>Typical Assets Stored</th>
+                                <th>Replenishment Mechanism</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Central Warehouse</strong></td>
+                                <td>Bulk pallet staging and primary receiving dock.</td>
+                                <td>Boxed laptops, unconfigured servers, bulk cabling.</td>
+                                <td>Vendor Purchase Orders (<code>proc_po</code>).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Regional Office Closet</strong></td>
+                                <td>Local employee onboarding and break-fix replacement.</td>
+                                <td>Configured standard laptops, monitors, docking stations.</td>
+                                <td>Automated Transfer Orders from Central Hub.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Loaner Closet</strong></td>
+                                <td>Temporary loaner pool for traveling or repair users.</td>
+                                <td>Standardized loaner laptops, project tablets, mobile hotspots.</td>
+                                <td>Loaner Asset Management return cycle.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disposal Staging Cage</strong></td>
+                                <td>Secured, badge-access area for wiped hardware.</td>
+                                <td>Decommissioned hard drives, retired PCs, end-of-lease servers.</td>
+                                <td>Hardware Asset Disposal Orders (HADO).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In-Transit (Virtual)</strong></td>
+                                <td>Holding bin while assets are moving via freight carrier.</td>
+                                <td>Assets on trucks moving under active Transfer Orders.</td>
+                                <td>Transfer Order receiving confirmation.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
+            <!-- 2. Automated Stock Rules -->
             <section class="content-section" id="stock-rules">
-                <h2 class="section-title">Automated Restocking via Stock Rules</h2>
-                <div class="prose">
-                    <p>
-                        HAM Pro can automate inventory management using <strong>Stock Rules</strong>. A stock rule watches a specific Stockroom for a specific Model (e.g., "Watch the London Office for MacBook Pros").
-                    </p>
-                    <p>
-                        If the quantity falls below the <strong>Threshold</strong>, the rule can automatically trigger one of two actions:
-                    </p>
-                    <ul>
-                        <li><strong>Vendor Order:</strong> Automatically generates a Purchase Order to buy more from a vendor.</li>
-                        <li><strong>Transfer:</strong> Automatically generates a Transfer Order to pull stock from a parent warehouse.</li>
-                    </ul>
-                </div>
-            </section>
+                <h2>2. Automated Restocking via Stock Rules (<code>alm_stock_rule</code>)</h2>
+                <p>
+                    Manual inventory audits to see if a stockroom is running low on laptops is error-prone. HAM Pro uses <strong>Stock Rules</strong> to enforce continuous inventory safety levels.
+                </p>
+                <p>
+                    A stock rule monitors a specific Stockroom for a specific Hardware Model. When the on-hand quantity of available assets drops below the designated <strong>Threshold</strong>, the daily scheduled job (<code>HAM - Evaluate Stock Rules</code>) automatically calculates the deficit and executes the configured replenishment strategy.
+                </p>
 
-            <section class="content-section" id="transfer-orders">
-                <h2 class="section-title">Transfer Orders (<code>alm_transfer_order</code>)</h2>
-                <div class="prose">
-                    <p>
-                        When you need to move an asset from one stockroom to another (e.g., from the Central Warehouse to the New York Office), you use a <strong>Transfer Order</strong>.
-                    </p>
+                <div class="formula-block">
+                    <div class="formula-content">
+                        <em>Reorder Point</em> <span class="formula-operator">=</span> (<em>Lead Time in Days</em> <span class="formula-operator">&times;</span> <em>Average Daily Consumption</em>) <span class="formula-operator">+</span> <em>Safety Stock Buffer</em>
+                    </div>
+                    <div class="formula-caption">Mathematical Safety Stock Threshold Formula</div>
                 </div>
-                
-                <div class="diagram-block">
-                    <div class="diagram-title">Transfer Order State Lifecycle</div>
-                    <div class="mermaid">
-                    stateDiagram-v2
-                        direction TB
-                        
-                        Draft --> Requested
-                        Requested --> Shipment_Prep
-                        Shipment_Prep --> In_Transit
-                        In_Transit --> Received
-                        
-                        note right of Draft
-                            Select Source & Dest Stockrooms
-                        end note
-                        note right of In_Transit
-                            Asset state changes to "In Transit"
-                        end note
-                        note right of Received
-                            Asset state changes back to "In Stock", new Stockroom assigned
-                        end note
+
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div class="card-basic">
+                        <h4>Supply Method: Transfer Order</h4>
+                        <p>
+                            Pulls stock from a designated parent warehouse (e.g., replenish the Seattle Office stockroom from the Central California Distribution Center). Generates an <code>alm_transfer_order</code> and automatically reserves the items at the source.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <h4>Supply Method: Vendor Order</h4>
+                        <p>
+                            Initiates an external procurement request when central buffer inventory is depleted. Automatically creates a draft Purchase Order line (<code>proc_po_item</code>) pointing to the primary hardware vendor.
+                        </p>
                     </div>
                 </div>
             </section>
+
+            <!-- 3. Transfer Orders -->
+            <section class="content-section" id="transfer-orders">
+                <h2>3. Transfer Order Execution (<code>alm_transfer_order</code>)</h2>
+                <p>
+                    Moving assets between physical facilities requires verifiable chain of custody. A <strong>Transfer Order</strong> tracks the entire journey of hardware through six discrete operational stages.
+                </p>
+
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">Transfer Order Multi-Stage State Lifecycle</div>
+                    <div class="mermaid">
+                    stateDiagram-v2
+                        direction LR
+                        
+                        Draft --> Requested: Submit for Logistics Approval
+                        Requested --> Shipment_Prep: Logistics Approved
+                        Shipment_Prep --> In_Transit: Box Packed &amp; Carrier Scanned
+                        In_Transit --> Received: Arrived at Destination Dock
+                        Received --> Delivered: Verified &amp; Put on Shelf
+                        
+                        note right of Draft
+                            Select Source &amp; Dest Stockrooms
+                            Add Transfer Order Lines (Asset Tags)
+                        end note
+                        
+                        note right of In_Transit
+                            Asset state changes to 'In Transit'
+                            Stockroom set to 'In-Transit Virtual'
+                        end note
+                        
+                        note right of Delivered
+                            Asset state returns to 'In Stock / Available'
+                            Stockroom updated to Destination
+                        end note
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transfer Stage</th>
+                                <th>Transfer Order Line Status</th>
+                                <th>Asset State / Substate</th>
+                                <th>Operational Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Draft</strong></td>
+                                <td>Draft</td>
+                                <td><code>In Stock / Available</code></td>
+                                <td>Logistics manager selects models and quantities needed.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Requested</strong></td>
+                                <td>Requested</td>
+                                <td><code>In Stock / Reserved</code></td>
+                                <td>Specific serialized assets are reserved at source stockroom.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shipment Prep</strong></td>
+                                <td>Shipment Preparation</td>
+                                <td><code>In Stock / Reserved</code></td>
+                                <td>Technician picks assets from shelf, packs boxes, prints shipping label.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Transit</strong></td>
+                                <td>In Transit</td>
+                                <td><code>In Transit / —</code></td>
+                                <td>Carrier scans pickup; custody shifts to freight vendor (FedEx / DHL).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Received</strong></td>
+                                <td>Received</td>
+                                <td><code>In Stock / Staged</code></td>
+                                <td>Destination loading dock scans box; assets physically present.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delivered</strong></td>
+                                <td>Delivered</td>
+                                <td><code>In Stock / Available</code></td>
+                                <td>Assets inspected, unboxed, and made available for local fulfillment.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. Mobile Inventory Audits -->
+            <section class="content-section" id="mobile-audit">
+                <h2>4. Mobile Inventory Audits &amp; Barcode Scanning</h2>
+                <p>
+                    Physical inventory verification is mandatory for financial audits (SOX, ISO 27001). Rather than exporting CSVs and printing spreadsheets, HAM Pro integrates with the <strong>ServiceNow Agent Mobile App</strong>.
+                </p>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="font-weight: 700; color: var(--accent-primary); margin-bottom: 6px;">Audit Methodology</div>
+                        <h4>Targeted Audit vs. Blind Audit</h4>
+                        <p>
+                            <strong>Targeted Audits:</strong> The auditor's screen shows the expected asset list for the stockroom. As items are scanned, checkboxes turn green.
+                        </p>
+                        <p>
+                            <strong>Blind Audits (Industry Gold Standard):</strong> The auditor sees a blank list and simply scans every asset tag and serial number physically present in the room. The system runs an automated reconciliation algorithm at the conclusion of scanning to eliminate human bias.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="font-weight: 700; color: var(--accent-secondary); margin-bottom: 6px;">Hardware Integration</div>
+                        <h4>Barcode, DataMatrix &amp; RFID Sleds</h4>
+                        <p>
+                            Auditors can use standard smartphone cameras for 1D barcodes and 2D DataMatrix labels, or attach enterprise sled scanners (Zebra, Honeywell, CipherLab) for high-speed laser scanning.
+                        </p>
+                        <p>
+                            RFID sled integration allows walking down a warehouse aisle and scanning 200+ serialized assets in seconds without line-of-sight requirement.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper" style="margin-top: 24px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Audit Reconciliation Outcome</th>
+                                <th>Definition</th>
+                                <th>HAM Pro Automated Remediation Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Matched (Expected &amp; Found)</strong></td>
+                                <td>Asset on record was physically scanned in the designated stockroom.</td>
+                                <td>Updates <code>last_audit_date</code> and records auditor username.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Missing (Expected, Not Found)</strong></td>
+                                <td>Asset is listed in stockroom on record but was not physically scanned.</td>
+                                <td>Transitions Asset State to <code>Missing</code>; alerts stockroom manager for theft investigation.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Misplaced (Found in Wrong Room)</strong></td>
+                                <td>Asset was listed in Stockroom A but physically scanned in Stockroom B.</td>
+                                <td>Prompts auditor to reassign stockroom location immediately in the mobile UI.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Uncataloged (Found, No Record)</strong></td>
+                                <td>Physical asset scanned has no matching barcode or serial in database.</td>
+                                <td>Triggers mobile <em>Quick Onboarding</em> flow to create asset record on the fly.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 5. Loaner Asset Workflows -->
+            <section class="content-section" id="loaner-management">
+                <h2>5. Loaner Asset Management</h2>
+                <p>
+                    Managing loaner fleets (e.g. temporary laptops for overseas business travel, projector kits, or temporary devices during motherboard repairs) frequently results in lost assets. HAM Pro provides an automated reservation engine.
+                </p>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">Step 1: Reservation</div>
+                        <h4>Advance Booking &amp; Waitlist</h4>
+                        <p>
+                            Users reserve devices up to 90 days in advance via Service Portal. If inventory is committed, users join a prioritized <strong>Waitlist</strong> that auto-allocates stock upon incoming returns.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">Step 2: Automated Staging</div>
+                        <h4>Prepare Task (T - 2 Days)</h4>
+                        <p>
+                            Two business days before the planned reservation date, Flow Designer auto-generates a <strong>Prepare Task</strong> for local technicians to image, sanitize, and bag the loaner device.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-tertiary); font-weight: 700; margin-bottom: 6px;">Step 3: Recovery</div>
+                        <h4>Reclaim Task &amp; Overdue Alerts</h4>
+                        <p>
+                            One day before scheduled return, the system generates a <strong>Reclaim Task</strong>. If the user fails to return the unit on time, automated escalation emails notify the user's direct supervisor.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Links -->
+            <nav class="page-nav" style="margin-top: 40px;">
+                <a href="/ham/procurement" class="page-nav-link">
+                    <span class="page-nav-label">Previous Section</span>
+                    <span class="page-nav-title">Procurement &amp; Sourcing</span>
+                </a>
+                <a href="/ham/disposal" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Section</span>
+                    <span class="page-nav-title">Disposal, Refresh &amp; Sustainability</span>
+                </a>
+            </nav>
         </div>
     </div>
 </main>
+
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

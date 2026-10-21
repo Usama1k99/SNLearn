@@ -2,72 +2,276 @@
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#remediation" class="toc-link">Remediation Workflows</a><a href="#reclamation" class="toc-link">Software Reclamation Rules</a>
-                    </nav>
-                </div>
-            </aside>
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#remediation-options" class="toc-link">Remediation Options</a>
+                    <a href="#reclamation-engine" class="toc-link">Reclamation Rules & Metering</a>
+                    <a href="#candidate-lifecycle" class="toc-link">Candidate Lifecycle Workflow</a>
+                    <a href="#spoke-automation" class="toc-link">Zero-Touch Client Uninstallation</a>
+                    <a href="#saas-optimization" class="toc-link">SaaS Spend Optimization</a>
+                    <a href="#tier-downgrades" class="toc-link">Tier Downgrades & Redundancies</a>
+                </nav>
+            </div>
+        </aside>
 
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Remediation</span>
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Remediation</span>
+                </div>
+                <h1 class="content-title">Reclamation, Remediation & <span class="gradient-text">Spend Optimization</span></h1>
+                <p class="content-subtitle">
+                    Closing the loop. Once reconciliation identifies deficits or surpluses, SAM Pro triggers automated workflows to remediate audit exposure and harvest millions in wasted software expenditure.
+                </p>
+            </div>
+
+            <!-- 1. Remediation Options -->
+            <section class="content-section" id="remediation-options">
+                <h2>Remediation Options for License Shortfalls</h2>
+                <p>
+                    When reconciliation completes and reveals a non-compliant position (<code>over_under < 0</code>), SAM Pro automatically generates structured records in the <strong>Remediation Options (<code>samp_remediation_option</code>)</strong> table. Rather than leaving asset managers to guess how to resolve a deficit, SAM evaluates the cost-effectiveness of three distinct strategies:
+                </p>
+
+                <div class="grid-2">
+                    <div class="card-basic">
+                        <h4 style="color: #3b82f6;">1. Purchase Rights</h4>
+                        <p>
+                            If all discovered installations represent legitimate business requirements, SAM Pro calculates the exact quantity of license rights needed to reach zero deficit. With a single click, it initiates a Purchase Order request in ServiceNow Procurement (or via IntegrationHub to SAP/Coupa) with vendor part numbers and estimated costs pre-filled.
+                        </p>
                     </div>
-                    <h1 class="content-title">Reclamation & <span class="gradient-text">Remediation</span></h1>
-                    <p class="content-subtitle">
-                        Closing the loop. Once the ELP highlights a compliance or financial issue, SAM provides automated workflows to fix it.
-                    </p>
+                    <div class="card-basic">
+                        <h4 style="color: #ef4444;">2. Remove Unlicensed Installs</h4>
+                        <p>
+                            If rogue employees installed unauthorized commercial software (e.g. Adobe Creative Cloud or Microsoft Project) without purchasing approvals, purchasing additional licenses is wasteful. SAM creates uninstallation tasks to remove the software from unauthorized machines, immediately restoring compliance.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4 style="color: #10b981;">3. Create Allocations</h4>
+                        <p>
+                            In cases where an organization owns unallocated pool entitlements but users installed software without being assigned a license, SAM Pro generates batch allocation actions to associate unassigned licenses with the active installations, resolving the compliance flag with zero financial spend.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4 style="color: #f59e0b;">4. Remove Unallocated</h4>
+                        <p>
+                            Allows IT to target any software installation that lacks an explicit entitlement allocation for automated removal, enforcing strict enterprise software governance across all endpoints.
+                        </p>
+                    </div>
                 </div>
+            </section>
 
-                <section class="content-section" id="remediation">
-                    <h2>Remediation Options for Non-Compliance</h2>
-                    <p>
-                        When Reconciliation results in a non-compliant status (you are using more than you own), the system generates actionable <strong>Remediation Options</strong>:
-                    </p>
-                    <ul>
-                        <li><strong>Purchase Rights:</strong> Automatically generates a Purchase Order request to buy the shortfall amount of licenses.</li>
-                        <li><strong>Create Allocations:</strong> If you have unused pool licenses, you can assign them to the rogue installations to make them compliant.</li>
-                        <li><strong>Remove Unallocated:</strong> Trigger a workflow to immediately uninstall the software from machines that shouldn't have it.</li>
-                    </ul>
-                </section>
+            <!-- 2. Reclamation Engine -->
+            <section class="content-section" id="reclamation-engine">
+                <h2>The Software Reclamation Engine & Usage Metering</h2>
+                <p>
+                    Software Reclamation is the core driver of SAM ROI. It operates on a simple principle: <strong>Do not buy new software licenses when existing licenses are sitting completely unused on employee computers.</strong>
+                </p>
 
-                <section class="content-section" id="reclamation">
-                    <h2>Software Reclamation Rules</h2>
-                    <p>
-                        Reclamation is how organizations save millions of dollars. It focuses on harvesting unused software. 
-                    </p>
-                    <p>
-                        A <strong>Reclamation Rule</strong> (<code>samp_sw_reclamation_rule</code>) defines conditions. For example: <em>"If Microsoft Visio has not been launched in 90 days, target it for removal."</em>
-                    </p>
-                    <div class="diagram-block">
-                        <div class="diagram-title">The Reclamation Workflow</div>
-                        <div class="mermaid">
-                        sequenceDiagram
-                            participant SAM as SAM Engine
-                            participant User as Employee
-                            participant Client as SCCM / Jamf
-                            SAM->>SAM: Identifies usage < 90 days
-                            SAM->>User: Sends email: "Do you still need Visio?"
-                            User-->>SAM: Ignores or replies "No"
-                            SAM->>Client: Triggers uninstall workflow
-                            Client-->>SAM: Confirms software removed
-                            SAM->>SAM: License returned to pool
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Usage Metering Telemetry Ingestion</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    SAM Pro ingests endpoint process telemetry from multiple enterprise client management tools:
+                                </p>
+                                <ul>
+                                    <li><strong>Microsoft SCCM / MECM:</strong> Software Metering rules capture executable process launch times, active runtime hours, and last used timestamps.</li>
+                                    <li><strong>Jamf Pro:</strong> Application usage logs tracking macOS binary launches.</li>
+                                    <li><strong>Agent Client Collector (ACC-V):</strong> Continuous, real-time process monitoring for Windows, macOS, and Linux endpoints.</li>
+                                </ul>
+                                <p>
+                                    This data populates the <code>last_used</code> field on <code>cmdb_sam_sw_install</code> and rolls up into monthly usage summary tables (<code>samp_sw_usage_summary</code>).
+                                </p>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Reclamation Rules (samp_sw_reclamation_rule)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Asset managers configure rules defining what constitutes "unused" software:
+                                </p>
+                                <ul>
+                                    <li><strong>Inactivity Threshold (Days Unused):</strong> The number of continuous days without a process launch (commonly 60 or 90 days).</li>
+                                    <li><strong>Minimum Cumulative Hours:</strong> Ensures an application opened for 30 seconds once in three months is not falsely marked "active".</li>
+                                    <li><strong>Exclusion Lists:</strong> Allows exemption of critical servers, VIP executive laptops, or test lab machines from automated harvesting.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Candidate Lifecycle -->
+            <section class="content-section" id="candidate-lifecycle">
+                <h2>Reclamation Candidate Lifecycle & Sequence Flow</h2>
+                <p>
+                    When the scheduled background job (<code>SAM - Create Reclamation Candidates</code>) runs, it flags software installations meeting reclamation rule thresholds and generates records in <code>samp_sw_reclamation_candidate</code>.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">End-to-End Automated Reclamation Workflow</div>
+                    <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        participant Engine as SAM Engine
+                        participant Candidate as Reclamation Candidate
+                        participant User as Target Employee
+                        participant Manager as Line Manager
+                        participant Flow as Flow Designer
+                        participant Client as SCCM / Jamf / Intune
+                        participant Pool as Entitlement Pool
+
+                        Engine->>Candidate: Inactivity > 90 Days Detected (Create Candidate)
+                        Candidate->>User: Sends Virtual Agent / Teams Prompt: "Do you still need this?"
+                        alt User Responds "Yes" with Business Justification
+                            User-->>Candidate: Clicks "Keep Software" + Justification
+                            Candidate->>Candidate: State = Closed Skipped (User Retained)
+                        else User Responds "No" or Response Times Out (5 Days)
+                            User-->>Candidate: Clicks "Do Not Need" OR No Response
+                            Candidate->>Manager: Sends Approval Request
+                            Manager-->>Candidate: Manager Approves Removal
+                            Candidate->>Candidate: State = Approved for Removal
+                            Candidate->>Flow: Triggers Client Uninstall Subflow
+                            Flow->>Client: Dispatches Silent Uninstall Command
+                            Client-->>Flow: Package Removed Successfully
+                            Flow->>Pool: Revokes alm_entitlement_user Allocation
+                            Pool->>Pool: Right Returned to Active Pool (+1 Available)
+                            Candidate->>Candidate: State = Closed Complete (Savings Captured)
+                        end
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important" style="margin-top: 20px;">
+                    <div class="info-card-title">Employee-Friendly Governance</div>
                     <p>
-                        By integrating with SCCM, Jamf, or Intune (via Flow Designer or Service Graph Connectors), this entire process can be fully automated—zero touch from IT.
+                        A major reason manual software harvesting programs fail is employee friction. SAM Pro eliminates friction by giving users a 5-day grace period to respond via <strong>Microsoft Teams</strong>, <strong>Slack</strong>, or <strong>ServiceNow Virtual Agent</strong>. If an engineer genuinely requires the software for occasional quarterly work, clicking "Keep Software" immediately halts the uninstallation.
                     </p>
-                </section>
-        
-            </div>
+                </div>
+            </section>
+
+            <!-- 4. Spoke Automation -->
+            <section class="content-section" id="spoke-automation">
+                <h2>Zero-Touch Client Uninstallation via IntegrationHub</h2>
+                <p>
+                    In legacy environments, reclaiming software required filing a helpdesk ticket for a desktop technician to manually visit a machine. SAM Pro automates this entirely using <strong>IntegrationHub Client Spokes</strong>:
+                </p>
+
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">SCCM / MECM Spoke</div>
+                        <p>
+                            Flow Designer dispatches a PowerShell or WMI command to the Microsoft Endpoint Configuration Manager server. SCCM executes the silent uninstallation command string stored on the software model (e.g. <code>MsiExec.exe /X{GUID} /qn</code>).
+                        </p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Jamf Pro Spoke</div>
+                        <p>
+                            For macOS devices, the Jamf spoke executes a removal policy or shell script targeting the application bundle inside <code>/Applications/</code>, verifying removal through Jamf inventory check-in.
+                        </p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Microsoft Intune Spoke</div>
+                        <p>
+                            Removes the targeted user or device from the Microsoft Intune application deployment security group in Azure AD / Entra ID, causing the Intune management agent to silently uninstall the app on next sync.
+                        </p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Tanium Spoke</div>
+                        <p>
+                            Triggers a Tanium package deployment to instantly terminate running processes and execute silent removal scripts across distributed corporate networks.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. SaaS Optimization -->
+            <section class="content-section" id="saas-optimization">
+                <h2>SaaS License Management & Cloud Spend Harvesting</h2>
+                <p>
+                    Enterprises are spending more on cloud subscriptions than on-premises software. SAM Pro features direct REST API connectors into major enterprise SaaS providers (Microsoft 365, Salesforce, Adobe Creative Cloud, Zoom, Google Workspace, Box, DocuSign, Slack, Workday).
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SaaS Optimization Strategy</th>
+                                <th>Detection Mechanism</th>
+                                <th>Automated Remediation Action</th>
+                                <th>Typical ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Inactive Cloud Users</strong></td>
+                                <td>Direct API query verifies <code>last_login_date > 90 days</code> across cloud provider logs.</td>
+                                <td>Revoke subscription seat; return to unassigned cloud pool for new hires.</td>
+                                <td>$15 to $150 per user / month</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Duplicate Cloud Accounts</strong></td>
+                                <td>Matches corporate email aliases and personal domains assigned duplicate seats in Zoom or Salesforce.</td>
+                                <td>Merge user profiles or decommission redundant paid seats.</td>
+                                <td>$240 to $1,800 per user / year</td>
+                            </tr>
+                            <tr>
+                                <td><strong>License Tier Downgrade</strong></td>
+                                <td>Granular telemetry checks if M365 E5 subscribers use advanced security/analytics tools.</td>
+                                <td>Downgrade employee from M365 E5 ($57/mo) to E3 ($36/mo).</td>
+                                <td><strong>$252 per user / year</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Unassigned Cloud Subscriptions</strong></td>
+                                <td>Compares purchased tenant seats against currently active cloud assignments.</td>
+                                <td>Alerts procurement team to reduce commit counts during contract renewal.</td>
+                                <td>Direct annual contract reduction</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 6. Tier Downgrades -->
+            <section class="content-section" id="tier-downgrades">
+                <h2>Application Overlap & Redundant Software Rationalization</h2>
+                <p>
+                    Beyond individual seat harvesting, SAM Pro includes <strong>Application Overlap Analytics</strong>. In large corporations, multiple business units independently procure software that performs the exact same function:
+                </p>
+
+                <div class="grid-2">
+                    <div class="card-basic">
+                        <h4>PDF Editor Rationalization</h4>
+                        <p>
+                            Discovery frequently uncovers Adobe Acrobat Pro DC, Nitro PDF, Foxit PDF Editor, and PDF-XChange all running across different departments. SAM identifies functional overlap, allowing leadership to standardize on a single enterprise agreement with bulk volume discounting.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h4>Web Conferencing Consolidation</h4>
+                        <p>
+                            Organizations paying for enterprise Microsoft 365 E5 (which includes Microsoft Teams) often simultaneously pay for enterprise Zoom and Cisco WebEx subscriptions. SAM quantifies the annual cost of duplicate video conferencing tools to justify consolidation.
+                        </p>
+                    </div>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -413,6 +413,54 @@
     margin-bottom: 0;
 }
 
+/* -- General Layout Grids & Cards -- */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg, 24px);
+    margin-bottom: var(--space-lg, 24px);
+}
+
+@media (max-width: 1024px) {
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-basic {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.card-basic:hover {
+    border-color: var(--border-accent);
+}
+
 /* -- Feature Grids & Cards (Rounded Elements) -- */
 .feature-grid {
     display: grid;
@@ -456,6 +504,78 @@
     color: var(--text-secondary);
     line-height: 1.7;
     margin-bottom: 0;
+}
+
+/* -- Formula & Equation Blocks -- */
+.formula-block,
+.equation-block,
+.formula-box {
+    display: block;
+    text-align: center;
+    padding: 22px 32px;
+    margin: 24px 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    overflow-x: auto;
+}
+
+.formula-content,
+.formula-text {
+    font-family: "STIX Two Text", "STIX Two Math", "Cambria Math", "KaTeX_Math", "Latin Modern Math", "Georgia", "Times New Roman", serif;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.formula-content i,
+.formula-content em,
+.formula-content .formula-var,
+.formula-content .formula-term,
+.formula-content .formula-highlight {
+    font-style: italic;
+    font-weight: 400;
+    color: inherit;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.formula-content .formula-operator,
+.formula-content .operator {
+    font-style: normal;
+    font-weight: 400;
+    color: inherit;
+    padding: 0 0.35em;
+}
+
+.formula-caption {
+    margin-top: 10px;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-style: normal;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+    .formula-block,
+    .equation-block,
+    .formula-box {
+        padding: 16px 14px;
+    }
+    .formula-content,
+    .formula-text {
+        font-size: 1.05rem;
+        white-space: normal;
+    }
 }
 
 /* -- Code Blocks -- */

@@ -8,10 +8,10 @@
             <div class="sidebar-section toc-section">
                 <div class="sidebar-label">On This Page</div>
                 <nav class="sidebar-nav">
-                    <a href="#two-worlds" class="toc-link">Asset vs CI: Two Worlds</a>
-                    <a href="#model-categories" class="toc-link">The Bridge: Model Categories</a>
-                    <a href="#hardware-models" class="toc-link">Hardware Models & Consumables</a>
-                    <a href="#sync-logic" class="toc-link">Synchronization Logic</a>
+                    <a href="#erd-architecture" class="toc-link">1. Master Schema Architecture</a>
+                    <a href="#table-dictionaries" class="toc-link">2. Field Dictionaries &amp; Schemas</a>
+                    <a href="#model-categories" class="toc-link">3. Model Category Bridge</a>
+                    <a href="#state-crosswalk" class="toc-link">4. State &amp; Substatus Crosswalk</a>
                 </nav>
             </div>
         </aside>
@@ -23,103 +23,423 @@
                     <span class="breadcrumb-sep">›</span>
                     <a href="/ham">HAM</a>
                     <span class="breadcrumb-sep">›</span>
-                    <span>Asset & CI Data Model</span>
+                    <span>Asset &amp; CI Data Model</span>
                 </div>
-                <h1 class="content-title">Asset & CI <span class="gradient-text">Data Model</span></h1>
+                <h1 class="content-title">Relational Schema &amp; <span class="gradient-text">Data Dictionary</span></h1>
                 <p class="content-subtitle">
-                    Discover how ServiceNow bridges the gap between financial Asset records and operational Configuration Items.
+                    The underlying tables, foreign key references, and field-level dictionary maps linking physical hardware assets to CMDB configuration items.
                 </p>
             </div>
 
-            <section class="content-section" id="two-worlds">
-                <h2 class="section-title">Asset vs CI: Two Worlds</h2>
-                <div class="prose">
-                    <p>
-                        In ServiceNow, a physical piece of hardware (like a laptop) is represented by <strong>two</strong> distinct records that point to each other. Why? Because IT Operations and Finance care about completely different things.
-                    </p>
-                </div>
-                
-                <div class="grid-2">
-                    <div class="page-card" style="border-top: 4px solid var(--accent-primary)">
-                        <h3>The Asset (alm_hardware)</h3>
-                        <p><strong>Owned by:</strong> Procurement / Finance</p>
-                        <ul>
-                            <li><strong>Financial Value:</strong> Cost, Depreciation, Salvage Value</li>
-                            <li><strong>Legal:</strong> Warranties, Lease Contracts</li>
-                            <li><strong>Logistics:</strong> Stockroom location, Purchase Order, Vendor</li>
-                        </ul>
-                    </div>
-                    <div class="page-card" style="border-top: 4px solid var(--accent-secondary)">
-                        <h3>The CI (cmdb_ci_computer)</h3>
-                        <p><strong>Owned by:</strong> IT Operations / Service Desk</p>
-                        <ul>
-                            <li><strong>Technical Specs:</strong> RAM, CPU, OS Version, IP Address</li>
-                            <li><strong>Operational State:</strong> Is it up? Is it throwing errors?</li>
-                            <li><strong>Relationships:</strong> What applications depend on this server?</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+            <!-- 1. Master Schema Architecture -->
+            <section class="content-section" id="erd-architecture">
+                <h2>1. Master Schema Architecture</h2>
+                <p>
+                    The ServiceNow Hardware Asset Management data architecture sits at the intersection of three major platform domains: <strong>Finance &amp; Contracts (<code>alm_*</code> / <code>ast_*</code>)</strong>, <strong>Configuration Management (<code>cmdb_*</code>)</strong>, and <strong>Supply Chain &amp; Procurement (<code>proc_*</code>)</strong>.
+                </p>
 
-            <section class="content-section" id="model-categories">
-                <h2 class="section-title">The Bridge: Model Categories</h2>
-                <div class="prose">
-                    <p>
-                        Not every CI is an Asset (e.g., a software service), and not every Asset is a CI (e.g., a keyboard). 
-                        <strong>Model Categories</strong> (<code>cmdb_model_category</code>) define exactly what happens when a record is created.
-                    </p>
-                    <p>
-                        A Model Category record contains two crucial fields:
-                        <br>1. <strong>Asset Class:</strong> (e.g., <code>alm_hardware</code>)
-                        <br>2. <strong>CI Class:</strong> (e.g., <code>cmdb_ci_computer</code>)
-                    </p>
-                </div>
-                
-                <div class="diagram-block">
-                    <div class="diagram-title">Hardware Asset &amp; CI Creation Decision Flow</div>
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">Master HAM Pro Relational Entity Diagram (ERD)</div>
                     <div class="mermaid">
-                    flowchart TD
-                        Trigger[New Laptop Received] --> Check[Check Model Category]
-                        Check --> IsBoth{Has both Asset & CI Class?}
+                    erDiagram
+                        cmdb_model_category ||--o{ cmdb_hardware_product_model : "categorizes"
+                        cmdb_model_category ||--o{ alm_hardware : "defines_asset_class"
+                        cmdb_model_category ||--o{ cmdb_ci_computer : "defines_ci_class"
                         
-                        IsBoth -->|Yes| CreateBoth[Create Asset AND Create CI]
-                        CreateBoth --> Link[Link them via Reference Fields]
+                        core_company ||--o{ cmdb_hardware_product_model : "manufactures"
+                        core_company ||--o{ proc_po : "vendor"
                         
-                        IsBoth -->|Asset Class Only| CreateAsset[Create Asset ONLY]
+                        cmdb_hardware_product_model ||--o{ alm_hardware : "model_spec"
+                        cmdb_hardware_product_model ||--o{ cmdb_ci_computer : "model_id"
                         
-                        classDef default fill:#1f2937,stroke:#374151,color:#e5e7eb
-                        classDef highlight fill:#10b981,stroke:#047857,color:#ffffff
-                        class Link highlight
+                        proc_po ||--o{ proc_po_item : "contains"
+                        proc_po_item ||--o{ proc_rec_slip_item : "received_by"
+                        proc_rec_slip_item ||--o{ alm_hardware : "spawns_asset"
+                        
+                        alm_hardware ||--|| cmdb_ci_computer : "bi-directional_sync (ci <-> asset)"
+                        alm_stockroom ||--o{ alm_hardware : "stores"
+                        alm_stockroom ||--o{ alm_stock_rule : "replenishes"
+                        
+                        alm_stockroom ||--o{ alm_transfer_order : "source_and_dest"
+                        alm_transfer_order ||--o{ alm_transfer_order_line : "transfers"
+                        alm_transfer_order_line ||--o{ alm_hardware : "transfers_asset"
+                        
+                        sn_hamp_disposal_order ||--o{ sn_hamp_disposal_order_task : "executes"
+                        sn_hamp_disposal_order ||--o{ alm_hardware : "decommissions"
                     </div>
                 </div>
             </section>
 
-            <section class="content-section" id="hardware-models">
-                <h2 class="section-title">Hardware Models & Consumables</h2>
-                <div class="prose">
+            <!-- 2. Table Dictionaries & Schemas -->
+            <section class="content-section" id="table-dictionaries">
+                <h2>2. Field Dictionaries &amp; Schemas</h2>
+                <p>
+                    Enterprise implementations require precise knowledge of system column names, data types, foreign key constraints, and default choices. Below are the production schemas for the primary tables in the HAM Pro ecosystem.
+                </p>
+
+                <!-- Hardware Asset Table -->
+                <div style="margin-top: 28px;">
+                    <h3>Hardware Asset Table (<code>alm_hardware</code>)</h3>
                     <p>
-                        To ensure data consistency across your assets and CIs, ServiceNow uses <strong>Hardware Product Models</strong> (<code>cmdb_hardware_product_model</code>). Instead of users manually typing "MacBook Pro" or "Apple Mac Pro 14", every asset must link back to a standardized Model record.
+                        Extends the base asset table (<code>alm_asset</code>). Stores every serialized physical hardware device tracked across the enterprise.
                     </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Field Label</th>
+                                    <th>Column Name (DB)</th>
+                                    <th>Data Type</th>
+                                    <th>Reference / Choice List</th>
+                                    <th>Description &amp; Architectural Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Asset Tag</strong></td>
+                                    <td><code>asset_tag</code></td>
+                                    <td>String (100)</td>
+                                    <td>—</td>
+                                    <td>Unique barcode/RFID identifier physically affixed to the chassis. Mandatory for inventory audits.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Serial Number</strong></td>
+                                    <td><code>serial_number</code></td>
+                                    <td>String (100)</td>
+                                    <td>—</td>
+                                    <td>Manufacturer factory serial number read from BIOS or case label. Primary key for Discovery reconciliation.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Model</strong></td>
+                                    <td><code>model</code></td>
+                                    <td>Reference</td>
+                                    <td><code>cmdb_hardware_product_model</code></td>
+                                    <td>Links the physical unit to its technical hardware specifications and lifecycle milestones.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Model Category</strong></td>
+                                    <td><code>model_category</code></td>
+                                    <td>Reference</td>
+                                    <td><code>cmdb_model_category</code></td>
+                                    <td>Defines the Asset/CI bridging rules and controls automated CI table creation.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>State (Status)</strong></td>
+                                    <td><code>install_status</code></td>
+                                    <td>Integer (Choice)</td>
+                                    <td>In Stock (6), In Use (1), In Transit (9), Retired (7), Missing (8)</td>
+                                    <td>High-level operational lifecycle state of the asset.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Substatus</strong></td>
+                                    <td><code>substatus</code></td>
+                                    <td>String (Choice)</td>
+                                    <td>Available, Reserved, Defective, Pending Disposal, Disposed</td>
+                                    <td>Granular condition qualifying the primary State (e.g., In Stock / Available vs In Stock / Defective).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stockroom</strong></td>
+                                    <td><code>stockroom</code></td>
+                                    <td>Reference</td>
+                                    <td><code>alm_stockroom</code></td>
+                                    <td>Physical warehouse, shelf, or technician van where the asset resides when <code>install_status = 6</code>.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Assigned To</strong></td>
+                                    <td><code>assigned_to</code></td>
+                                    <td>Reference</td>
+                                    <td><code>sys_user</code></td>
+                                    <td>The employee holding active physical custody of the device. Synchronized automatically to the linked CI.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Configuration Item</strong></td>
+                                    <td><code>ci</code></td>
+                                    <td>Reference</td>
+                                    <td><code>cmdb_ci</code></td>
+                                    <td>Direct foreign key pointer to the operational configuration record in the CMDB.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cost</strong></td>
+                                    <td><code>cost</code></td>
+                                    <td>Currency</td>
+                                    <td>—</td>
+                                    <td>Actual financial acquisition cost (excluding taxes and shipping) populated from the Purchase Order Line.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Warranty Expiration</strong></td>
+                                    <td><code>warranty_expiration</code></td>
+                                    <td>Date</td>
+                                    <td>—</td>
+                                    <td>OEM hardware warranty end date. Evaluated by maintenance workflows to prevent paying out-of-warranty depot fees.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Eligible for Refresh</strong></td>
+                                    <td><code>eligible_for_refresh</code></td>
+                                    <td>Boolean</td>
+                                    <td>true / false</td>
+                                    <td>Calculated flag set by HAM scheduled jobs when model useful life or warranty has lapsed.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Hardware Product Model Table -->
+                <div style="margin-top: 36px;">
+                    <h3>Hardware Product Model Table (<code>cmdb_hardware_product_model</code>)</h3>
                     <p>
-                        Some models (like a "Logitech Mouse") belong to a Model Category where the CI Class is empty, and the Asset Class is set to <strong>Consumable</strong> (<code>alm_consumable</code>). Consumables are not tracked by individual serial numbers; they are tracked in bulk quantities within Stockrooms. When a consumable is given to a user, its state changes to "Consumed" and the Stockroom quantity is decremented.
+                        Extends the base model table (<code>cmdb_model</code>). Stores the catalog specifications, manufacturer benchmarks, and lifecycle intelligence for a specific SKU.
                     </p>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Field Label</th>
+                                    <th>Column Name (DB)</th>
+                                    <th>Data Type</th>
+                                    <th>Reference / Choice List</th>
+                                    <th>Description &amp; Architectural Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Display Name</strong></td>
+                                    <td><code>display_name</code></td>
+                                    <td>String (255)</td>
+                                    <td>—</td>
+                                    <td>Clean, normalized model string (e.g., "Apple MacBook Pro 16 M3 Max").</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Manufacturer</strong></td>
+                                    <td><code>manufacturer</code></td>
+                                    <td>Reference</td>
+                                    <td><code>core_company</code></td>
+                                    <td>Normalized company record (e.g., Apple Inc., Dell Technologies, Cisco Systems).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Model Number</strong></td>
+                                    <td><code>model_number</code></td>
+                                    <td>String (100)</td>
+                                    <td>—</td>
+                                    <td>OEM manufacturer part number or chassis identifier (e.g., "A2991", "PowerEdge R750").</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Device Type</strong></td>
+                                    <td><code>device_type</code></td>
+                                    <td>String (Choice)</td>
+                                    <td>Computer, Server, Network Gear, Storage, Peripheral</td>
+                                    <td>High-level hardware category used for filtering audit and refresh policies.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Useful Life (Months)</strong></td>
+                                    <td><code>useful_life</code></td>
+                                    <td>Integer</td>
+                                    <td>e.g., 36, 48, 60</td>
+                                    <td>Standard expected operating longevity in months. Triggers automated refresh eligibility calculations.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>End of Life (EOL)</strong></td>
+                                    <td><code>eol_date</code></td>
+                                    <td>Date</td>
+                                    <td>—</td>
+                                    <td>Date OEM ceases official mainstream support. Ingested via HAM Content Delivery Service.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>End of Extended Support</strong></td>
+                                    <td><code>eoes_date</code></td>
+                                    <td>Date</td>
+                                    <td>—</td>
+                                    <td>Date all technical patches terminate. Hard compliance boundary for enterprise risk teams.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Normalization Status</strong></td>
+                                    <td><code>normalization_status</code></td>
+                                    <td>String (Choice)</td>
+                                    <td>Normalized, Partially Normalized, Match Not Found, Manually Normalized</td>
+                                    <td>HAM Content Service match indicator for continuous data quality tracking.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
-            <section class="content-section" id="sync-logic">
-                <h2 class="section-title">Synchronization Logic</h2>
-                <div class="prose">
-                    <p>
-                        To keep Finance and IT aligned, ServiceNow uses out-of-the-box Business Rules (Asset-CI Sync) to ensure that if a Service Desk agent marks a CI as "Retired", the corresponding Asset is updated to reflect its new financial state.
-                    </p>
-                    <ul>
-                        <li><strong>Asset State:</strong> <code>In Stock</code> <-> <strong>CI Status:</strong> <code>In Stock</code></li>
-                        <li><strong>Asset State:</strong> <code>In Use</code> <-> <strong>CI Status:</strong> <code>Installed</code></li>
-                        <li><strong>Asset State:</strong> <code>Retired</code> <-> <strong>CI Status:</strong> <code>Retired</code></li>
-                    </ul>
+            <!-- 3. Model Category Bridge -->
+            <section class="content-section" id="model-categories">
+                <h2>3. The Model Category Bridge (<code>cmdb_model_category</code>)</h2>
+                <p>
+                    The <strong>Model Category</strong> table is the operational cornerstone of ServiceNow ITAM. It defines the mapping contract between the Asset repository and the Configuration Management Database.
+                </p>
+
+                <div class="diagram-block" style="margin: 24px 0;">
+                    <div class="diagram-title">Model Category Decision &amp; Creation Routing Logic</div>
+                    <div class="mermaid">
+                    graph TD
+                        Record[New Catalog Item / Model Definition] --> Check{Model Category Configuration}
+                        
+                        Check -->|Asset Class Only| AssetOnly["Consumable / Peripheral<br/>(Creates alm_consumable, NO CI)"]
+                        Check -->|CI Class Only| CIOnly["Logical Service / Cluster<br/>(Creates cmdb_ci_service, NO Asset)"]
+                        Check -->|Both Classes Defined| DualMode["Enterprise Hardware<br/>(Creates alm_hardware AND cmdb_ci)"]
+                        
+                        DualMode --> VerifyCheck{"Enforce CI Verification?"}
+                        VerifyCheck -->|True| StagedCI["CI marked Pending Verification<br/>Requires Admin / Discovery Confirmation"]
+                        VerifyCheck -->|False| LiveCI["CI created in In Stock / Staged immediately"]
+                        
+                        classDef default fill:#161b26,stroke:#334155,stroke-width:1px,color:#f8fafc
+                        classDef highlight fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef blue fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        class DualMode highlight
+                        class StagedCI,LiveCI blue
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Asset Class (<code>asset_class</code>)</th>
+                                <th>CI Class (<code>ci_class</code>)</th>
+                                <th>Enforce Verification</th>
+                                <th>Business Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Computer</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td><code>cmdb_ci_computer</code></td>
+                                <td>true</td>
+                                <td>Laptops and desktops require both financial tracking and technical software discovery.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Server</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td><code>cmdb_ci_server</code></td>
+                                <td>true</td>
+                                <td>Data center servers require rigorous physical custody and critical CI relationship mapping.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Switch</strong></td>
+                                <td><code>alm_hardware</code></td>
+                                <td><code>cmdb_ci_ip_switch</code></td>
+                                <td>false</td>
+                                <td>Switches are verified during rack provisioning; immediate operational visibility is required.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Consumable</strong></td>
+                                <td><code>alm_consumable</code></td>
+                                <td><em>None (empty)</em></td>
+                                <td>false</td>
+                                <td>Mice, cables, and webcams are tracked in bulk by quantity. Creating CIs would pollute the CMDB.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Business Application</strong></td>
+                                <td><em>None (empty)</em></td>
+                                <td><code>cmdb_ci_business_app</code></td>
+                                <td>false</td>
+                                <td>Pure logical configuration item governed by Enterprise Architecture, not physical logistics.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
+
+            <!-- 4. State & Substatus Crosswalk -->
+            <section class="content-section" id="state-crosswalk">
+                <h2>4. State &amp; Substatus Crosswalk Matrix</h2>
+                <p>
+                    A common failure point in ServiceNow deployments is state misalignment between IT Asset Managers (viewing <code>alm_hardware</code>) and Service Desk Engineers (viewing <code>cmdb_ci</code>). The <code>AssetAndCISynchronizer</code> maintains strict bi-directional state synchronization according to the following matrix:
+                </p>
+
+                <div class="data-table-wrapper" style="margin-top: 20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Asset State (<code>install_status</code>)</th>
+                                <th>Asset Substatus (<code>substatus</code>)</th>
+                                <th>CI Install Status (<code>install_status</code>)</th>
+                                <th>CI Operational Status (<code>operational_status</code>)</th>
+                                <th>Operational Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>In Stock (6)</strong></td>
+                                <td><code>Available</code></td>
+                                <td>In Stock (6)</td>
+                                <td>Non-Operational / Staged</td>
+                                <td>Asset is verified, imaged, and sitting in stockroom ready for fulfillment.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Stock (6)</strong></td>
+                                <td><code>Reserved</code></td>
+                                <td>In Stock (6)</td>
+                                <td>Non-Operational / Staged</td>
+                                <td>Asset is committed to an open Request (RITM) or Transfer Order; not available for new requests.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Stock (6)</strong></td>
+                                <td><code>Defective</code></td>
+                                <td>In Stock (6)</td>
+                                <td>Non-Operational / Repair</td>
+                                <td>Hardware failure detected; device staged for warranty RMA or internal hardware repair.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Stock (6)</strong></td>
+                                <td><code>Pending Disposal</code></td>
+                                <td>In Stock (6)</td>
+                                <td>Non-Operational / Retired</td>
+                                <td>Decommissioned device wiped of data, sitting in disposal cage awaiting vendor pickup.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Transit (9)</strong></td>
+                                <td><code>—</code></td>
+                                <td>In Transit (9)</td>
+                                <td>Non-Operational / Pending</td>
+                                <td>Asset is on a courier truck moving between two corporate stockrooms under a Transfer Order.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>In Use (1)</strong></td>
+                                <td><code>—</code></td>
+                                <td>Installed (1)</td>
+                                <td>Operational / In Service</td>
+                                <td>Device is assigned to an employee or actively running services in a data center rack.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retired (7)</strong></td>
+                                <td><code>Disposed</code></td>
+                                <td>Retired (7)</td>
+                                <td>Non-Operational / Terminated</td>
+                                <td>Asset has been destroyed or resold by e-waste vendor; Certificate of Destruction attached.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Missing (8)</strong></td>
+                                <td><code>—</code></td>
+                                <td>Absent (8)</td>
+                                <td>Non-Operational / Unknown</td>
+                                <td>Failed mobile inventory audit reconciliation; asset unaccounted for after blind scan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Navigation Links -->
+            <nav class="page-nav" style="margin-top: 40px;">
+                <a href="/ham/overview" class="page-nav-link">
+                    <span class="page-nav-label">Previous Section</span>
+                    <span class="page-nav-title">Overview &amp; Architecture</span>
+                </a>
+                <a href="/ham/procurement" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Section</span>
+                    <span class="page-nav-title">Procurement &amp; Sourcing</span>
+                </a>
+            </nav>
         </div>
     </div>
 </main>
+
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

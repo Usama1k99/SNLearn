@@ -2,150 +2,386 @@
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#intro" class="toc-link">Introduction</a><a href="#closed-loop" class="toc-link">The Closed-Loop Engine</a><a href="#product-lifecycle" class="toc-link">Product Lifecycle</a><a href="#business-value" class="toc-link">Business Value</a>
-                    </nav>
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-sam" class="toc-link">What is SAM Pro?</a>
+                    <a href="#evolution" class="toc-link">Evolution & Edition Matrix</a>
+                    <a href="#architecture-stack" class="toc-link">4-Layer Architecture</a>
+                    <a href="#closed-loop-lifecycle" class="toc-link">Closed-Loop Lifecycle</a>
+                    <a href="#publisher-lifecycle" class="toc-link">Publisher Support & Risk</a>
+                    <a href="#business-roi" class="toc-link">Business Value & ROI</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Overview & Architecture</span>
                 </div>
-            </aside>
+                <h1 class="content-title">SAM Pro <span class="gradient-text">Architecture & Lifecycle</span></h1>
+                <p class="content-subtitle">
+                    ServiceNow Software Asset Management Professional (SAM Pro) is an enterprise-grade, closed-loop engine that reconciles raw discovery data against commercial licensing contracts to eliminate audit penalties and harvest millions in wasted software spend.
+                </p>
+            </div>
 
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Overview & Architecture</span>
-                    </div>
-                    <h1 class="content-title">SAM <span class="gradient-text">Architecture</span></h1>
-                    <p class="content-subtitle">
-                        ServiceNow Software Asset Management (SAM) is a continuous, closed-loop engine designed to minimize audit risk and optimize software spending by transforming raw discovery data into actionable intelligence.
+            <!-- 1. What is SAM Pro? -->
+            <section class="content-section" id="what-is-sam">
+                <h2>What is Software Asset Management (SAM)?</h2>
+                <p>
+                    In an enterprise, software is one of the largest single operating expenses and greatest compliance liabilities. Unlike basic inventory scanners that simply count installed binaries, <strong>ServiceNow Software Asset Management Professional (SAM Pro)</strong> provides end-to-end commercial governance across on-premise, virtualized clusters, cloud instances, and SaaS environments.
+                </p>
+                <p>
+                    SAM connects the technical discovery of software from the <strong>Configuration Management Database (CMDB)</strong> with legal procurement records from <strong>Asset Management</strong>. This bridges the language barrier between IT Engineering (who manage servers, virtual machines, and desktops) and Procurement/Finance (who buy license agreements, contracts, and software assurance).
+                </p>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">The Fundamental SAM Invariant</div>
+                    <p>
+                        Basic inventory tells you <em>what software exists</em> on your network. SAM Pro tells you <strong>what software you are legally entitled to run</strong>, <strong>which specific metric governs consumption</strong> (e.g., Physical Core vs Virtual CPU vs Named User), and <strong>what financial exposure exists if an auditor arrives today</strong>.
                     </p>
                 </div>
 
-                <section class="content-section" id="intro">
-                    <h2>What is Software Asset Management?</h2>
-                    <p>
-                        Unlike basic inventory tools that simply list installed software, ServiceNow SAM goes much deeper. It cross-references the software installed across your entire infrastructure (on-premise, cloud, and SaaS) with your actual financial purchasing records (entitlements). 
-                    </p>
-                    <p>
-                        This allows IT teams to instantly answer critical questions: <strong>"Are we legally compliant?"</strong> and <strong>"Are we paying for software we don't use?"</strong>
-                    </p>
-                </section>
-
-                <section class="content-section" id="closed-loop">
-                    <h2>The SAM Closed-Loop Engine</h2>
-                    <p>
-                        The architecture of SAM relies on a four-stage cyclic process. Without any one of these stages, the process breaks down.
-                    </p>
-
-                    <div class="diagram-block">
-                        <div class="diagram-title">The SAM Lifecycle</div>
-                        <div class="mermaid">
-                        graph TD
-                            n1["1. Discovery & Inventory"] --> n2["2. Normalization"]
-                            n2 --> n3["3. Reconciliation (ELP)"]
-                            n3 --> n4["4. Remediation & Reclamation"]
-                            n4 --> n1
-
-                            click n1 "/sam/normalization#content-library" "Discovery & Inventory"
-                            click n2 "/sam/normalization#status" "Normalization Statuses"
-                            click n3 "/sam/reconciliation#elp" "Effective License Position"
-                            click n4 "/sam/remediation#remediation" "Remediation & Reclamation"
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">1. Discovery & Inventory</div>
-                        <p>Gathering accurate data via ServiceNow Discovery, SCCM, Intune, or SaaS integrations. This pulls raw installation records into the <code>cmdb_sam_sw_install</code> table.</p>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">2. Normalization</div>
-                        <p>Standardizing disparate raw software data. "Microsoft Office 365" and "MS Office 365" are mapped to a canonical Publisher and Product using the global Content Library.</p>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">3. Reconciliation</div>
-                        <p>Comparing normalized installations against purchased Entitlements (<code>alm_license</code>). This generates the Effective License Position (ELP), showing compliance gaps or surpluses.</p>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">4. Remediation</div>
-                        <p>Taking action: Buying missing licenses, or automatically uninstalling unused software (Reclamation) to harvest licenses and save money.</p>
-                    </div>
-                </section>
-
-                <section class="content-section" id="product-lifecycle">
-                    <h2>Software Product Lifecycle</h2>
-                    <p>
-                        Beyond managing your own license compliance, SAM also tracks the <strong>publisher's support lifecycle</strong> for each software product. This helps organizations identify risk from running software that is no longer receiving security updates.
-                    </p>
-
-                    <div class="diagram-block">
-                        <div class="diagram-title">Publisher Support Stages</div>
-                        <div class="mermaid">
-                        graph LR
-                            GA["General Availability<br/>Fully Supported"] --> EOS["End of Support<br/>No New Features"]
-                            EOS --> EOES["End of Extended Support<br/>Critical Fixes Only"]
-                            EOES --> EOL["End of Life<br/>No Support"]
-
-                            classDef active fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
-                            classDef warning fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
-                            classDef danger fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
-
-                            class GA active
-                            class EOS,EOES warning
-                            class EOL danger
-                        </div>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="info-card">
-                            <div class="info-card-title">General Availability (GA)</div>
-                            <p>The software is actively developed and fully supported by the publisher. New features, bug fixes, and security patches are regularly released.</p>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-title">End of Support (EOS)</div>
-                            <p>The publisher stops releasing new features. Only critical bug fixes and security patches may be provided. Organizations should begin planning upgrades.</p>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-title">End of Extended Support (EOES)</div>
-                            <p>Support is limited to critical security and reliability issues only. Often requires a paid extended support agreement. Upgrade urgency increases.</p>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-title">End of Life (EOL)</div>
-                            <p>All support has ceased — no security patches, no bug fixes. Running EOL software is a <strong>major security and compliance risk</strong>. SAM flags these for immediate remediation.</p>
-                        </div>
-                    </div>
-
-                    <div class="info-card info-card--important">
-                        <div class="info-card-title">Why This Matters</div>
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div class="card-basic">
+                        <h4>Hardware (HAM) vs Software (SAM)</h4>
                         <p>
-                            The <strong>Lifecycle Management Dashboard</strong> in the SAM workspace provides visibility into which products are approaching or have passed EOL. This data feeds into risk assessments and helps prioritize software upgrade projects — a critical input for audit preparedness.
+                            While Hardware Asset Management (HAM) tracks physical lifecycle, stockrooms, maintenance warranties, and disposal of physical boxes, SAM tracks the intangible intellectual property running atop those boxes. The physical hardware topology (CPU sockets, physical cores, hyperthreading, virtualization clusters) directly dictates the licensing requirements of the software installed on it.
                         </p>
                     </div>
-                </section>
+                    <div class="card-basic">
+                        <h4>Common Service Data Model (CSDM)</h4>
+                        <p>
+                            SAM Pro natively integrates with CSDM 4.0. Discovered installations link to Configuration Items (CIs) in the Manage Technical Services domain. Software Models map directly to Application Services and Business Applications, enabling enterprise architects to assess software lifecycle risk on mission-critical business capabilities.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-                <section class="content-section" id="business-value">
-                    <h2>The Two Pillars of Business Value</h2>
-                    <div class="side-by-side">
-                        <div class="card-basic">
-                            <h3>Minimizing Audit Risk</h3>
-                            <p>Software publishers (Microsoft, Oracle, IBM) regularly audit organizations. Failing an audit due to being under-licensed results in massive "true-up" fees and penalties. SAM provides real-time visibility to catch these gaps before an auditor does.</p>
-                        </div>
-                        <div class="card-basic">
-                            <h3>Optimizing Spend</h3>
-                            <p>Organizations often buy software and forget about it. By utilizing Reclamation Rules, SAM identifies users who haven't opened software in 90 days and automatically revokes their access, saving millions in annual renewal costs.</p>
+            <!-- 2. Evolution & Edition Matrix -->
+            <section class="content-section" id="evolution">
+                <h2>Evolution: Foundation vs SAM Pro vs SAM Enterprise</h2>
+                <p>
+                    ServiceNow's software asset management capabilities have evolved through three distinct evolutionary generations:
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Capability Dimension</th>
+                                <th>SAM Foundation (Legacy)</th>
+                                <th>SAM Professional (SAM Pro)</th>
+                                <th>SAM Enterprise (Latest)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Scope & Plugin</strong></td>
+                                <td>Global (<code>com.snc.software_asset_management</code>)</td>
+                                <td>Scoped (<code>com.sn_samp_master</code>)</td>
+                                <td>Scoped Suite (<code>com.sn_sam_ent</code>)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Content Service</strong></td>
+                                <td>Manual mapping or static patterns</td>
+                                <td>Automated weekly CDN updates (15M+ PPNs & DMAPs)</td>
+                                <td>Machine learning-assisted normalization & crowdsourced telemetry</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Publisher Packs</strong></td>
+                                <td>None (Simple 1:1 counts only)</td>
+                                <td>Specialized engines: Microsoft, Oracle, IBM, VMware, Citrix, SAP</td>
+                                <td>Full on-prem packs + Advanced Cloud & SaaS management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Licensing Metrics</strong></td>
+                                <td>Per Named User, Per Device only</td>
+                                <td>Physical Core, Virtual Core, PVU, CAL, Processor, Multi-Core Factor</td>
+                                <td>Hybrid Use Benefit (AHUB), Bring Your Own License (BYOL), Container metrics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reclamation Automation</strong></td>
+                                <td>Manual task creation</td>
+                                <td>Flow Designer + SCCM/Jamf/Intune spokes for silent uninstallation</td>
+                                <td>Automated Virtual Agent notifications, predictive spend optimization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SaaS & Cloud Tracking</strong></td>
+                                <td>None</td>
+                                <td>Direct API integrations for 30+ enterprise SaaS apps</td>
+                                <td>Cloud Cost Insights (AWS/Azure compute right-sizing + SaaS tier optimization)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Developer Tip: Legacy Tables Warning</div>
+                    <p>
+                        In legacy instances, you may see the table <code>cmdb_ci_spkg</code> (Software Packages). <strong>Do not use this table in modern implementations.</strong> SAM Pro operates strictly on <code>cmdb_sam_sw_install</code> (Software Installations) and <code>cmdb_sam_sw_discovery_model</code>. If legacy packages exist, running the SAM Pro Migration script is mandatory to prevent split-brain inventory counts.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 3. Architecture Stack -->
+            <section class="content-section" id="architecture-stack">
+                <h2>The 4-Layer SAM Architecture Stack</h2>
+                <p>
+                    SAM Pro is engineered as a multi-tier framework that decouples presentation, calculation logic, commercial intelligence, and foundational infrastructure:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Layer 1: Presentation & Workspaces</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Configurable modern workspaces give asset managers, enterprise architects, and executives dedicated visibility:
+                                </p>
+                                <ul>
+                                    <li><strong>Software Asset Workspace:</strong> Consolidated command center showing overall compliance position, true-up liabilities, potential cost savings, and normalization scores.</li>
+                                    <li><strong>License Operations Dashboard:</strong> Real-time operational views of unallocated licenses, unnormalized software models, and pending reclamation candidates.</li>
+                                    <li><strong>SaaS License Management Workspace:</strong> Tracking user activity, inactive subscriptions, license tier downgrade candidates, and spend breakdown across Microsoft 365, Salesforce, Adobe, and Zoom.</li>
+                                    <li><strong>Publisher Analytics Dashboards:</strong> Dedicated screens built specifically for vendor audit defense (e.g., Microsoft Core Compliance, Oracle LMS Verified reports).</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </section>
-        
-            </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Layer 2: Specialized Application & Publisher Packs</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    Generic software engines fail when dealing with complex enterprise vendors. SAM Pro includes specialized Publisher Packs with hardcoded vendor licensing algorithms:
+                                </p>
+                                <ul>
+                                    <li><strong>Microsoft Publisher Pack:</strong> Calculates SQL Server active/passive clustering, Windows Server 8-core per processor and 16-core per host minimums, and Azure Hybrid Benefit (AHUB).</li>
+                                    <li><strong>Oracle Publisher Pack:</strong> Applies the Oracle Processor Core Factor Table (0.5 for Intel/AMD, 0.75, 1.0 for SPARC), evaluates soft vs hard partitioning on VMware, and tracks LMS options in <code>v$option</code>.</li>
+                                    <li><strong>IBM Publisher Pack:</strong> Certified by IBM as a verified alternative to ILMT for calculating Sub-Capacity Processor Value Unit (PVU) and Full-Capacity liability.</li>
+                                    <li><strong>Engineering & Floating License Management:</strong> Connects to FlexNet / FlexLM, DSLS, and Reprise RLM servers to track peak concurrency and denial-of-service events for CAD/simulation tools.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Layer 3: Processing & Calculation Engines</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    High-performance background engines execute scheduled and on-demand heavy computations:
+                                </p>
+                                <ul>
+                                    <li><strong>Normalization Engine:</strong> Real-time and scheduled evaluation matching raw discovery strings against the global Content Delivery Service (CDS).</li>
+                                    <li><strong>Content Delivery Service (CDS):</strong> Cloud-based repository receiving weekly automated updates with millions of Publisher Part Numbers (PPNs), version lifecycles, and Discovery Maps (DMAPs).</li>
+                                    <li><strong>Reconciliation Engine:</strong> Mathematical core that traverses virtualized host topologies, applies license metrics, evaluates downgrade rights trees, and calculates Effective License Positions (ELP).</li>
+                                    <li><strong>Reclamation Engine:</strong> Evaluates client software metering data against reclamation rules to automatically detect unused software and harvest licenses.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Layer 4: CMDB Foundation & Ingestion Infrastructure</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    The foundation relies on enterprise discovery and the Identification & Reconciliation Engine (IRE):
+                                </p>
+                                <ul>
+                                    <li><strong>Service Graph Connectors (SGC):</strong> Certified pipelines for Microsoft SCCM, Jamf Pro, Microsoft Intune, Tanium, and BigFix that populate <code>cmdb_sam_sw_install</code> without CI duplicates.</li>
+                                    <li><strong>Agent Client Collector (ACC-V):</strong> Lightweight ServiceNow agent delivering continuous process usage and installation telemetry.</li>
+                                    <li><strong>Hardware & Topology Tables:</strong> Physical servers, VMware ESXi hosts (<code>cmdb_ci_esx_server</code>), virtual machines, and clusters (<code>cmdb_ci_cluster</code>) provide the physical core and socket metrics.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Closed-Loop Lifecycle -->
+            <section class="content-section" id="closed-loop-lifecycle">
+                <h2>The End-to-End Closed-Loop Lifecycle</h2>
+                <p>
+                    Software Asset Management is not a one-off audit snapshot; it is an ongoing, continuous closed-loop operational discipline. If any phase of this loop fails, compliance figures become untrustworthy:
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">SAM Pro End-to-End Closed-Loop Operational Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        subgraph INGEST ["1. INGESTION & DISCOVERY"]
+                            A1["Client Scanners<br/>SCCM / Jamf / Intune"] --> B1["cmdb_sam_sw_install<br/>Raw Software Records"]
+                            A2["Cloud & SaaS APIs<br/>M365 / Salesforce / Adobe"] --> B2["samp_sw_subscription<br/>User Cloud Subscriptions"]
+                            A3["Agent Client Collector<br/>ACC-V Process Usage"] --> B1
+                        end
+
+                        subgraph NORM ["2. NORMALIZATION ENGINE"]
+                            B1 --> C1{"Content Library<br/>PPN / DMAP Lookup"}
+                            C1 -->|"Match Found"| D1["cmdb_sam_sw_discovery_model<br/>Status: Normalized"]
+                            C1 -->|"Unrecognized"| D2["Status: Match Not Found<br/>Send to Content Service"]
+                            D2 -.->|"Weekly CDS Update"| D1
+                        end
+
+                        subgraph BRIDGE ["3. THE COMMERCIAL BRIDGE"]
+                            D1 --> E1["cmdb_software_product_model<br/>Software Model Bridge"]
+                            F1["alm_license<br/>Software Entitlements (Purchases)"] --> E1
+                            F2["CMDB Topology<br/>ESXi / Cores / Sockets / VMs"] --> G1
+                        end
+
+                        subgraph RECON ["4. RECONCILIATION ENGINE"]
+                            E1 --> G1{"Reconciliation Engine<br/>7-Step Metric Calculation"}
+                            G1 --> H1["samp_reconciliation_result<br/>Effective License Position (ELP)"]
+                            H1 -->|"Shortfall (Deficit)"| I1["Under-Licensed<br/>Audit True-Up Risk"]
+                            H1 -->|"Surplus (Over)"| I2["Over-Licensed<br/>Shelfware Cost Waste"]
+                        end
+
+                        subgraph REMED ["5. CLOSED-LOOP REMEDIATION & HARVESTING"]
+                            I1 --> J1["Remediation Options<br/>Purchase PO / Reallocate"]
+                            I2 --> J2["Reclamation Rules<br/>Usage < 90 Days Check"]
+                            J2 --> K1["samp_sw_reclamation_candidate<br/>Automated Teams / Email Notification"]
+                            K1 --> L1["Flow Designer Uninstall Spoke<br/>Silent Client Removal"]
+                            L1 --> M1["Revoke Allocation<br/>Return Rights to Active Pool"]
+                            M1 --> B1
+                        end
+
+                        classDef external fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                        classDef policy fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef entity fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                        classDef verify fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef risk fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+
+                        class A1,A2,A3,B1,B2 external
+                        class C1,D1,D2 policy
+                        class E1,F1,F2,G1 entity
+                        class H1,I2,J2,K1,L1,M1 verify
+                        class I1,J1 risk
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div class="info-card">
+                        <div class="info-card-title">1. Automated Ingestion</div>
+                        <p>Continuous discovery feeds raw application signatures and active process monitoring into <code>cmdb_sam_sw_install</code> while SaaS spokes query cloud provider subscriber APIs.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">2. Normalization & Grouping</div>
+                        <p>Raw strings are mapped to canonical Publisher, Product, Version, and Edition records using the global Content Service, grouping thousands of messy entries into single Discovery Models.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">3. Commercial Bridging</div>
+                        <p>The Software Model connects normalized technical instances to commercial contracts and purchased entitlements (<code>alm_license</code>), factoring in server hardware core counts.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">4. Reconciliation (ELP)</div>
+                        <p>The engine executes scheduled mathematical calculations to produce the Effective License Position, revealing compliance gaps or shelfware surpluses down to the penny.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Publisher Support & Risk -->
+            <section class="content-section" id="publisher-lifecycle">
+                <h2>Software Product Lifecycle & Cybersecurity Risk</h2>
+                <p>
+                    SAM is not just about financial licensing; it is a primary defense against enterprise cybersecurity exposure. When a vendor stops releasing security patches for an operating system or database, any server running that software becomes a zero-day vulnerability target.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Publisher Lifecycle Milestones & Vulnerability Impact</div>
+                    <div class="mermaid">
+                    graph LR
+                        GA["General Availability (GA)<br/>Full Support & Features"] --> EOS["End of Support (EOS)<br/>Maintenance Fixes Only"]
+                        EOS --> EOES["End of Extended Support<br/>Paid Critical Fixes Only"]
+                        EOES --> EOL["End of Life (EOL)<br/>Zero Patches / Severe Risk"]
+
+                        classDef active fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+                        classDef warning fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
+                        classDef danger fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+
+                        class GA active
+                        class EOS,EOES warning
+                        class EOL danger
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">General Availability (GA)</div>
+                        <p>The product is actively maintained. Vendors release feature updates, functional improvements, bug fixes, and critical security patches regularly.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">End of Support (EOS)</div>
+                        <p>Feature enhancements cease. The vendor only issues security patches and severity-1 bug fixes. IT teams must initiate migration and upgrade planning.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">End of Extended Support (EOES)</div>
+                        <p>Standard support is terminated. Receiving critical security hotfixes requires high-cost custom vendor maintenance contracts (e.g., Microsoft Extended Security Updates).</p>
+                    </div>
+                    <div class="info-card info-card--danger">
+                        <div class="info-card-title">End of Life (EOL)</div>
+                        <p>All support permanently terminates. No security vulnerabilities are patched. Running EOL software triggers immediate compliance failures in ISO 27001, SOC 2, and PCI-DSS audits.</p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important" style="margin-top: 20px;">
+                    <div class="info-card-title">Integration with Vulnerability Response (VR)</div>
+                    <p>
+                        In unified ServiceNow deployments, SAM Pro shares product lifecycle dates with <strong>Security Operations (SecOps) Vulnerability Response</strong>. When a Common Vulnerabilities and Exposures (CVE) alert arrives for an application that SAM marks as EOL, the risk score automatically escalates to Critical because no vendor patch will ever be published.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 6. Business Value & ROI -->
+            <section class="content-section" id="business-roi">
+                <h2>The Two Pillars of Business Value & Executive ROI</h2>
+                <p>
+                    SAM programs justify their investment by simultaneously addressing two opposing financial forces: mitigating catastrophic audit penalties and slashing everyday software waste.
+                </p>
+
+                <div class="side-by-side">
+                    <div class="card-basic">
+                        <h3 style="color: #ef4444; margin-bottom: 8px;">Pillar 1: Audit Defense (True-Up Risk)</h3>
+                        <p>
+                            Major software vendors (Microsoft, Oracle, IBM, SAP) conduct aggressive contractual audits. When an auditor discovers that your developers spun up 30 virtualized SQL Server instances across an unsegmented 64-core VMware cluster without licenses, the resulting penalty includes full back-dated license fees, plus maintenance penalties running into millions of dollars.
+                        </p>
+                        <p>
+                            SAM Pro gives internal license managers identical visibility to the vendor's audit team, allowing you to identify shortfalls and remediate them before the audit notification letter arrives.
+                        </p>
+                    </div>
+                    <div class="card-basic">
+                        <h3 style="color: #10b981; margin-bottom: 8px;">Pillar 2: Continuous Spend Optimization</h3>
+                        <p>
+                            The average enterprise wastes 25% to 35% of its annual software budget on "shelfware" — licenses purchased for employees who have left the company, changed roles, or simply haven't launched the software in months.
+                        </p>
+                        <p>
+                            Through automated Reclamation Rules and SaaS user activity tracking, SAM Pro reclaims dormant licenses and reallocates them to new onboarding employees, eliminating the need to purchase additional licenses during contract renewals.
+                        </p>
+                    </div>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

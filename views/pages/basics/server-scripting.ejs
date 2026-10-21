@@ -118,7 +118,7 @@
             <section class="content-section" id="br-antipattern">
                 <h2>The Fatal Anti-Pattern: Never Call `current.update()` in a BR</h2>
                 <div class="info-card info-card--important">
-                    <div class="info-card-title">⚠️ The Infinite Loop Crash Trap</div>
+                    <div class="info-card-title">The Infinite Loop Crash Trap</div>
                     <p>
                         Calling <code>current.update()</code> inside a Business Rule that triggers on update tells the server: 
                         <em>"Hey, update this record again!"</em> $\rightarrow$ which triggers the Business Rule again $\rightarrow$ 
@@ -132,11 +132,11 @@
                         <span class="code-lang">JavaScript (Correct vs Incorrect Syntax)</span>
                     </div>
                     <div class="code-body">
-<pre><code>// ❌ WRONG: Causes infinite loop recursion!
+<pre><code>// INCORRECT: Causes infinite loop recursion!
 current.short_description = 'Updated text';
 current.update(); 
 
-// ✅ CORRECT (in a 'before' Business Rule):
+// CORRECT (in a 'before' Business Rule):
 // Simply assign the value! ServiceNow automatically commits current to the database.
 current.short_description = 'Updated text';</code></pre>
                     </div>

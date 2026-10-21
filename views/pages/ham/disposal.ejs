@@ -1,4 +1,4 @@
-<%- include('../../partials/head', { title: 'Disposal & Retirement — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/head', { title: 'Disposal, Refresh & Sustainability — HAM | SN Learn', styles: ['/styles/module-layout.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'ham' }) %>
 
 <main class="irm-page">
@@ -8,11 +8,10 @@
             <div class="sidebar-section toc-section">
                 <div class="sidebar-label">On This Page</div>
                 <nav class="sidebar-nav">
-                    <a href="#retirement" class="toc-link">Retirement vs. Disposal</a>
-                    <a href="#disposal-orders" class="toc-link">Disposal Orders</a>
-                    <a href="#disposal-workflow" class="toc-link">Disposal Workflow</a>
-                    <a href="#lease-returns" class="toc-link">Lease Returns</a>
-                    <a href="#compliance" class="toc-link">Data & Compliance</a>
+                    <a href="#hado-process" class="toc-link">1. The 6-Stage HADO Workflow</a>
+                    <a href="#sanitization-cod" class="toc-link">2. NIST Sanitization &amp; CoD</a>
+                    <a href="#refresh-orders" class="toc-link">3. Hardware Refresh Orders</a>
+                    <a href="#esg-sustainability" class="toc-link">4. Scope 3 ESG Sustainability</a>
                 </nav>
             </div>
         </aside>
@@ -24,183 +23,284 @@
                     <span class="breadcrumb-sep">›</span>
                     <a href="/ham">HAM</a>
                     <span class="breadcrumb-sep">›</span>
-                    <span>Disposal & Retirement</span>
+                    <span>Disposal, Refresh &amp; Sustainability</span>
                 </div>
-                <h1 class="content-title">Disposal & <span class="gradient-text">Retirement</span></h1>
+                <h1 class="content-title">Asset Disposal, Refresh &amp; <span class="gradient-text">ESG Sustainability</span></h1>
                 <p class="content-subtitle">
-                    Understand the critical final stages of the hardware lifecycle — from decommissioning assets to certified disposal and lease returns.
+                    Manage the final phase of the hardware lifecycle: Master the 6-stage Hardware Asset Disposal Order (HADO), NIST 800-88 data sanitization, Certificate of Destruction governance, automated refresh programs, and environmental Scope 3 carbon reporting.
                 </p>
             </div>
 
-            <section class="content-section" id="retirement">
-                <h2 class="section-title">Retirement vs. Disposal</h2>
-                <div class="prose">
-                    <p>
-                        In ServiceNow HAM, <strong>Retirement</strong> and <strong>Disposal</strong> are two distinct phases that are often confused. Understanding the difference is essential for proper asset tracking.
-                    </p>
-                </div>
-                <div class="grid-2">
-                    <div class="page-card" style="border-top: 4px solid var(--accent-primary)">
-                        <h3>Retirement</h3>
-                        <p><strong>Asset State:</strong> <code>Retired</code></p>
-                        <ul>
-                            <li>The asset is <strong>no longer in active use</strong> but still physically exists</li>
-                            <li>It may be sitting in a warehouse awaiting disposal</li>
-                            <li>The CI status changes to <code>Retired</code></li>
-                            <li>Financial depreciation may still be tracked</li>
-                        </ul>
-                    </div>
-                    <div class="page-card" style="border-top: 4px solid var(--accent-secondary)">
-                        <h3>Disposal</h3>
-                        <p><strong>Substatus:</strong> <code>Disposed</code></p>
-                        <ul>
-                            <li>The asset has been <strong>physically removed</strong> from the organization</li>
-                            <li>May be recycled, donated, auctioned, or destroyed</li>
-                            <li>A formal <strong>Disposal Order</strong> tracks the process</li>
-                            <li>No further financial tracking after disposal</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+            <!-- 1. The 6-Stage HADO Workflow -->
+            <section class="content-section" id="hado-process">
+                <h2>1. The 6-Stage Hardware Asset Disposal Order (HADO)</h2>
+                <p>
+                    Retiring enterprise hardware is fraught with regulatory and security risks: hard drives holding customer data can be leaked, environmental regulations (WEEE / EPA) can trigger massive fines, and unrecorded disposals lead to phantom assets on balance sheets.
+                </p>
+                <p>
+                    In HAM Pro, physical disposal is managed through the <strong>Hardware Asset Disposal Order (<code>sn_hamp_disposal_order</code>)</strong>. Each stage of the order automatically spawns a mandatory child task (<code>sn_hamp_disposal_order_task</code>) that must be completed to advance the workflow.
+                </p>
 
-            <section class="content-section" id="disposal-orders">
-                <h2 class="section-title">Disposal Orders (<code>alm_disposal_order</code>)</h2>
-                <div class="prose">
-                    <p>
-                        A <strong>Disposal Order</strong> is the formal record that manages the end-of-life process for one or more hardware assets. It ensures proper tracking, compliance, and accountability throughout the disposal process.
-                    </p>
-                    <p>
-                        Each Disposal Order contains <strong>Disposal Order Lines</strong> (<code>alm_disposal_order_line</code>) — one for each asset being disposed. This allows bulk processing while tracking each asset individually.
-                    </p>
-                </div>
-                <div class="grid-2">
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                        </div>
-                        <h3>Disposal Order <code>[alm_disposal_order]</code></h3>
-                        <p>Parent record containing disposal method (Recycle, Donate, Auction, Destroy), target date, assigned vendor, and overall status.</p>
-                    </div>
-                    <div class="page-card">
-                        <div class="card-icon-container">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        </div>
-                        <h3>Disposal Order Line <code>[alm_disposal_order_line]</code></h3>
-                        <p>Individual asset record within the disposal order. References the specific <code>alm_hardware</code> record being disposed and tracks its individual disposal status.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="content-section" id="disposal-workflow">
-                <h2 class="section-title">The Disposal Workflow</h2>
-                <div class="prose">
-                    <p>
-                        ServiceNow provides a multi-stage workflow for disposal orders, ensuring proper verification at each step. This prevents assets from being prematurely disposed and maintains audit compliance.
-                    </p>
-                </div>
-
-                <div class="diagram-block">
-                    <div class="diagram-title">Hardware Asset Disposal Order Workflow</div>
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">The 6-Stage Hardware Asset Disposal Order Lifecycle</div>
                     <div class="mermaid">
-                    graph TD
-                        A["Planning<br/>Identify assets for disposal"] --> B["Scheduled<br/>Set disposal date & method"]
-                        B --> C["Ready for Disposal<br/>Assets collected & verified"]
-                        C --> D{"Data Sanitization<br/>Required?"}
-                        D -->|Yes| E["Sanitization<br/>Wipe drives / destroy data"]
-                        D -->|No| F["Disposal Verification<br/>Final check & sign-off"]
-                        E --> F
-                        F --> G["Disposed<br/>Asset removed from inventory"]
-                        G --> H["Record Updated<br/>Substatus = Disposed"]
-
-                        classDef plan fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
-                        classDef process fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
-                        classDef verify fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
-                        classDef done fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
-                        classDef decision fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
-
-                        class A,B plan
-                        class C,E process
-                        class D decision
-                        class F verify
-                        class G,H done
+                    stateDiagram-v2
+                        direction LR
+                        
+                        Verify: Stage 1 Verify Assets
+                        Schedule: Stage 2 Schedule Pickup
+                        Transit: Stage 3 Asset Departure
+                        Confirm: Stage 4 Vendor Confirmation
+                        Document: Stage 5 Documentation / Resale
+                        Complete: Stage 6 Closed Complete
+                        
+                        [*] --> Verify: Create HADO
+                        Verify --> Schedule: Task 1 Closed
+                        Schedule --> Transit: Task 2 Closed
+                        Transit --> Confirm: Task 3 Closed
+                        Confirm --> Document: Task 4 Closed
+                        Document --> Complete: Task 5 Closed (CoD Attached)
+                        Complete --> [*]
+                        
+                        note right of Verify
+                            Task: Verify Assets
+                            Add/remove serials, verify counts
+                        end note
+                        
+                        note right of Transit
+                            Task: Asset Departure
+                            Cancellation LOCKED OUT after departure
+                            Asset State: In Transit / Pending Disposal
+                        end note
+                        
+                        note right of Document
+                            Task: Disposal Documentation
+                            Attach Certificate of Destruction (CoD)
+                            Asset State: Retired / Disposed
+                        end note
                     </div>
                 </div>
 
-                <div class="info-card info-card--tip">
-                    <div class="info-card-title">Key Insight</div>
-                    <p>
-                        When a Disposal Order moves to the <strong>Disposed</strong> stage, ServiceNow automatically updates each linked asset's substatus to <code>Disposed</code>. This ensures the asset is no longer counted in active inventory reports or financial calculations.
-                    </p>
-                </div>
-            </section>
-
-            <section class="content-section" id="lease-returns">
-                <h2 class="section-title">Lease Returns</h2>
-                <div class="prose">
-                    <p>
-                        Not all hardware is purchased outright. Many organizations <strong>lease</strong> equipment through vendors like Dell Financial Services or HP Financial. When a lease expires, the process differs from standard disposal.
-                    </p>
-                </div>
-                <div class="grid-2">
-                    <div class="info-card">
-                        <div class="info-card-title">Owned Assets</div>
-                        <p>Follow the full disposal workflow. The organization decides whether to recycle, donate, auction, or destroy the hardware. A disposal vendor may be engaged for certified destruction.</p>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-card-title">Leased Assets</div>
-                        <p>Must be returned to the leasing company by the lease end date. HAM tracks the associated <strong>Contract</strong> (<code>ast_contract</code>) and alerts teams before the return deadline. Failure to return on time incurs penalty charges.</p>
-                    </div>
-                </div>
-                <div class="info-card info-card--important">
-                    <div class="info-card-title">Contract Integration</div>
-                    <p>
-                        HAM's Lease Contract records (<code>ast_contract</code>) store the lease start/end dates, payment schedule, and the list of assets covered. When a contract approaches expiration, automated notifications can trigger a review — teams must decide whether to <strong>renew</strong>, <strong>buy out</strong>, or <strong>return</strong> the leased equipment.
-                    </p>
-                </div>
-            </section>
-
-            <section class="content-section" id="compliance">
-                <h2 class="section-title">Data Sanitization & Compliance</h2>
-                <div class="prose">
-                    <p>
-                        Before any asset leaves the organization, data security protocols must be followed. Many industries have strict regulatory requirements (HIPAA, GDPR, PCI-DSS) governing how data on decommissioned hardware must be handled.
-                    </p>
-                </div>
                 <div class="data-table-wrapper">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Disposal Method</th>
-                                <th>Use Case</th>
-                                <th>Data Handling</th>
+                                <th>Stage Number &amp; Name</th>
+                                <th>Associated Task (Task Table)</th>
+                                <th>Asset State / Substate Updates</th>
+                                <th>Mandatory Operational Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Recycle</strong></td>
-                                <td>Environmentally responsible disposal of non-functional hardware</td>
-                                <td>Full data wipe or physical destruction of storage media</td>
+                                <td><strong>1. Verify Assets</strong></td>
+                                <td><code>Verify Assets</code></td>
+                                <td><code>In Stock / Pending Disposal</code></td>
+                                <td>Asset managers verify serial numbers and count pallets. Assets can still be added or removed from the order.</td>
                             </tr>
                             <tr>
-                                <td><strong>Donate</strong></td>
-                                <td>Functional hardware given to schools, charities, or non-profits</td>
-                                <td>Certified multi-pass data wipe required</td>
+                                <td><strong>2. Scheduling</strong></td>
+                                <td><code>Schedule Pickup</code></td>
+                                <td><code>In Stock / Pending Disposal</code></td>
+                                <td>Coordinates with certified ITAD (IT Asset Disposition) vendor. Logs vendor name, contact, and scheduled loading dock pickup date.</td>
                             </tr>
                             <tr>
-                                <td><strong>Auction / Resale</strong></td>
-                                <td>Recover residual value from functional hardware</td>
-                                <td>Certified wipe with documentation / certificate of destruction</td>
+                                <td><strong>3. Transit</strong></td>
+                                <td><code>Asset Departure</code></td>
+                                <td><code>In Transit / Pending Disposal</code></td>
+                                <td>Loading dock technicians scan assets onto vendor truck. <strong>Critical Rule:</strong> Disposal order cancellation is strictly locked out once this task is closed.</td>
                             </tr>
                             <tr>
-                                <td><strong>Destroy</strong></td>
-                                <td>High-security environments (defense, healthcare, finance)</td>
-                                <td>Physical destruction (shredding) with certificate of destruction</td>
+                                <td><strong>4. Confirmation</strong></td>
+                                <td><code>Vendor Confirmation</code></td>
+                                <td><code>In Transit / Pending Disposal</code></td>
+                                <td>ITAD vendor formally acknowledges physical arrival and receipt of shipment at processing plant.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Documentation</strong></td>
+                                <td><code>Disposal Documentation</code></td>
+                                <td><code>Retired / Disposed</code></td>
+                                <td>Technician attaches certified <strong>Certificate of Destruction (CoD)</strong> or resale credit slip. Sets final disposal date on records.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Completed</strong></td>
+                                <td><em>None (Order Closed)</em></td>
+                                <td><code>Retired / Disposed</code></td>
+                                <td>All financial balance sheet write-offs finalize. Active asset licenses revoked in SAM Pro.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="formula-block" style="margin-top: 28px;">
+                    <div class="formula-content">
+                        <em>Net Book Value Write-Off</em> <span class="formula-operator">=</span> <em>Original Acquisition Cost</em> <span class="formula-operator">&minus;</span> <em>Accumulated Depreciation</em> <span class="formula-operator">&minus;</span> <em>Vendor Resale Proceeds</em>
+                    </div>
+                    <div class="formula-caption">Financial Balance Sheet Asset Disposal Accounting Equation</div>
+                </div>
+            </section>
+
+            <!-- 2. NIST Sanitization & CoD -->
+            <section class="content-section" id="sanitization-cod">
+                <h2>2. NIST 800-88 Data Sanitization &amp; Certificate of Destruction</h2>
+                <p>
+                    Data breaches occurring from improperly sanitized retired storage drives carry severe regulatory penalties (GDPR, HIPAA, PCI-DSS). HAM Pro enforces compliance with the <strong>NIST Special Publication 800-88 Revision 1 (Guidelines for Media Sanitization)</strong> framework.
+                </p>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="card-basic">
+                        <div style="color: var(--accent-primary); font-weight: 700; margin-bottom: 6px;">NIST Tier 1</div>
+                        <h4>Clear (Logical Overwrite)</h4>
+                        <p>
+                            Applies programmatic overwriting techniques using data sanitization software (e.g. Blancco). Rewrites all user-accessible storage locations with pseudorandom patterns. Suitable for hardware being redeployed internally.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-secondary); font-weight: 700; margin-bottom: 6px;">NIST Tier 2</div>
+                        <h4>Purge (Cryptographic Erase)</h4>
+                        <p>
+                            Executes firmware-level Cryptographic Erase (CE) or degaussing for magnetic media. Renders target data completely unrecoverable even using state-of-the-art laboratory recovery techniques. Required for off-lease returns.
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <div style="color: var(--accent-tertiary); font-weight: 700; margin-bottom: 6px;">NIST Tier 3</div>
+                        <h4>Destroy (Physical Shredding)</h4>
+                        <p>
+                            Physical destruction of media platters and solid-state NAND chips via industrial shredding (to 2mm particles), disintegration, or incineration. Required for top-secret and mission-critical enterprise systems.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important" style="margin-top: 24px;">
+                    <div class="info-card-title">Certificate of Destruction (CoD) Audit Governance</div>
+                    <p>
+                        A disposal order cannot legally progress to <code>Completed</code> without a valid Certificate of Destruction attached to the documentation task. Every valid CoD must contain:
+                    </p>
+                    <ul class="feature-bullet-list">
+                        <li>Exact chassis and hard drive serial numbers matching <code>alm_hardware.serial_number</code>.</li>
+                        <li>Certified destruction method (NIST 800-88 Purge vs. Shred).</li>
+                        <li>Date, time, and GPS facility coordinates of destruction event.</li>
+                        <li>Witness signature and ITAD vendor EPA environmental facility license number.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 3. Hardware Refresh Orders -->
+            <section class="content-section" id="refresh-orders">
+                <h2>3. Hardware Asset Refresh Orders (<code>sn_hamp_refresh_order</code>)</h2>
+                <p>
+                    Maintaining obsolete hardware leads to ballooning maintenance costs and degraded worker productivity. HAM Pro automates scheduled PC and server hardware refresh cycles through <strong>Hardware Asset Refresh Orders</strong>.
+                </p>
+
+                <div class="diagram-block" style="margin: 28px 0;">
+                    <div class="diagram-title">Automated Hardware Asset Refresh Lifecycle</div>
+                    <div class="mermaid">
+                    graph TD
+                        Schedule["Scheduled Job:<br/>SAM - Calculate Asset Refresh Eligibility"] --> Eval{"Useful Life or Warranty<br/>Expired?"}
+                        Eval -->|Yes| Flag["Set alm_hardware.eligible_for_refresh = true"]
+                        
+                        Flag --> Catalog["Submit Hardware Asset Refresh Order<br/>(sn_hamp_refresh_order)"]
+                        Catalog --> LineFlow["Hardware Asset Refresh Line Flow<br/>(Flow Designer)"]
+                        
+                        LineFlow --> Task1["1. Prepare Task:<br/>Pick and Image Replacement Laptop"]
+                        Task1 --> Task2["2. Schedule Task:<br/>Book Delivery Window with Employee"]
+                        Task2 --> Task3["3. Deploy Task:<br/>Deliver Device and Migrate User Profile"]
+                        Task3 --> Task4["4. Reclaim Task:<br/>Retrieve Aged Hardware and Route to HADO"]
+                        
+                        classDef default fill:#161b26,stroke:#334155,stroke-width:1px,color:#f8fafc
+                        classDef highlight fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef blue fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        class Flag,Catalog highlight
+                        class LineFlow,Task1,Task2,Task3,Task4 blue
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card-basic">
+                        <h4>Eligibility Engine</h4>
+                        <p>
+                            A nightly scheduled job evaluates the <code>useful_life</code> (in months) on the Hardware Product Model against the asset's original purchase date:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>Laptops: Typically configured for 36-month or 48-month refresh cycles.</li>
+                            <li>Production Servers: Typically configured for 60-month refresh cycles.</li>
+                            <li>Assets exceeding useful life are automatically stamped as eligible for refresh.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card-basic">
+                        <h4>Zero-Disruption Migration</h4>
+                        <p>
+                            The Refresh Line flow ensures employees are never without equipment:
+                        </p>
+                        <ul class="feature-bullet-list">
+                            <li>The replacement device is fully imaged and shipped before the old device is touched.</li>
+                            <li>The user receives a 5-day grace period to verify file transfers via OneDrive / cloud backup.</li>
+                            <li>The old device is reclaimed, sanitized, and moved into the disposal queue.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. ESG Sustainability -->
+            <section class="content-section" id="esg-sustainability">
+                <h2>4. Scope 3 ESG Sustainability &amp; Carbon Accounting</h2>
+                <p>
+                    Modern enterprises face mandatory Environmental, Social, and Governance (ESG) reporting requirements (such as the EU Corporate Sustainability Due Diligence Directive and SEC climate disclosure rules).
+                </p>
+                <p>
+                    HAM Pro integrates physical asset disposition directly with enterprise carbon metrics:
+                </p>
+
+                <div class="data-table-wrapper" style="margin-top: 16px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Disposal Pathway</th>
+                                <th>Environmental Impact</th>
+                                <th>Scope 3 GHG Accounting Treatment</th>
+                                <th>Financial Recovery</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Vendor Resale / Refurbishment</strong></td>
+                                <td>Extends circular economy product lifespan by 2–4 years.</td>
+                                <td>Avoided emissions credit calculated against new hardware manufacturing footprint.</td>
+                                <td>Residual market resale cash returned to IT budget.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Charitable Donation</strong></td>
+                                <td>Empowers educational and non-profit institutions.</td>
+                                <td>Social impact ESG KPI; zero e-waste landfill penalty.</td>
+                                <td>Corporate tax write-off based on fair market value.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Certified Materials Recycling</strong></td>
+                                <td>Recovers rare earth metals (gold, copper, lithium) safely.</td>
+                                <td>Zero hazardous e-waste to landfill; compliance with Basel Convention.</td>
+                                <td>Raw material scrap credit offset against ITAD vendor processing fee.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </section>
+
+            <!-- Navigation Links -->
+            <nav class="page-nav" style="margin-top: 40px;">
+                <a href="/ham/inventory" class="page-nav-link">
+                    <span class="page-nav-label">Previous Section</span>
+                    <span class="page-nav-title">Stockrooms, Transfers &amp; Audits</span>
+                </a>
+                <a href="/ham/developer-patterns" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Section</span>
+                    <span class="page-nav-title">Developer Patterns &amp; APIs</span>
+                </a>
+            </nav>
         </div>
     </div>
 </main>
+
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

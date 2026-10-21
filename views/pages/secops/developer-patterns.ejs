@@ -328,7 +328,7 @@ if (technique.next()) {
                 <section class="content-section" id="pitfalls">
                     <h2>Common Pitfalls</h2>
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Ignoring CI Matching in VR</div>
+                        <div class="info-card-title">Ignoring CI Matching in VR</div>
                         <p>
                             If your scanner reports assets by IP but your CMDB uses hostnames, VIs will be 
                             created with temporary CIs. This breaks prioritization, assignment, and reporting. 
@@ -336,7 +336,7 @@ if (technique.next()) {
                         </p>
                     </div>
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Over-Enriching Observables</div>
+                        <div class="info-card-title">Over-Enriching Observables</div>
                         <p>
                             Querying every observable against every enrichment source wastes API calls and 
                             money. Filter out private IPs, internal domains, and known-safe hashes before 
@@ -344,7 +344,7 @@ if (technique.next()) {
                         </p>
                     </div>
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Not Testing Playbooks End-to-End</div>
+                        <div class="info-card-title">Not Testing Playbooks End-to-End</div>
                         <p>
                             Playbooks that work perfectly in a demo environment can fail in production due to 
                             permission issues, API rate limits, or unexpected data formats. Always test playbooks 
@@ -352,7 +352,7 @@ if (technique.next()) {
                         </p>
                     </div>
                     <div class="info-card info-card--warning">
-                        <div class="info-card-title">⚠ Modifying Process Definitions</div>
+                        <div class="info-card-title">Modifying Process Definitions</div>
                         <p>
                             Changing the built-in NIST/SANS process definitions can break playbook execution 
                             and reporting. If you need a custom state model, create a new process definition 

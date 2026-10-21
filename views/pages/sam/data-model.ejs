@@ -2,71 +2,519 @@
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#erd" class="toc-link">Entity Relationship</a><a href="#core-tables" class="toc-link">Table Breakdown</a>
-                    </nav>
-                </div>
-            </aside>
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#erd" class="toc-link">Entity Relationship (ERD)</a>
+                    <a href="#discovery-layer" class="toc-link">Discovery & Install Layer</a>
+                    <a href="#catalog-layer" class="toc-link">Catalog & Entitlements</a>
+                    <a href="#reconciliation-layer" class="toc-link">Reconciliation & Results</a>
+                    <a href="#reclamation-layer" class="toc-link">Reclamation & SaaS Layer</a>
+                    <a href="#hardware-topology" class="toc-link">Hardware & Cluster Topology</a>
+                </nav>
+            </div>
+        </aside>
 
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Data Model</span>
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Data Model</span>
+                </div>
+                <h1 class="content-title">SAM Pro <span class="gradient-text">Data Model & Architecture</span></h1>
+                <p class="content-subtitle">
+                    The foundation of SAM Pro is an intricate relational model connecting hardware topology and raw discovery strings to commercial software models, financial entitlement contracts, and compliance calculation results.
+                </p>
+            </div>
+
+            <!-- 1. ERD -->
+            <section class="content-section" id="erd">
+                <h2>Master Entity Relationship Diagram (ERD)</h2>
+                <p>
+                    The data model solves a critical challenge: IT discovery tools inspect running hardware and file systems, while procurement systems process vendor SKUs and purchase contracts. The <strong>Software Model</strong> serves as the central bridge joining physical technical reality with legal contractual rights.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">SAM Pro Comprehensive Data Architecture ERD</div>
+                    <div class="mermaid">
+                    erDiagram
+                        cmdb_ci_computer ||--o{ cmdb_sam_sw_install : "hosts"
+                        cmdb_ci_esx_server ||--o{ cmdb_ci_computer : "virtualizes"
+                        cmdb_ci_cluster ||--o{ cmdb_ci_esx_server : "groups"
+
+                        cmdb_sam_sw_discovery_model ||--|{ cmdb_sam_sw_install : "normalizes"
+                        cmdb_software_product_model ||--|{ cmdb_sam_sw_discovery_model : "maps via DMAP"
+                        core_company ||--o{ cmdb_software_product_model : "manufactures"
+                        core_company ||--o{ alm_license : "contracts with"
+
+                        cmdb_software_product_model ||--|{ alm_license : "licensed by"
+                        alm_license ||--o{ alm_entitlement_user : "allocated to"
+                        sys_user ||--o{ alm_entitlement_user : "assigned"
+                        alm_license ||--o{ alm_entitlement_asset : "allocated to"
+                        cmdb_ci_computer ||--o{ alm_entitlement_asset : "assigned"
+
+                        cmdb_software_product_model ||--o{ samp_reconciliation_result : "evaluates"
+                        samp_reconciliation_result ||--|{ samp_license_metric_result : "breaks down"
+
+                        cmdb_software_product_model ||--o{ samp_sw_reclamation_rule : "governs"
+                        samp_sw_reclamation_rule ||--o{ samp_sw_reclamation_candidate : "triggers"
+                        sys_user ||--o{ samp_sw_reclamation_candidate : "targeted"
+                        
+                        sys_user ||--o{ samp_sw_subscription : "consumes cloud seat"
                     </div>
-                    <h1 class="content-title">SAM <span class="gradient-text">Data Model</span></h1>
-                    <p class="content-subtitle">
-                        To master ServiceNow SAM, you must understand how hardware CIs, raw installation strings, and financial purchasing data all connect through the Software Model.
-                    </p>
                 </div>
 
-                <section class="content-section" id="erd">
-                    <h2>Entity Relationship Diagram</h2>
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Inheritance & Core Scoping</div>
                     <p>
-                        The core challenge of SAM is that IT data (Installations) and Procurement data (Entitlements) speak different languages. The <strong>Software Model</strong> acts as the central translator linking these two worlds.
+                        Understanding table inheritance is vital for developers:
                     </p>
+                    <ul>
+                        <li><code>alm_license</code> extends <strong><code>alm_asset</code></strong>, inheriting financial accounting, purchase orders, depreciation schedules, and asset lifecycle tracking.</li>
+                        <li><code>cmdb_software_product_model</code> extends <strong><code>cmdb_model</code></strong>, allowing seamless integration with Product Catalogs and Service Catalog request items.</li>
+                        <li><code>cmdb_sam_sw_install</code> extends <strong><code>cmdb_ci</code></strong>, enabling full tracking through CI relationships, CMDB health metrics, and audit history.</li>
+                    </ul>
+                </div>
+            </section>
 
-                    <div class="diagram-block">
-                        <div class="diagram-title">SAM Core Tables ERD</div>
-                        <div class="mermaid">
-                        erDiagram
-                            cmdb_ci_computer ||--o{ cmdb_sam_sw_install : "Hosts"
-                            cmdb_sam_sw_discovery_model ||--|{ cmdb_sam_sw_install : "Normalizes"
-                            cmdb_software_product_model ||--|{ cmdb_sam_sw_discovery_model : "Maps to"
-                            cmdb_software_product_model ||--|{ alm_license : "Licensed by"
-                            sys_user ||--o{ alm_entitlement_user : "Assigned"
-                            alm_license ||--o{ alm_entitlement_user : "Allocated to"
+            <!-- 2. Discovery & Install Layer -->
+            <section class="content-section" id="discovery-layer">
+                <h2>1. Discovery & Installation Layer</h2>
+                <p>
+                    This layer captures raw, unprocessed inventory from endpoints and servers, subsequently grouping them into canonical technical signatures.
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Software Installations (cmdb_sam_sw_install)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>Stores individual software installations detected on physical or virtual endpoints.</p>
+                                <div class="data-table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Label</th>
+                                                <th>Column Name</th>
+                                                <th>Type</th>
+                                                <th>Reference Target</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Installed On</td>
+                                                <td><code>installed_on</code></td>
+                                                <td>Reference</td>
+                                                <td><code>cmdb_ci_computer</code></td>
+                                                <td>The hardware CI (laptop, server, VM) hosting the software.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Display Name</td>
+                                                <td><code>display_name</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Raw application string extracted from registry or package manager.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Publisher</td>
+                                                <td><code>publisher</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Raw vendor string reported by discovery before normalization.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Version</td>
+                                                <td><code>version</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Raw version string (e.g. 15.0.2000.5).</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Discovery Model</td>
+                                                <td><code>discovery_model</code></td>
+                                                <td>Reference</td>
+                                                <td><code>cmdb_sam_sw_discovery_model</code></td>
+                                                <td>Foreign key linking this raw install to its normalized cluster.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Last Used Date</td>
+                                                <td><code>last_used</code></td>
+                                                <td>DateTime</td>
+                                                <td>—</td>
+                                                <td>Last launch timestamp reported by SCCM, Jamf, or ACC metering.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Usage Status</td>
+                                                <td><code>usage_status</code></td>
+                                                <td>Choice</td>
+                                                <td>—</td>
+                                                <td>Active (< 30 days), Low (30-60 days), Inactive (> 90 days).</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </section>
 
-                <section class="content-section" id="core-tables">
-                    <h2>Core Table Breakdown</h2>
-                    
-                    <h3>1. Software Installation (<code>cmdb_sam_sw_install</code>)</h3>
-                    <p><strong>The What and Where.</strong> This table holds the raw data discovered on a device. It links directly to a hardware CI (like a Windows Server) and contains the messy publisher/product strings found in the registry.</p>
-                    
-                    <h3>2. Discovery Model (<code>cmdb_sam_sw_discovery_model</code>)</h3>
-                    <p><strong>The Normalized Concept.</strong> Thousands of identical <code>cmdb_sam_sw_install</code> records (e.g., all installations of Adobe Acrobat DC 2020) point to a single Discovery Model. This is the output of the Normalization engine.</p>
-                    
-                    <h3>3. Software Model (<code>cmdb_software_product_model</code>)</h3>
-                    <p><strong>The Business Concept.</strong> This is the specific product you actually care about managing from a business perspective. It connects the normalized technical data (Discovery Models) to your financial purchases (Entitlements). It also tracks product lifecycles like End of Support (EOS).</p>
-                    
-                    <h3>4. Entitlement (<code>alm_license</code>)</h3>
-                    <p><strong>The Purchase.</strong> This table represents your legal right to use a software product. It dictates the License Metric (e.g., Per User, Per Core), the number of rights purchased, and the cost. It points directly to a Software Model.</p>
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Software Discovery Models (cmdb_sam_sw_discovery_model)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>Groups thousands of identical raw installations into standardized canonical signatures.</p>
+                                <div class="data-table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Label</th>
+                                                <th>Column Name</th>
+                                                <th>Type</th>
+                                                <th>Reference Target</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Normalized Publisher</td>
+                                                <td><code>norm_publisher</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Clean publisher name standardized by Content Library (e.g. "Microsoft").</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Normalized Product</td>
+                                                <td><code>norm_product</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Canonical product family name (e.g. "SQL Server").</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Normalized Version</td>
+                                                <td><code>norm_version</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Major release version (e.g. "2019").</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Normalized Edition</td>
+                                                <td><code>norm_edition</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Tier or edition (e.g. "Standard", "Enterprise").</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Software Model</td>
+                                                <td><code>software_model</code></td>
+                                                <td>Reference</td>
+                                                <td><code>cmdb_software_product_model</code></td>
+                                                <td>The business software model this discovery model maps to.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Normalization Status</td>
+                                                <td><code>norm_status</code></td>
+                                                <td>Choice</td>
+                                                <td>—</td>
+                                                <td>Normalized, Partially Normalized, Publisher Normalized, Match Not Found.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    <h3>5. Software Allocation (<code>alm_entitlement_user</code> or <code>alm_entitlement_asset</code>)</h3>
-                    <p><strong>The Assignment.</strong> When you reserve a license right for a specific person or server, an allocation record is created linking the User/Asset to the Entitlement. This ensures rights aren't double-counted.</p>
-                </section>
-        
-            </div>
+            <!-- 3. Catalog & Entitlements -->
+            <section class="content-section" id="catalog-layer">
+                <h2>2. Catalog, Modeling & Entitlement Layer</h2>
+                <p>
+                    This commercial layer defines what the organization owns, how software is sold, and how rights are partitioned among business units.
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Software Models (cmdb_software_product_model)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>The definitive commercial catalog item representing the software asset from a procurement and lifecycle perspective.</p>
+                                <div class="data-table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Label</th>
+                                                <th>Column Name</th>
+                                                <th>Type</th>
+                                                <th>Reference Target</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Display Name</td>
+                                                <td><code>display_name</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Product name (e.g. Microsoft SQL Server 2019 Standard).</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Publisher</td>
+                                                <td><code>manufacturer</code></td>
+                                                <td>Reference</td>
+                                                <td><code>core_company</code></td>
+                                                <td>The software vendor / manufacturer.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lifecycle Phase</td>
+                                                <td><code>lifecycle_phase</code></td>
+                                                <td>Choice</td>
+                                                <td>—</td>
+                                                <td>General Availability, End of Support, End of Life.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>End of Life Date</td>
+                                                <td><code>end_of_life</code></td>
+                                                <td>Date</td>
+                                                <td>—</td>
+                                                <td>Publisher date where security patches permanently cease.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Is Suite Parent</td>
+                                                <td><code>is_suite</code></td>
+                                                <td>Boolean</td>
+                                                <td>—</td>
+                                                <td>True if this model represents a bundle (e.g. Microsoft 365, Adobe CC).</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Discovery Map</td>
+                                                <td><code>discovery_map</code></td>
+                                                <td>Reference</td>
+                                                <td><code>samp_sw_entitlement_definition</code></td>
+                                                <td>Pre-built CDS pattern that connects Discovery Models automatically.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Software Entitlements (alm_license)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>Stores purchased software license rights, contracts, maintenance agreements, and cost structures.</p>
+                                <div class="data-table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Label</th>
+                                                <th>Column Name</th>
+                                                <th>Type</th>
+                                                <th>Reference Target</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Asset Tag</td>
+                                                <td><code>asset_tag</code></td>
+                                                <td>String</td>
+                                                <td>—</td>
+                                                <td>Unique financial asset identifier (e.g. ENT-2024-MS-SQL-CORE).</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Software Model</td>
+                                                <td><code>software_model</code></td>
+                                                <td>Reference</td>
+                                                <td><code>cmdb_software_product_model</code></td>
+                                                <td>The product model this license entitles the enterprise to use.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>License Metric</td>
+                                                <td><code>license_metric</code></td>
+                                                <td>Choice</td>
+                                                <td>—</td>
+                                                <td>Per Core, Per User, Per Device, Per Processor, User Subscription.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Purchased Rights</td>
+                                                <td><code>purchased_rights</code></td>
+                                                <td>Integer</td>
+                                                <td>—</td>
+                                                <td>Total count of license units acquired on the purchase order.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Allocated Rights</td>
+                                                <td><code>allocated_rights</code></td>
+                                                <td>Integer</td>
+                                                <td>—</td>
+                                                <td>Rights currently assigned to specific users or devices.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Unit Cost</td>
+                                                <td><code>unit_cost</code></td>
+                                                <td>Currency</td>
+                                                <td>—</td>
+                                                <td>Purchase price per individual right used for true-up calculations.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Downgrade Rights</td>
+                                                <td><code>downgrade_rights</code></td>
+                                                <td>Boolean</td>
+                                                <td>—</td>
+                                                <td>Permits this license to cover older versions of the same product.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Reconciliation & Results Layer -->
+            <section class="content-section" id="reconciliation-layer">
+                <h2>3. Reconciliation & Compliance Results Layer</h2>
+                <p>
+                    Reconciliation runs produce definitive calculation summaries that populate audit dashboards and executive reports.
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Table Name</th>
+                                <th>DB Table</th>
+                                <th>Primary Role & Calculation Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Reconciliation Result</strong></td>
+                                <td><code>samp_reconciliation_result</code></td>
+                                <td>Header record for a complete reconciliation run. Stores run timestamp, scope (All Publishers vs Single Vendor), total enterprise true-up cost, and overall compliance percentage.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>License Metric Result</strong></td>
+                                <td><code>samp_license_metric_result</code></td>
+                                <td>Stores the granular compliance output for a specific software model and metric. Contains: <code>rights_owned</code>, <code>rights_used</code>, <code>over_under</code> (delta), and <code>true_up_cost</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>License Position</strong></td>
+                                <td><code>samp_sw_license_position</code></td>
+                                <td>Aggregates compliance at the publisher and product family level for reporting to CFO and CIO leadership.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Remediation Option</strong></td>
+                                <td><code>samp_remediation_option</code></td>
+                                <td>Generated automatically when <code>over_under < 0</code>. Formulates actionable choices: Purchase Rights, Remove Unlicensed, or Create Allocations.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 5. Reclamation & SaaS Layer -->
+            <section class="content-section" id="reclamation-layer">
+                <h2>4. Reclamation, SaaS & Spend Optimization Layer</h2>
+                <p>
+                    Tables governing automated license de-provisioning, usage thresholds, and SaaS subscriber integrations.
+                </p>
+
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">Reclamation Rules (samp_sw_reclamation_rule)</div>
+                        <p>
+                            Defines corporate policy thresholds for software harvesting:
+                        </p>
+                        <ul>
+                            <li><code>days_unused</code>: Number of days without an application launch (e.g. 60 or 90 days).</li>
+                            <li><code>total_usage_threshold_hours</code>: Minimum cumulative runtime required.</li>
+                            <li><code>notify_user</code>: Boolean flag triggering employee email or Microsoft Teams prompt.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Reclamation Candidates (samp_sw_reclamation_candidate)</div>
+                        <p>
+                            Represents an individual target for license harvesting:
+                        </p>
+                        <ul>
+                            <li><code>user</code> & <code>device</code>: The specific employee and machine targeted.</li>
+                            <li><code>state</code>: Attention Required → User Notified → Awaiting Approval → Removal in Progress → Closed Complete.</li>
+                            <li><code>potential_savings</code>: Projected dollar savings reclaimed back to the budget.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-card info-card--tip" style="margin-top: 16px;">
+                    <div class="info-card-title">SaaS Subscriptions (samp_sw_subscription)</div>
+                    <p>
+                        Tracks direct API integrations for cloud services (Microsoft 365, Salesforce, Adobe Creative Cloud, Zoom). Stores <code>user_email</code>, <code>assigned_plan</code>, <code>last_login_date</code>, and <code>activity_status</code> to identify candidates for license tier downgrades (e.g., M365 E5 to E3).
+                    </p>
+                </div>
+            </section>
+
+            <!-- 6. Hardware Topology -->
+            <section class="content-section" id="hardware-topology">
+                <h2>Hardware & Virtualization Topology in Server Licensing</h2>
+                <p>
+                    One of the most complex aspects of SAM Pro is calculating compliance for server software like <strong>Microsoft SQL Server</strong> or <strong>Oracle Database</strong>, which are licensed based on underlying hardware compute capacity rather than install counts.
+                </p>
+
+                <div class="diagram-block">
+                    <div class="diagram-title">Hardware Topology Hierarchy & Core Multipliers</div>
+                    <div class="mermaid">
+                    graph TD
+                        VC["vCenter / Cloud Datacenter<br/>cmdb_ci_vcenter_datacenter"] --> CL["Cluster Entity<br/>cmdb_ci_cluster"]
+                        CL --> ESX1["ESXi Host 1<br/>cmdb_ci_esx_server<br/>2 Sockets x 16 Cores = 32 Cores"]
+                        CL --> ESX2["ESXi Host 2<br/>cmdb_ci_esx_server<br/>2 Sockets x 16 Cores = 32 Cores"]
+                        
+                        ESX1 --> VM1["Virtual Machine 1 (8 vCPUs)<br/>Hosts MS SQL 2019"]
+                        ESX1 --> VM2["Virtual Machine 2 (4 vCPUs)<br/>Hosts App Server"]
+                        ESX2 --> VM3["Virtual Machine 3 (16 vCPUs)<br/>Hosts Oracle 19c"]
+
+                        classDef cluster fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
+                        classDef host fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
+                        classDef vm fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
+
+                        class VC,CL cluster
+                        class ESX1,ESX2 host
+                        class VM1,VM2,VM3 vm
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Why Hardware CMDB Integrity is Critical for SAM</div>
+                    <p>
+                        If Discovery fails to populate the relationship between a Virtual Machine (<code>cmdb_ci_vm_instance</code>) and its parent ESXi Host (<code>cmdb_ci_esx_server</code>), the SAM Reconciliation Engine cannot calculate Per Core or Per Processor metrics accurately. 
+                    </p>
+                    <p>
+                        For instance, Microsoft SQL Server requires a minimum of 4 core licenses per virtual machine. If the cluster topology is unknown, the engine cannot determine whether it is cheaper to license the virtual machines individually or license all physical cores in the cluster with Software Assurance (SA) for unlimited virtualization rights.
+                    </p>
+                </div>
+            </section>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

@@ -5,7 +5,7 @@ const ItsmSimulatorData = {
     'incident': {
         label: 'Incidents',
         table: 'incident',
-        icon: '🚨',
+        icon: '',
         description: 'Master incident restoration records tracking outages, priority matrix scoring, VIP callers, and resolution metrics.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -191,7 +191,7 @@ const ItsmSimulatorData = {
     'incident_task': {
         label: 'Incident Tasks',
         table: 'incident_task',
-        icon: '📋',
+        icon: '',
         description: 'Subdivided diagnostic and recovery work packages assigned to specialized technical squads during Major Incident (MIM) triage.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -297,7 +297,7 @@ const ItsmSimulatorData = {
     'problem': {
         label: 'Problems',
         table: 'problem',
-        icon: '🔍',
+        icon: '',
         description: 'Root cause forensic records identifying underlying software defects, hardware flaws, and Known Error Database workarounds.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -448,7 +448,7 @@ const ItsmSimulatorData = {
     'problem_task': {
         label: 'Problem Tasks',
         table: 'problem_task',
-        icon: '🔬',
+        icon: '',
         description: 'Parallel engineering assignments for root cause investigation, temporary workaround formulation, and fix validation.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -550,7 +550,7 @@ const ItsmSimulatorData = {
     'change_request': {
         label: 'Change Requests',
         table: 'change_request',
-        icon: '🛡️',
+        icon: '',
         description: 'Requests for Change (RFC) governing Normal, Standard, and Emergency production releases, CAB approvals, and conflict checks.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -719,7 +719,7 @@ const ItsmSimulatorData = {
     'change_task': {
         label: 'Change Tasks',
         table: 'change_task',
-        icon: '⚙️',
+        icon: '',
         description: 'Discrete sequential technical execution tasks (Planning, Implementation, Testing, Post-Implementation Review).',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -817,7 +817,7 @@ const ItsmSimulatorData = {
     'sc_req_item': {
         label: 'Requested Items (RITM)',
         table: 'sc_req_item',
-        icon: '📦',
+        icon: '',
         description: 'Tier-2 catalog line items ordered from the Service Catalog, executing dedicated Flow Designer workflows.',
         fields: [
             { name: 'number', label: 'RITM Number', type: 'string' },
@@ -925,7 +925,7 @@ const ItsmSimulatorData = {
     'sc_task': {
         label: 'Catalog Tasks (SCTASK)',
         table: 'sc_task',
-        icon: '🚚',
+        icon: '',
         description: 'Tier-3 discrete fulfillment tasks assigned to Procurement, Desktop Support, and IAM teams to deliver requested goods.',
         fields: [
             { name: 'number', label: 'Number', type: 'string' },
@@ -1020,7 +1020,7 @@ const ItsmSimulatorData = {
     'task_sla': {
         label: 'SLA Timers (task_sla)',
         table: 'task_sla',
-        icon: '⏱️',
+        icon: '',
         description: 'Active contract SLA instances tracking elapsed time, business schedule calculations, and breach milestones.',
         fields: [
             { name: 'task', label: 'Task Record', type: 'reference', refTable: 'task' },

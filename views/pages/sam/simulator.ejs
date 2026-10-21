@@ -1,49 +1,66 @@
-<%- include('../../partials/head', { title: 'Process Simulator — SAM | SN Learn', styles: ['/styles/module-layout.css', '/styles/simulator.css'] }) %>
+<%- include('../../partials/head', { title: 'Process Simulator — SAM Pro | SN Learn', styles: ['/styles/module-layout.css', '/styles/simulator.css'] }) %>
 <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
 <main class="irm-page">
-        <div class="irm-page-layout">
-            <aside class="irm-sidebar">
-                <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
-                
-                <div class="sidebar-section toc-section">
-                    <div class="sidebar-label">On This Page</div>
-                    <nav class="sidebar-nav">
-                        <a href="#how-to-use" class="toc-link">How to Use</a>
-                        <a href="#simulator" class="toc-link">Record Simulator</a>
-                    </nav>
-                </div>
-            </aside>
-
-            <div class="irm-content">
-                
-                <div class="content-header">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Process Simulator</span>
-                    </div>
-                    <h1 class="content-title">Process <span class="gradient-text">Simulator</span></h1>
-                    <p class="content-subtitle">Explore realistic sample records from key SAM tables. Click any record to expand its full form view.</p>
-                </div>
-                <section class="content-section" id="how-to-use">
-                    <h2>How to Use This Simulator</h2>
-                    <div class="info-card info-card--tip">
-                        <div class="info-card-title">Interactive Guide</div>
-                        <p>
-                            <strong>Click any record</strong> to expand its form view.
-                            <strong>Choice fields</strong> are shown as dropdowns.
-                            <strong>Reference fields</strong> have a small info button to see which table they reference.
-                            Tabs are ordered by the SAM <strong>lifecycle flow</strong> — from discovery to licensing.
-                        </p>
-                    </div>
-                </section>
-                <section class="content-section" id="simulator">
-                    <h2>Record Explorer</h2>
-                    <div class="sim-tabs-header" id="sim-tabs-header"></div>
-                    <div class="sim-tabs-content" id="sim-tabs-content"></div>
-                </section>
-        
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#how-to-use" class="toc-link">How to Use</a>
+                    <a href="#simulator" class="toc-link">Record Simulator</a>
+                </nav>
             </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Process Simulator</span>
+                </div>
+                <h1 class="content-title">SAM Pro <span class="gradient-text">Process Simulator</span></h1>
+                <p class="content-subtitle">
+                    Explore realistic sample records across 8 core SAM Pro tables. Click any record to expand its full ServiceNow-style form view, inspect choice dropdowns, examine foreign key reference tooltips, and follow the end-to-end licensing lifecycle.
+                </p>
+            </div>
+
+            <section class="content-section" id="how-to-use">
+                <h2>How to Use This Simulator</h2>
+                <div class="info-card info-card--tip">
+                    <div class="info-card-title">Interactive Guide</div>
+                    <p>
+                        <strong>Click any record</strong> to expand its two-column ServiceNow form view.
+                        <strong>Choice fields</strong> (like Normalization Status, Lifecycle Phase, License Metric, Reclamation State) are rendered with realistic dropdowns.
+                        <strong>Reference fields</strong> (like Software Model, Installed On CI, Entitlement) feature an interactive
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid rgba(16,185,129,0.4);font-size:10px;color:#34d399;margin:0 2px;vertical-align:middle;">i</span>
+                        info button — click it to see the underlying target table.
+                        Tabs are ordered strictly by the <strong>closed-loop lifecycle flow</strong>: Raw Installations → Discovery Models → Software Models → Entitlements → Allocations → Reconciliation Results (ELP) → Reclamation Candidates → SaaS Subscriptions.
+                    </p>
+                </div>
+            </section>
+
+            <section class="content-section" id="simulator">
+                <h2>Record Explorer</h2>
+                <div class="sim-tabs-header" id="sim-tabs-header"></div>
+                <div class="sim-tabs-content" id="sim-tabs-content"></div>
+            </section>
+
+            <nav class="page-nav" style="margin-top: 36px;">
+                <a href="/sam/developer-patterns" class="page-nav-link">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Developer Patterns & APIs</span>
+                </a>
+                <a href="/sam/overview" class="page-nav-link" style="text-align: right;">
+                    <span class="page-nav-label">Back to Start →</span>
+                    <span class="page-nav-title">Overview & Architecture</span>
+                </a>
+            </nav>
+    
         </div>
-    </main>
+    </div>
+</main>
 
 <%- include('../../partials/footer', { scripts: ['/scripts/module.js', '/scripts/sam-simulator.js', '/scripts/simulator-core.js'] }) %>
