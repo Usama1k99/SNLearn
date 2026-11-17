@@ -1534,8 +1534,8 @@ body.diagram-modal-open {
     padding: 8px;
     box-shadow:
         0 20px 48px -8px rgba(0, 0, 0, 0.8),
-        0 0 18px var(--accent-glow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        0 0 28px var(--accent-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     opacity: 0;
@@ -1552,16 +1552,16 @@ body.diagram-modal-open {
 .nav-dropdown-menu::before {
     content: '';
     position: absolute;
-    top: -35px;
-    right: -25px;
-    width: 130px;
-    height: 130px;
-    background: var(--accent-soft);
-    filter: blur(36px);
+    top: -40px;
+    right: -30px;
+    width: 170px;
+    height: 170px;
+    background: var(--accent-glow);
+    filter: blur(44px);
     border-radius: 50%;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.55;
+    opacity: 0.85;
 }
 
 .nav-dropdown.is-open .nav-dropdown-menu {
