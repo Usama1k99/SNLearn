@@ -61,40 +61,171 @@ function initCodeCopy() {
 
 // -- Active TOC tracking --
 function initTocTracking() {
-    const tocLinks = document.querySelectorAll('.toc-link');
+    const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
     if (!tocLinks.length) return;
 
     const sections = [];
     tocLinks.forEach(link => {
-        const id = link.getAttribute('href')?.replace('#', '');
+        const href = link.getAttribute('href');
+        if (!href || !href.startsWith('#')) return;
+        const id = href.slice(1);
         const el = document.getElementById(id);
-        if (el) sections.push({ el, link });
+        if (el) {
+            sections.push({ id, el, link });
+        }
     });
 
-    const observerCallback = (entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                tocLinks.forEach(l => l.classList.remove('active'));
-                const match = sections.find(s => s.el === entry.target);
-                if (match) match.link.classList.add('active');
+    if (!sections.length) return;
+
+    // Fixed header offset (navbar height ~64px + top breathing margin)
+    const ACTIVATION_OFFSET = 140;
+    let isClickScrolling = false;
+    let clickScrollTimer = null;
+    let ticking = false;
+
+    function highlightSection(section) {
+        if (!section) return;
+        let changed = false;
+        sections.forEach(s => {
+            if (s === section) {
+                if (!s.link.classList.contains('active')) {
+                    s.link.classList.add('active');
+                    changed = true;
+                }
+            } else {
+                if (s.link.classList.contains('active')) {
+                    s.link.classList.remove('active');
+                    changed = true;
+                }
             }
         });
-    };
 
-    const observer = new IntersectionObserver(observerCallback, {
-        rootMargin: '-80px 0px -60% 0px',
-        threshold: 0.1
+        // Ensure active TOC link remains visible in view if the sidebar navigation is scrollable
+        if (changed) {
+            const activeLink = section.link;
+            const scrollContainer = activeLink.closest('.irm-sidebar') || activeLink.closest('.sidebar-section');
+            if (scrollContainer && scrollContainer.scrollHeight > scrollContainer.clientHeight) {
+                const linkRect = activeLink.getBoundingClientRect();
+                const containerRect = scrollContainer.getBoundingClientRect();
+                if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
+                    activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            }
+        }
+    }
+
+    function getActiveSection() {
+        if (!sections.length) return null;
+
+        // 1. Bottom of page check:
+        // When scrolled to the bottom of the page, the last section must be active
+        // even if it does not reach the top activation offset.
+        const scrollBottom = window.innerHeight + window.scrollY;
+        const docHeight = Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight
+        );
+        if (scrollBottom >= docHeight - 60) {
+            return sections[sections.length - 1];
+        }
+
+        // 2. Intermediate section check:
+        // Iterate from the bottom-most section upwards; find the first section whose top
+        // has scrolled past or reached the activation offset (rect.top <= ACTIVATION_OFFSET).
+        for (let i = sections.length - 1; i >= 0; i--) {
+            const rect = sections[i].el.getBoundingClientRect();
+            if (rect.top <= ACTIVATION_OFFSET) {
+                return sections[i];
+            }
+        }
+
+        // 3. Top of page check:
+        // If above the first section (e.g., in header/breadcrumb), activate the first section.
+        return sections[0];
+    }
+
+    function updateActiveToc() {
+        if (isClickScrolling) return;
+        const current = getActiveSection();
+        if (current) {
+            highlightSection(current);
+        }
+    }
+
+    // Smooth click handler with precise scroll margin
+    sections.forEach(s => {
+        s.link.addEventListener('click', (e) => {
+            e.preventDefault();
+            isClickScrolling = true;
+            highlightSection(s);
+
+            const targetTop = s.el.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({
+                top: Math.max(0, targetTop),
+                behavior: 'smooth'
+            });
+
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', `#${s.id}`);
+            } else {
+                window.location.hash = `#${s.id}`;
+            }
+
+            clearTimeout(clickScrollTimer);
+            clickScrollTimer = setTimeout(() => {
+                isClickScrolling = false;
+                updateActiveToc();
+            }, 800);
+        });
     });
 
-    sections.forEach(s => observer.observe(s.el));
+    // Throttled scroll listener via requestAnimationFrame
+    function onScroll() {
+        if (isClickScrolling) return;
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                updateActiveToc();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    // Handle initial load (with or without hash)
+    if (window.location.hash) {
+        const hashId = window.location.hash.slice(1);
+        const target = sections.find(s => s.id === hashId);
+        if (target) {
+            highlightSection(target);
+            setTimeout(() => {
+                const targetTop = target.el.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({
+                    top: Math.max(0, targetTop),
+                    behavior: 'smooth'
+                });
+            }, 150);
+        } else {
+            updateActiveToc();
+        }
+    } else {
+        updateActiveToc();
+    }
 }
 
 // -- Active sidebar link based on current page --
 function initActiveSidebar() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    const currentPage = currentPath.split('/').pop() || 'index';
     document.querySelectorAll('.sidebar-link').forEach(link => {
         const href = link.getAttribute('href');
-        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+        if (!href) return;
+        const normalizedHref = href.replace(/\/$/, '').replace(/\.html$/, '');
+        if (normalizedHref === currentPath || normalizedHref.endsWith('/' + currentPage)) {
             link.classList.add('active');
         }
     });

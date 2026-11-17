@@ -282,9 +282,10 @@
     padding: 4px var(--space-md);
     font-size: 12px;
     color: var(--text-tertiary);
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
     border-left: 1px solid var(--border-subtle);
     margin-left: 2px;
+    text-decoration: none;
 }
 
 .toc-link:hover {
@@ -295,6 +296,7 @@
 .toc-link.active {
     color: var(--accent-tertiary);
     border-left-color: var(--accent-primary);
+    font-weight: 600;
 }
 
 /* -- Main Content Area -- */
