@@ -131,8 +131,8 @@ function createRecordRow(tab, record, idx) {
     row.className = 'sim-record-row';
 
     // Determine display label for the record
-    const primaryField = record.number || record.display_name || record.name || `Record ${idx + 1}`;
-    const secondaryField = record.short_description || record.description || record.profile || '';
+    const primaryField = record.number || record.asset_tag || record.display_name || record.name || `Record ${idx + 1}`;
+    const secondaryField = record.short_description || record.description || record.profile || record.software_model || record.norm_product || '';
     
     // Status/State logic
     const stateField = tab.fields.find(f => f.name === 'state');
