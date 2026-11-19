@@ -1,4 +1,100 @@
     <!-- Navigation -->
+    <%
+        const currentModule = (typeof activeModule !== 'undefined' && activeModule) 
+            ? activeModule 
+            : ((typeof activeTab !== 'undefined' && activeTab !== 'home') ? activeTab : '');
+        const currentPage = (typeof activePage !== 'undefined') ? activePage : '';
+        const isModule = ['basics', 'itsm', 'ham', 'sam', 'irm', 'secops'].includes(currentModule);
+        const isModuleHome = !currentPage || currentPage === 'index';
+        
+        const MODULE_LABELS = {
+            'basics': 'Basics',
+            'itsm': 'ITSM',
+            'ham': 'HAM',
+            'sam': 'SAM',
+            'irm': 'IRM',
+            'secops': 'SecOps'
+        };
+        
+        const MODULE_PAGE_MAP = {
+            'basics': {
+                'overview': 'The Big Picture & Overview',
+                'pdi-setup': 'Claim PDI & UI Navigation',
+                'data-architecture': 'Tables, Records & Sys IDs',
+                'forms-and-lists': 'Forms, Lists & Filters',
+                'client-scripting': 'UI Policies & Client Scripts',
+                'server-scripting': 'Business Rules & Script Includes',
+                'flow-designer': 'Flow Designer Automation',
+                'security-and-scopes': 'Security, Roles & Update Sets',
+                'app-builder-sandbox': 'Custom App Sandbox Lab',
+                'career-roadmap': 'Career & Learning Roadmap'
+            },
+            'itsm': {
+                'overview': 'Overview & Architecture',
+                'data-model': 'Master Data Model & CSDM',
+                'incident-management': 'Incident & Major Incident',
+                'problem-management': 'Problem Management & KEDB',
+                'change-management': 'Change & Release Management',
+                'service-catalog': 'Service Catalog & Requests',
+                'knowledge-management': 'Knowledge Management',
+                'sla-management': 'Service Level Management',
+                'service-operations-workspace': 'Service Operations Workspace',
+                'walkup-and-cim': 'Walk-up Experience & CIM',
+                'developer-patterns': 'Developer Patterns & APIs',
+                'simulator': 'Process Simulator'
+            },
+            'ham': {
+                'overview': 'Overview & Architecture',
+                'data-model': 'Asset & CI Data Model',
+                'procurement': 'Procurement Lifecycle',
+                'inventory': 'Stockrooms & Transfer Orders',
+                'disposal': 'Disposal & Retirement',
+                'developer-patterns': 'Developer Patterns & APIs',
+                'simulator': 'Process Simulator'
+            },
+            'sam': {
+                'overview': 'Overview & Architecture',
+                'data-model': 'Data Model & Tables',
+                'normalization': 'Discovery & Normalization',
+                'saas-and-cloud': 'SaaS & Cloud Subscriptions',
+                'entitlements-and-allocations': 'Entitlements & Allocations',
+                'reconciliation': 'Reconciliation Engine',
+                'remediation': 'Remediation & Reclamation',
+                'developer-patterns': 'Developer Patterns & APIs',
+                'simulator': 'Process Simulator'
+            },
+            'irm': {
+                'overview': 'Overview & Architecture',
+                'data-model': 'Entity Framework & Data Model',
+                'risk-lifecycle': 'Risk Management Lifecycle',
+                'policy-compliance': 'Policy & Compliance',
+                'audit-regulatory': 'Audit & Regulatory Change',
+                'tprm': 'Third-Party Risk (TPRM)',
+                'operational-resilience': 'Operational Resilience & BCM',
+                'continuous-monitoring': 'Continuous Monitoring',
+                'issues-remediation': 'Issues & Remediation',
+                'developer-patterns': 'Developer Patterns & APIs',
+                'simulator': 'Process Simulator'
+            },
+            'secops': {
+                'overview': 'Overview & Architecture',
+                'data-model': 'SecOps Data Model',
+                'sir-lifecycle': 'SIR Lifecycle & Playbooks',
+                'vulnerability-response': 'Vulnerability Response',
+                'threat-intelligence': 'Threat Intelligence',
+                'developer-patterns': 'Developer Patterns',
+                'simulator': 'Process Simulator'
+            }
+        };
+        
+        const moduleLabel = MODULE_LABELS[currentModule] || currentModule.toUpperCase();
+        let pageLabel = '';
+        if (!isModuleHome && MODULE_PAGE_MAP[currentModule] && MODULE_PAGE_MAP[currentModule][currentPage]) {
+            pageLabel = MODULE_PAGE_MAP[currentModule][currentPage];
+        } else if (!isModuleHome && currentPage) {
+            pageLabel = currentPage.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+        }
+    %>
     <nav class="navbar" id="navbar">
         <% if (typeof activeTab !== 'undefined' && activeTab !== 'home') { %>
             <div class="scroll-progress-bar"></div>
@@ -13,6 +109,24 @@
                 </div>
                 <span class="logo-text">SN<span class="logo-accent">Learn</span></span>
             </a>
+
+            <!-- Center Module & Page Indicator -->
+            <% if (isModule) { %>
+                <div class="nav-center-indicator" id="navCenterIndicator">
+                    <div class="nav-module-breadcrumb <%= isModuleHome ? 'is-home' : '' %>">
+                        <a href="/<%= currentModule %>" class="nav-module-crumb-link <%= isModuleHome ? 'is-single' : '' %>" title="Return to <%= moduleLabel %> Home">
+                            <span class="nav-module-crumb-dot"></span>
+                            <span class="nav-module-crumb-title"><%= moduleLabel %></span>
+                        </a>
+                        <% if (!isModuleHome && pageLabel) { %>
+                            <span class="nav-module-crumb-sep">|</span>
+                            <span class="nav-module-crumb-page" title="<%= pageLabel %>"><%= pageLabel %></span>
+                        <% } %>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="nav-center-indicator" id="navCenterIndicator" style="display: none;"></div>
+            <% } %>
 
             <!-- Mobile Hamburger Toggle Button -->
             <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle Navigation Menu" aria-expanded="false">

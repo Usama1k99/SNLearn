@@ -221,80 +221,77 @@
 
             <!-- 4. Closed-Loop Lifecycle -->
             <section class="content-section" id="closed-loop-lifecycle">
-                <h2>The End-to-End Closed-Loop Lifecycle</h2>
+                <h2>The End-to-End Closed-Loop Architecture &amp; Data Flow</h2>
                 <p>
-                    Software Asset Management is not a one-off audit snapshot; it is an ongoing, continuous closed-loop operational discipline. If any phase of this loop fails, compliance figures become untrustworthy:
+                    Software Asset Management is an ongoing, continuous closed-loop operational discipline. Raw technical discovery, procurement contracts, and SaaS API subscriptions feed directly into the commercial modeling layer and reconciliation engine, cascading through a 4-tier results hierarchy to drive automated license remediation and reclamation:
                 </p>
 
                 <div class="diagram-block">
-                    <div class="diagram-title">SAM Pro End-to-End Closed-Loop Operational Lifecycle</div>
+                    <div class="diagram-title">Canonical SAM Pro Architecture &amp; Closed-Loop Operational Flow</div>
                     <div class="mermaid">
                     graph TD
-                        subgraph INGEST ["1. INGESTION & DISCOVERY"]
-                            A1["Client Scanners<br/>SCCM / Jamf / Intune"] --> B1["cmdb_sam_sw_install<br/>Raw Software Records"]
-                            A2["Cloud & SaaS APIs<br/>M365 / Salesforce / Adobe"] --> B2["samp_sw_subscription<br/>User Cloud Subscriptions"]
-                            A3["Agent Client Collector<br/>ACC-V Process Usage"] --> B1
+                        subgraph INGEST_TRACKS ["1. INGESTION, DISCOVERY &amp; PROCURING"]
+                            DISCO["Discovery / Imports<br/>(ServiceNow Discovery / SCCM / Intune)"] --> INSTALL["Software Installation<br/>(cmdb_sam_sw_install)"]
+                            CI["CI / Computer / Server<br/>(cmdb_ci_computer / cmdb_ci_server)"] --> INSTALL
+                            CONTRACTS["Contracts / Purchase Orders<br/>(ast_contract / proc_po)"] --> ENT["Software Entitlements<br/>(alm_license)"]
+                            SAAS_APIS["SaaS Integrations<br/>(M365 / Salesforce / Adobe Spokes)"] --> SUBS["Software Subscriptions<br/>(samp_sw_subscription)"]
                         end
 
-                        subgraph NORM ["2. NORMALIZATION ENGINE"]
-                            B1 --> C1{"Content Library<br/>PPN / DMAP Lookup"}
-                            C1 -->|"Match Found"| D1["cmdb_sam_sw_discovery_model<br/>Status: Normalized"]
-                            C1 -->|"Unrecognized"| D2["Status: Match Not Found<br/>Send to Content Service"]
-                            D2 -.->|"Weekly CDS Update"| D1
+                        subgraph NORM_BRIDGE ["2. NORMALIZATION &amp; COMMERCIAL MODELING"]
+                            INSTALL -->|Cluster &amp; Hash| DISCO_MODEL["Software Discovery Model<br/>(cmdb_sam_sw_discovery_model)"]
+                            DISCO_MODEL -->|Content Service / PPN / DMAP| SW_MODEL["Software Model Bridge<br/>(cmdb_software_product_model)"]
+                            ENT -->|Entitles Model| SW_MODEL
+                            SUBS -->|Cloud Rights| SW_MODEL
                         end
 
-                        subgraph BRIDGE ["3. THE COMMERCIAL BRIDGE"]
-                            D1 --> E1["cmdb_software_product_model<br/>Software Model Bridge"]
-                            F1["alm_license<br/>Software Entitlements (Purchases)"] --> E1
-                            F2["CMDB Topology<br/>ESXi / Cores / Sockets / VMs"] --> G1
+                        subgraph RECON_INPUTS ["3. MULTI-TRACK RECONCILIATION ENGINE"]
+                            INSTALL -->|Discovered Installs Demand| RECON{"Reconciliation Engine<br/>(7-Step Metric Calculation)"}
+                            SW_MODEL -->|Licensing Rules &amp; Suites| RECON
+                            ENT -->|Purchased Rights Supply| RECON
+                            SUBS -->|Active Subscriptions| RECON
                         end
 
-                        subgraph RECON ["4. RECONCILIATION ENGINE"]
-                            E1 --> G1{"Reconciliation Engine<br/>7-Step Metric Calculation"}
-                            G1 --> H1["samp_reconciliation_result<br/>Effective License Position (ELP)"]
-                            H1 -->|"Shortfall (Deficit)"| I1["Under-Licensed<br/>Audit True-Up Risk"]
-                            H1 -->|"Surplus (Over)"| I2["Over-Licensed<br/>Shelfware Cost Waste"]
+                        subgraph RESULTS_HIERARCHY ["4. 4-TIER RESULTS HIERARCHY &amp; REMEDIATION"]
+                            RECON --> PROD_RES["Product Results<br/>(samp_product_result)"]
+                            PROD_RES --> MODEL_RES["Software Model Results<br/>(samp_software_model_result)"]
+                            MODEL_RES --> METRIC_RES["License Metric Results<br/>(samp_license_metric_result)"]
+                            METRIC_RES --> REMED["Optimization / Remediation Options<br/>(samp_remediation_option)"]
                         end
 
-                        subgraph REMED ["5. CLOSED-LOOP REMEDIATION & HARVESTING"]
-                            I1 --> J1["Remediation Options<br/>Purchase PO / Reallocate"]
-                            I2 --> J2["Reclamation Rules<br/>Usage < 90 Days Check"]
-                            J2 --> K1["samp_sw_reclamation_candidate<br/>Automated Teams / Email Notification"]
-                            K1 --> L1["Flow Designer Uninstall Spoke<br/>Silent Client Removal"]
-                            L1 --> M1["Revoke Allocation<br/>Return Rights to Active Pool"]
-                            M1 --> B1
+                        subgraph HARVESTING ["5. CLOSED-LOOP RECLAMATION &amp; HARVESTING"]
+                            REMED --> RECLAMATION["Reclamation &amp; Harvesting<br/>(samp_sw_reclamation_candidate)"]
+                            RECLAMATION -.->|De-allocate Rights &amp; Trigger Uninstall| INSTALL
                         end
 
-                        classDef external fill:#1e1e2f,stroke:#10b981,stroke-width:2px,color:#fff
-                        classDef policy fill:#1e1e2f,stroke:#3b82f6,stroke-width:2px,color:#fff
-                        classDef entity fill:#1e1e2f,stroke:#8b5cf6,stroke-width:2px,color:#fff
-                        classDef verify fill:#1e1e2f,stroke:#f59e0b,stroke-width:2px,color:#fff
-                        classDef risk fill:#1e1e2f,stroke:#ef4444,stroke-width:2px,color:#fff
+                        classDef default fill:#161b26,stroke:#334155,stroke-width:1px,color:#f8fafc
+                        classDef blue fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        classDef green fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef purple fill:#161b26,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+                        classDef amber fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
 
-                        class A1,A2,A3,B1,B2 external
-                        class C1,D1,D2 policy
-                        class E1,F1,F2,G1 entity
-                        class H1,I2,J2,K1,L1,M1 verify
-                        class I1,J1 risk
+                        class DISCO,CI,INSTALL,DISCO_MODEL blue
+                        class CONTRACTS,ENT,SW_MODEL green
+                        class SAAS_APIS,SUBS,RECLAMATION purple
+                        class RECON,PROD_RES,MODEL_RES,METRIC_RES,REMED amber
                     </div>
                 </div>
 
                 <div class="grid-2" style="margin-top: 24px;">
                     <div class="info-card">
-                        <div class="info-card-title">1. Automated Ingestion</div>
-                        <p>Continuous discovery feeds raw application signatures and active process monitoring into <code>cmdb_sam_sw_install</code> while SaaS spokes query cloud provider subscriber APIs.</p>
+                        <div class="info-card-title">1. Three Parallel Ingestion Channels</div>
+                        <p>Raw discovery feeds physical and virtual installations into <code>cmdb_sam_sw_install</code> referencing host CIs. Procurement contracts generate <code>alm_license</code> entitlement rights. Simultaneously, SaaS IntegrationHub Spokes poll cloud provider APIs to populate <code>samp_sw_subscription</code> with active user subscriptions.</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-card-title">2. Normalization & Grouping</div>
-                        <p>Raw strings are mapped to canonical Publisher, Product, Version, and Edition records using the global Content Service, grouping thousands of messy entries into single Discovery Models.</p>
+                        <div class="info-card-title">2. Normalization &amp; Software Model Bridge</div>
+                        <p>Installs hash into <code>cmdb_sam_sw_discovery_model</code> and map via the Content Service and Discovery Maps (DMAPs) to canonical <code>cmdb_software_product_model</code> records. Entitlements and SaaS subscriptions bind to the same model, establishing the commercial bridge.</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-card-title">3. Commercial Bridging</div>
-                        <p>The Software Model connects normalized technical instances to commercial contracts and purchased entitlements (<code>alm_license</code>), factoring in server hardware core counts.</p>
+                        <div class="info-card-title">3. Multi-Track Reconciliation Engine</div>
+                        <p>Rather than evaluating a single isolated table, the 7-step reconciliation engine consumes 4 live inputs: installed software demand, purchased entitlement supply, cloud SaaS subscriptions, and software model licensing rules (downgrade rights, suite parents, and cluster core factors).</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-card-title">4. Reconciliation (ELP)</div>
-                        <p>The engine executes scheduled mathematical calculations to produce the Effective License Position, revealing compliance gaps or shelfware surpluses down to the penny.</p>
+                        <div class="info-card-title">4. 4-Tier Results Cascade &amp; Harvesting</div>
+                        <p>Calculations roll up to <code>samp_product_result</code>, break down by edition in <code>samp_software_model_result</code>, calculate compliance per metric in <code>samp_license_metric_result</code>, and output actionable <code>samp_remediation_option</code> records that drive automated reclamation harvesting.</p>
                     </div>
                 </div>
             </section>
@@ -379,6 +376,18 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Home</span>
+                    <span class="page-nav-title">Platform Hub</span>
+                </a>
+                <a href="/sam/data-model" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Master Data Model &amp; Tables</span>
+                </a>
+            </nav>
     
         </div>
     </div>

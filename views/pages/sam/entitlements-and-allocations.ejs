@@ -1,0 +1,237 @@
+<%- include('../../partials/head', { title: 'Entitlements & Allocations — SAM Pro | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#what-is-entitlement" class="toc-link">What is an Entitlement?</a>
+                    <a href="#procurement-journey" class="toc-link">From Purchase Order to License</a>
+                    <a href="#entitlement-anatomy" class="toc-link">Key Fields on an Entitlement</a>
+                    <a href="#user-vs-device-allocations" class="toc-link">User vs Device Allocations</a>
+                    <a href="#maintenance-and-downgrades" class="toc-link">Maintenance &amp; Downgrade Rights</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>Entitlements &amp; Allocations</span>
+                </div>
+                <h1 class="content-title">Contracts, Entitlements &amp; <span class="gradient-text">License Allocations</span></h1>
+                <p class="content-subtitle">
+                    Discovery tells you what is installed, but entitlements prove what you own. Learn how purchasing contracts turn into enforceable software rights in ServiceNow, and how allocating those rights to people and computers shields your company during vendor audits.
+                </p>
+            </div>
+
+            <!-- 1. What is an Entitlement -->
+            <section class="content-section" id="what-is-entitlement">
+                <h2>What is a Software Entitlement?</h2>
+                <p>
+                    If a scanning tool discovers that 500 employees have Microsoft Visio installed, is that a problem?
+                </p>
+                <p>
+                    You cannot answer that question until you look at your <strong>Software Entitlements</strong>. An entitlement is your organization's legal proof of purchase. It records that your company paid a vendor for the right to use their software under specific contractual rules.
+                </p>
+                <p>
+                    If discovery finds 500 installations of Visio, but your entitlement records show you only purchased 300 licenses, you have an immediate <strong>200-license deficit</strong>. During a vendor software audit, that deficit can translate into hundreds of thousands of dollars in penalties and back-maintenance fees.
+                </p>
+            </section>
+
+            <!-- 2. The Procurement Journey -->
+            <section class="content-section" id="procurement-journey">
+                <h2>From Purchase Order to Active Entitlement</h2>
+                <p>
+                    In ServiceNow, software entitlements do not appear out of thin air. They follow a clear journey originating in procurement:
+                </p>
+
+                <div class="diagram-block" style="margin: 24px 0;">
+                    <div class="diagram-title">The Procurement &amp; Entitlement Lifecycle Flow</div>
+                    <div class="mermaid">
+                    graph LR
+                        PO["Purchase Order<br/>(proc_po)"] --> POLINE["PO Line Item<br/>(proc_po_line)"]
+                        POLINE --> CONTRACT["Software Contract<br/>(ast_contract)"]
+                        CONTRACT --> ENT["Software Entitlement<br/>(alm_license)"]
+                        ENT -->|Assign to Person| USER_ALLOC["User Allocation<br/>(alm_entitlement_user)"]
+                        ENT -->|Assign to Machine| DEV_ALLOC["Device Allocation<br/>(alm_entitlement_asset)"]
+                        ENT -->|Links to| MODEL["Software Model<br/>(cmdb_software_product_model)"]
+                        ENT -->|Purchased Rights Supply| RECON{"Reconciliation Engine"}
+
+                        classDef po fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        classDef contract fill:#161b26,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+                        classDef ent fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef alloc fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+
+                        class PO,POLINE po
+                        class CONTRACT contract
+                        class ENT,MODEL ent
+                        class USER_ALLOC,DEV_ALLOC,RECON alloc
+                    </div>
+                </div>
+
+                <div class="info-card info-card--important">
+                    <div class="info-card-title">Database Inheritance: alm_license extends alm_asset</div>
+                    <p>
+                        In the ServiceNow database, the Software Entitlement table (<code>alm_license</code>) inherits directly from the base Asset table (<code>alm_asset</code>).
+                    </p>
+                    <p>
+                        Because it is an asset, an entitlement automatically inherits enterprise financial properties: it has an Asset Tag, a Cost Center, a Company Vendor reference, a General Ledger account code, and capital expense depreciation schedules.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 3. Key Fields on an Entitlement -->
+            <section class="content-section" id="entitlement-anatomy">
+                <h2>Key Fields on an Entitlement Record</h2>
+                <p>
+                    When an asset manager creates or inspects an entitlement in <code>alm_license</code>, these are the core fields that dictate how the license behaves during reconciliation:
+                </p>
+
+                <div class="data-table-wrapper" style="margin: 20px 0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field Label</th>
+                                <th>System Column</th>
+                                <th>What It Means in Plain English</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Software Model</strong></td>
+                                <td><code>software_model</code></td>
+                                <td>The exact product being licensed (e.g. "Microsoft SQL Server 2019 Standard").</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Purchased Rights</strong></td>
+                                <td><code>purchased_rights</code></td>
+                                <td>The total number of license units your company bought (e.g., 100 seats, 64 processor cores).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Unit Cost</strong></td>
+                                <td><code>unit_cost</code></td>
+                                <td>The price paid per license. ServiceNow uses this exact number to calculate your financial true-up penalty if you ever have a shortfall.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>License Metric</strong></td>
+                                <td><code>license_metric</code></td>
+                                <td>The legal measurement rule agreed to with the vendor (e.g. <em>Per User</em>, <em>Per Device</em>, <em>Per Core</em>).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Active Dates</strong></td>
+                                <td><code>start_date</code> / <code>end_date</code></td>
+                                <td>The window when this license is legally valid. If an entitlement has expired, reconciliation treats it as zero available rights.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Publisher Part Number (PPN)</strong></td>
+                                <td><code>publisher_part_number</code></td>
+                                <td>The vendor's official catalog SKU (e.g., 228-11548). ServiceNow uses this code to automatically populate the correct product, version, and licensing metric.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. User vs Device Allocations -->
+            <section class="content-section" id="user-vs-device-allocations">
+                <h2>User Allocations vs. Device Allocations</h2>
+                <p>
+                    Having 100 purchased licenses sitting in a general pool is good, but assigning them to specific people or machines is much better. In ServiceNow, this is called <strong>Allocation</strong>:
+                </p>
+
+                <div class="grid-2" style="margin: 20px 0;">
+                    <div class="card-basic">
+                        <h4 style="color: #3b82f6;">User Allocations (<code>alm_entitlement_user</code>)</h4>
+                        <p>
+                            You assign a license right to a specific employee (<code>sys_user</code>).
+                        </p>
+                        <p>
+                            <strong>The Big Benefit:</strong> Many vendor agreements (like Adobe Creative Cloud or Microsoft 365) allow a single licensed user to install the software on up to two or three devices (e.g. their office desktop, their travel laptop, and their home computer).
+                        </p>
+                        <p>
+                            With a User Allocation, ServiceNow recognizes that all three installations belong to the same person and only consumes <strong>one single license right</strong> instead of three!
+                        </p>
+                    </div>
+
+                    <div class="card-basic">
+                        <h4 style="color: #10b981;">Device Allocations (<code>alm_entitlement_asset</code>)</h4>
+                        <p>
+                            You bind a license directly to a physical machine or server (<code>cmdb_ci_computer</code> / <code>cmdb_ci_server</code>).
+                        </p>
+                        <p>
+                            <strong>The Big Benefit:</strong> Perfect for shared environments like computer training labs, hospital nurse stations, or manufacturing shop floors where 10 different employees log into the same computer across different shifts.
+                        </p>
+                        <p>
+                            The license stays attached to the workstation, regardless of who signs into the machine.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Maintenance and Downgrade Rights -->
+            <section class="content-section" id="maintenance-and-downgrades">
+                <h2>Maintenance &amp; Downgrade Rights</h2>
+                <p>
+                    Enterprise software agreements frequently include special contractual perks that save companies millions, provided they are tracked correctly:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Downgrade Rights: Covering Older Software</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    <strong>How It Works:</strong> If your company purchases 100 licenses of <strong>Windows Server 2022</strong>, Microsoft's contract allows you to run older versions (such as Windows Server 2019 or 2016) using those same 2022 license rights.
+                                </p>
+                                <p>
+                                    When you check the <strong>Downgrade Rights</strong> checkbox on an entitlement, ServiceNow automatically builds a version tree. During reconciliation, if it finds servers still running older versions, it safely applies your unused 2022 license pool to cover them, preventing false audit alarms.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Software Assurance &amp; Upgrade Rights</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    <strong>How It Works:</strong> Companies pay annual maintenance fees (such as Microsoft Software Assurance or Oracle Support) to receive technical support and free upgrades to newly released versions.
+                                </p>
+                                <p>
+                                    In ServiceNow, linking an entitlement to an active contract in <code>ast_contract</code> automatically grants <strong>Upgrade Rights</strong>. When a vendor launches a new version, SAM Pro unlocks the upgraded entitlement without requiring your procurement team to repurchase full retail licenses.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/sam/saas-and-cloud" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">SaaS &amp; Cloud Subscriptions</span>
+                </a>
+                <a href="/sam/reconciliation" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Reconciliation Engine</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

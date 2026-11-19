@@ -263,12 +263,17 @@ gs.info('Initiated On-Demand Reconciliation Job. Run ID: ' + runId);</code></pre
                 </div>
 
                 <div class="info-card info-card--tip" style="margin-top: 16px;">
-                    <div class="info-card-title">Querying Effective License Position via REST / Table API</div>
+                    <div class="info-card-title">Querying Reconciliation Results Hierarchy via REST / Table API</div>
                     <p>
-                        To expose SAM metrics to third-party BI tools (Power BI, Tableau) or custom portal widgets, developers query the <code>samp_license_metric_result</code> endpoint:
+                        To expose executive SAM compliance metrics and drilldown positions to enterprise BI tools (Power BI, Tableau) or custom ServiceNow executive portal widgets, developers query the <code>samp_product_result</code> and <code>samp_software_model_result</code> endpoints:
                     </p>
                     <div class="code-block" style="margin-top: 8px;">
-                        <pre><code>GET /api/now/table/samp_license_metric_result?sysparm_query=compliance_status=non_compliant^ORDERBYDESCtrue_up_cost&sysparm_fields=software_model.display_name,rights_owned,rights_used,over_under,true_up_cost</code></pre>
+                        <div class="code-header"><span class="code-lang">REST — High-Level Product Rollup Compliance</span></div>
+                        <pre><code>GET /api/now/table/samp_product_result?sysparm_query=license_position=non_compliant^ORDERBYDESCtrue_up_cost&amp;sysparm_fields=product.name,publisher.name,license_position,rights_owned,rights_required,over_install_count,true_up_cost</code></pre>
+                    </div>
+                    <div class="code-block" style="margin-top: 12px;">
+                        <div class="code-header"><span class="code-lang">REST — Granular Software Model Drilldown</span></div>
+                        <pre><code>GET /api/now/table/samp_software_model_result?sysparm_query=status=non_compliant^ORDERBYDESCtrue_up_cost&amp;sysparm_fields=product_result.number,software_model.display_name,publisher.name,status,unlicensed_installs,true_up_cost</code></pre>
                     </div>
                 </div>
             </section>
@@ -352,6 +357,18 @@ while (grHost.next()) {
                     </div>
                 </div>
             </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/sam/remediation" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Remediation &amp; Reclamation</span>
+                </a>
+                <a href="/sam/simulator" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Process Simulator</span>
+                </a>
+            </nav>
     
         </div>
     </div>

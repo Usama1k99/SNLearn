@@ -70,8 +70,13 @@
                         end
 
                         subgraph ReconciliationLayer["Layer 4: Reconciliation, ELP and Remediation"]
-                            MODEL -->|Evaluates| RECON_RUN["Reconciliation Runs<br/>(samp_reconciliation_result)"]
-                            RECON_RUN -->|Granular ELP| METRIC_RES["License Metric Results<br/>(samp_license_metric_result)"]
+                            INSTALL -.->|Discovered Installs| RECON_RUN["Reconciliation Runs<br/>(samp_reconciliation_result)"]
+                            ENT -.->|Purchased Rights| RECON_RUN
+                            SAAS -.->|SaaS Subscriptions| RECON_RUN
+                            MODEL -->|Licensing Rules| RECON_RUN
+                            RECON_RUN -->|Rolls Up Product| PROD_RES["Product Results<br/>(samp_product_result)"]
+                            PROD_RES -->|Drills Down Model| MODEL_RES["Software Model Results<br/>(samp_software_model_result)"]
+                            MODEL_RES -->|Granular ELP Metric| METRIC_RES["License Metric Results<br/>(samp_license_metric_result)"]
                             METRIC_RES -->|Generates on Deficit| REMED["Remediation Options<br/>(samp_remediation_option)"]
                             METRIC_RES -->|Flags| UNLIC["Unlicensed Installs<br/>(samp_sw_unlicensed_install)"]
                         end
@@ -91,7 +96,7 @@
 
                         class MODEL,ENT highlight
                         class DISCO,INSTALL blue
-                        class METRIC_RES,REMED amber
+                        class RECON_RUN,PROD_RES,MODEL_RES,METRIC_RES,REMED amber
                         class RECL_CAND,SAAS purple
                     </div>
                 </div>
@@ -252,17 +257,35 @@
                                 <td><code>samp_reconciliation_result</code></td>
                                 <td>Standalone</td>
                                 <td><code>run_by</code> (sys_user)</td>
-                                <td><code>samp_license_metric_result.reconciliation_result</code></td>
-                                <td>1:N to Metric Results</td>
+                                <td><code>samp_product_result.reconciliation_result</code></td>
+                                <td>1:N to Product Results</td>
                                 <td>Top-level header record for a reconciliation run, storing compliance % and true-up liability.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Product Results</strong></td>
+                                <td><code>samp_product_result</code></td>
+                                <td>Standalone</td>
+                                <td><code>reconciliation_result</code>, <code>publisher</code>, <code>product</code></td>
+                                <td><code>samp_software_model_result.product_result</code></td>
+                                <td>N:1 to Reconciliation, 1:N to Model Results</td>
+                                <td>Consolidated compliance rollup per software product line across the enterprise.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Model Results</strong></td>
+                                <td><code>samp_software_model_result</code></td>
+                                <td>Standalone</td>
+                                <td><code>product_result</code>, <code>software_model</code>, <code>reconciliation_result</code></td>
+                                <td><code>samp_license_metric_result.software_model_result</code></td>
+                                <td>N:1 to Product Result, N:1 to Software Model, 1:N to Metric Results</td>
+                                <td>Drilldown compliance position for each specific software model edition and version.</td>
                             </tr>
                             <tr>
                                 <td><strong>License Metric Results</strong></td>
                                 <td><code>samp_license_metric_result</code></td>
                                 <td>Standalone</td>
-                                <td><code>reconciliation_result</code>, <code>software_model</code></td>
+                                <td><code>software_model_result</code>, <code>reconciliation_result</code>, <code>software_model</code></td>
                                 <td><code>samp_remediation_option.license_metric_result</code></td>
-                                <td>N:1 to Reconciliation, N:1 to Model</td>
+                                <td>N:1 to Model Result, N:1 to Model</td>
                                 <td>Granular Effective License Position (ELP) lines: rights owned, rights used, over/under balance.</td>
                             </tr>
                             <tr>
@@ -1808,6 +1831,346 @@
                     </div>
                 </div>
 
+                <!-- samp_product_result -->
+                <div class="card-basic" style="margin-top: 24px; padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Product Results (<code>samp_product_result</code>)</h3>
+                        <span class="badge badge-purple">Product Rollup</span>
+                    </div>
+                    <p>
+                        High-level reconciliation results grouped at the software product line level. Aggregates all underlying models, editions, installations, and subscriptions for each vendor product line (e.g., Microsoft 365, Oracle Database, VMware vSphere) to provide executive compliance rollups and overall financial risk.
+                    </p>
+
+                    <h4>Field Dictionary (Default Schema)</h4>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Column Label</th>
+                                    <th>System Name</th>
+                                    <th>Data Type</th>
+                                    <th>Reference Target</th>
+                                    <th>Mandatory</th>
+                                    <th>Functional Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Product Result Number</td>
+                                    <td><code>number</code></td>
+                                    <td>String (40)</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Unique system-generated identifier for the product result (e.g. PR0010041).</td>
+                                </tr>
+                                <tr>
+                                    <td>Reconciliation Result</td>
+                                    <td><code>reconciliation_result</code></td>
+                                    <td>Reference</td>
+                                    <td><code>samp_reconciliation_result</code></td>
+                                    <td>Yes</td>
+                                    <td>Foreign key linking the product result to the parent reconciliation run execution.</td>
+                                </tr>
+                                <tr>
+                                    <td>Product</td>
+                                    <td><code>product</code></td>
+                                    <td>Reference</td>
+                                    <td><code>cmdb_software_product</code></td>
+                                    <td>Yes</td>
+                                    <td>Normalized software product line being evaluated (e.g. Microsoft 365, Oracle Database).</td>
+                                </tr>
+                                <tr>
+                                    <td>Publisher</td>
+                                    <td><code>publisher</code></td>
+                                    <td>Reference</td>
+                                    <td><code>core_company</code></td>
+                                    <td>Yes</td>
+                                    <td>Software vendor/publisher owning the product line.</td>
+                                </tr>
+                                <tr>
+                                    <td>License Position</td>
+                                    <td><code>license_position</code></td>
+                                    <td>Choice</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Overall compliance status for this product: Compliant, Non-compliant, Over-licensed.</td>
+                                </tr>
+                                <tr>
+                                    <td>Rights Owned</td>
+                                    <td><code>rights_owned</code></td>
+                                    <td>Integer</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Total purchased license rights owned across all models in this product line.</td>
+                                </tr>
+                                <tr>
+                                    <td>Rights Required</td>
+                                    <td><code>rights_required</code></td>
+                                    <td>Integer</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Total license rights required based on discovered installations, virtualization, and users.</td>
+                                </tr>
+                                <tr>
+                                    <td>Over-Install Count</td>
+                                    <td><code>over_install_count</code></td>
+                                    <td>Integer</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Number of discovered installations exceeding currently purchased entitlements.</td>
+                                </tr>
+                                <tr>
+                                    <td>True-Up Cost</td>
+                                    <td><code>true_up_cost</code></td>
+                                    <td>Currency</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Estimated financial expenditure required to remediate non-compliant shortfall positions.</td>
+                                </tr>
+                                <tr>
+                                    <td>Over-Licensed Cost</td>
+                                    <td><code>over_licensed_cost</code></td>
+                                    <td>Currency</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Estimated enterprise budget waste locked in unutilized surplus shelfware licenses.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Sample Production Records</h4>
+                    <div class="data-table-wrapper" style="margin-top: 16px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Result ID</th>
+                                    <th>Recon Run</th>
+                                    <th>Product Line</th>
+                                    <th>Publisher</th>
+                                    <th>Status</th>
+                                    <th>Rights Owned</th>
+                                    <th>Rights Req</th>
+                                    <th>Over-Installs</th>
+                                    <th>True-Up Cost</th>
+                                    <th>Shelfware</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>PR0010041</code></td>
+                                    <td>REC0001091</td>
+                                    <td>Microsoft 365</td>
+                                    <td>Microsoft Corporation</td>
+                                    <td><span class="status-glow status-glow-success">Compliant</span></td>
+                                    <td>850</td>
+                                    <td>820</td>
+                                    <td>0</td>
+                                    <td>$0.00</td>
+                                    <td>$10,800.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>PR0010042</code></td>
+                                    <td>REC0001091</td>
+                                    <td>Oracle Database</td>
+                                    <td>Oracle Corporation</td>
+                                    <td><span class="status-glow status-glow-danger">Non-Compliant</span></td>
+                                    <td>32</td>
+                                    <td>48</td>
+                                    <td>16</td>
+                                    <td>$420,000.00</td>
+                                    <td>$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>PR0010043</code></td>
+                                    <td>REC0001091</td>
+                                    <td>VMware vSphere</td>
+                                    <td>Broadcom / VMware</td>
+                                    <td><span class="status-glow status-glow-danger">Non-Compliant</span></td>
+                                    <td>64</td>
+                                    <td>80</td>
+                                    <td>16</td>
+                                    <td>$76,800.00</td>
+                                    <td>$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>PR0010044</code></td>
+                                    <td>REC0001091</td>
+                                    <td>Adobe Creative Cloud</td>
+                                    <td>Adobe Systems Inc.</td>
+                                    <td><span class="status-glow status-glow-success">Compliant</span></td>
+                                    <td>120</td>
+                                    <td>115</td>
+                                    <td>0</td>
+                                    <td>$0.00</td>
+                                    <td>$4,200.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- samp_software_model_result -->
+                <div class="card-basic" style="margin-top: 24px; padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Software Model Results (<code>samp_software_model_result</code>)</h3>
+                        <span class="badge badge-blue">Model Position</span>
+                    </div>
+                    <p>
+                        Granular reconciliation compliance results calculated per Software Model (<code>cmdb_software_product_model</code>). Connects parent product results to metric-level calculations, isolating exact compliance status, unlicensed installations, and true-up liability per specific version and edition.
+                    </p>
+
+                    <h4>Field Dictionary (Default Schema)</h4>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Column Label</th>
+                                    <th>System Name</th>
+                                    <th>Data Type</th>
+                                    <th>Reference Target</th>
+                                    <th>Mandatory</th>
+                                    <th>Functional Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Model Result Number</td>
+                                    <td><code>number</code></td>
+                                    <td>String (40)</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Unique identifier for the software model result (e.g. SMR0010081).</td>
+                                </tr>
+                                <tr>
+                                    <td>Product Result</td>
+                                    <td><code>product_result</code></td>
+                                    <td>Reference</td>
+                                    <td><code>samp_product_result</code></td>
+                                    <td>Yes</td>
+                                    <td>Parent product result aggregating related software model editions.</td>
+                                </tr>
+                                <tr>
+                                    <td>Software Model</td>
+                                    <td><code>software_model</code></td>
+                                    <td>Reference</td>
+                                    <td><code>cmdb_software_product_model</code></td>
+                                    <td>Yes</td>
+                                    <td>Specific software product model version/edition being evaluated for compliance.</td>
+                                </tr>
+                                <tr>
+                                    <td>Publisher</td>
+                                    <td><code>publisher</code></td>
+                                    <td>Reference</td>
+                                    <td><code>core_company</code></td>
+                                    <td>Yes</td>
+                                    <td>Vendor/publisher of the software model.</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td><code>status</code></td>
+                                    <td>Choice</td>
+                                    <td>—</td>
+                                    <td>Yes</td>
+                                    <td>Compliance state: Compliant, Non-compliant, or Not Evaluated.</td>
+                                </tr>
+                                <tr>
+                                    <td>Reconciliation Result</td>
+                                    <td><code>reconciliation_result</code></td>
+                                    <td>Reference</td>
+                                    <td><code>samp_reconciliation_result</code></td>
+                                    <td>Yes</td>
+                                    <td>Links directly to the top-level reconciliation run header.</td>
+                                </tr>
+                                <tr>
+                                    <td>Unlicensed Installs</td>
+                                    <td><code>unlicensed_installs</code></td>
+                                    <td>Integer</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Count of installed instances on endpoints/servers not covered by purchased rights.</td>
+                                </tr>
+                                <tr>
+                                    <td>True-Up Cost</td>
+                                    <td><code>true_up_cost</code></td>
+                                    <td>Currency</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Financial shortfall cost calculated for this exact software model edition.</td>
+                                </tr>
+                                <tr>
+                                    <td>Over-Licensed Cost</td>
+                                    <td><code>over_licensed_cost</code></td>
+                                    <td>Currency</td>
+                                    <td>—</td>
+                                    <td>No</td>
+                                    <td>Unutilized budget allocated to surplus licenses for this model.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Sample Production Records</h4>
+                    <div class="data-table-wrapper" style="margin-top: 16px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Result ID</th>
+                                    <th>Parent Product Result</th>
+                                    <th>Software Model</th>
+                                    <th>Publisher</th>
+                                    <th>Status</th>
+                                    <th>Unlicensed</th>
+                                    <th>True-Up Cost</th>
+                                    <th>Shelfware</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>SMR0010081</code></td>
+                                    <td>PR0010041</td>
+                                    <td>Microsoft 365 Enterprise E5</td>
+                                    <td>Microsoft Corporation</td>
+                                    <td><span class="status-glow status-glow-success">Compliant</span></td>
+                                    <td>0</td>
+                                    <td>$0.00</td>
+                                    <td>$7,200.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>SMR0010082</code></td>
+                                    <td>PR0010041</td>
+                                    <td>Microsoft 365 Enterprise E3</td>
+                                    <td>Microsoft Corporation</td>
+                                    <td><span class="status-glow status-glow-success">Compliant</span></td>
+                                    <td>0</td>
+                                    <td>$0.00</td>
+                                    <td>$3,600.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>SMR0010083</code></td>
+                                    <td>PR0010042</td>
+                                    <td>Oracle Database 19c Enterprise</td>
+                                    <td>Oracle Corporation</td>
+                                    <td><span class="status-glow status-glow-danger">Non-Compliant</span></td>
+                                    <td>16</td>
+                                    <td>$420,000.00</td>
+                                    <td>$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td><code>SMR0010084</code></td>
+                                    <td>PR0010043</td>
+                                    <td>VMware vSphere Enterprise Plus 8.0</td>
+                                    <td>Broadcom / VMware</td>
+                                    <td><span class="status-glow status-glow-danger">Non-Compliant</span></td>
+                                    <td>16</td>
+                                    <td>$76,800.00</td>
+                                    <td>$0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- samp_license_metric_result -->
                 <div class="card-basic" style="margin-top: 24px; padding: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -1839,6 +2202,14 @@
                                     <td><code>samp_reconciliation_result</code></td>
                                     <td>Yes</td>
                                     <td>Foreign key linking the line item back to the master audit header.</td>
+                                </tr>
+                                <tr>
+                                    <td>Software Model Result</td>
+                                    <td><code>software_model_result</code></td>
+                                    <td>Reference</td>
+                                    <td><code>samp_software_model_result</code></td>
+                                    <td>Yes</td>
+                                    <td>Direct foreign key back to the parent Software Model Result.</td>
                                 </tr>
                                 <tr>
                                     <td>Software Model</td>
@@ -2508,6 +2879,18 @@
                     </ul>
                 </div>
             </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/sam/overview" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Overview &amp; Architecture</span>
+                </a>
+                <a href="/sam/normalization" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Discovery &amp; Normalization</span>
+                </a>
+            </nav>
     
         </div>
     </div>

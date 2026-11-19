@@ -141,6 +141,8 @@ app.post('/api/user-prefs', async (req, res) => {
 // Routes
 // 1. Root route
 app.get('/', (req, res) => {
+    res.locals.activeModule = '';
+    res.locals.activePage = '';
     res.render('pages/index');
 });
 
@@ -156,6 +158,7 @@ const renderModulePage = (req, res, next) => {
     const allowedModules = ['basics', 'itsm', 'ham', 'sam', 'irm', 'secops'];
     
     if (allowedModules.includes(moduleName)) {
+        res.locals.activeModule = moduleName;
         res.locals.activePage = pageName;
         res.render(`pages/${moduleName}/${pageName}`, (err, html) => {
             if (err) {

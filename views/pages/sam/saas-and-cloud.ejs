@@ -1,0 +1,253 @@
+<%- include('../../partials/head', { title: 'SaaS & Cloud Subscriptions — SAM Pro | SN Learn', styles: ['/styles/module-layout.css'] }) %>
+<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+
+<main class="irm-page">
+    <div class="irm-page-layout">
+        <aside class="irm-sidebar">
+            <%- include('../../partials/sidebar-nav', { module: 'sam', moduleLabel: 'SAM', activePage: typeof activePage !== 'undefined' ? activePage : '' }) %>
+            
+            <div class="sidebar-section toc-section">
+                <div class="sidebar-label">On This Page</div>
+                <nav class="sidebar-nav">
+                    <a href="#why-saas-matters" class="toc-link">Why SaaS Needs Special Care</a>
+                    <a href="#how-integrations-work" class="toc-link">How SaaS Integrations Work</a>
+                    <a href="#data-flow-and-tables" class="toc-link">Which Tables Store SaaS Data</a>
+                    <a href="#activity-and-metering" class="toc-link">Tracking Real User Activity</a>
+                    <a href="#cost-saving-use-cases" class="toc-link">Two Real Cost-Saving Plays</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="irm-content">
+            
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/">Home</a><span class="breadcrumb-sep">›</span><a href="/sam">SAM</a><span class="breadcrumb-sep">›</span><span>SaaS &amp; Cloud Subscriptions</span>
+                </div>
+                <h1 class="content-title">SaaS &amp; Cloud <span class="gradient-text">Subscription Management</span></h1>
+                <p class="content-subtitle">
+                    Modern software isn't just installed on laptops; it lives in the cloud. Learn how ServiceNow talks directly to cloud providers like Microsoft, Google, Adobe, and Salesforce to track who has access, see who is actually using it, and reclaim wasted subscription spend.
+                </p>
+            </div>
+
+            <!-- 1. Why SaaS Matters -->
+            <section class="content-section" id="why-saas-matters">
+                <h2>Why SaaS Needs Special Care</h2>
+                <p>
+                    In traditional IT, checking if someone had Microsoft Word meant scanning their hard drive to see if the file <code>WINWORD.EXE</code> existed on their machine. If the file was there, a license was being used.
+                </p>
+                <p>
+                    Today, cloud applications like <strong>Microsoft 365, Salesforce, Adobe Creative Cloud, Zoom, and Google Workspace</strong> work completely differently:
+                </p>
+
+                <div class="grid-2" style="margin: 20px 0;">
+                    <div class="card-basic">
+                        <h4 style="color: #3b82f6;">Traditional On-Premises Software</h4>
+                        <ul class="feature-bullet-list">
+                            <li>Installed as binary files on physical or virtual hard drives.</li>
+                            <li>Discovered by scanning network IP addresses or running agent software on computers.</li>
+                            <li>Licenses are tied to device hardware (like processor cores) or local operating system logins.</li>
+                        </ul>
+                    </div>
+                    <div class="card-basic">
+                        <h4 style="color: #10b981;">Cloud &amp; SaaS Subscriptions</h4>
+                        <ul class="feature-bullet-list">
+                            <li>Accessed through a web browser or mobile app from anywhere in the world.</li>
+                            <li>Assigned to an individual person's work email address in a vendor's online admin portal.</li>
+                            <li>Billed on a recurring monthly or annual subscription fee per seat, whether the person uses it or not.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p>
+                    Because cloud software doesn't leave traditional footprints on a network scanner, companies frequently waste millions of dollars paying for licenses assigned to employees who switched departments, never log in, or have left the organization. ServiceNow SAM Pro connects directly to cloud APIs to fix this.
+                </p>
+            </section>
+
+            <!-- 2. How SaaS Integrations Work -->
+            <section class="content-section" id="how-integrations-work">
+                <h2>How SaaS Integrations Work</h2>
+                <p>
+                    ServiceNow does not wait for a local computer scan. Instead, it uses <strong>IntegrationHub SaaS Spokes</strong> to reach out directly to cloud vendor management consoles over secure REST APIs.
+                </p>
+
+                <div class="diagram-block" style="margin: 24px 0;">
+                    <div class="diagram-title">SaaS API Ingestion &amp; User Matching Pipeline</div>
+                    <div class="mermaid">
+                    graph LR
+                        CLOUD["Cloud Vendor Portals<br/>(Microsoft Graph, Adobe, Salesforce)"] -->|Secure OAuth REST API| SPOKE["ServiceNow IntegrationHub<br/>(SaaS Spoke)"]
+                        SPOKE --> PROFILE["Connection Profile<br/>(samp_sw_subscription_profile)"]
+                        PROFILE --> SUBS["Software Subscriptions<br/>(samp_sw_subscription)"]
+                        SUBS -->|Match by Email / UPN| USER["User Master<br/>(sys_user)"]
+                        SUBS -->|Links to| MODEL["Software Model Bridge<br/>(cmdb_software_product_model)"]
+                        SUBS -->|Feeds Cloud Rights| RECON{"Reconciliation Engine"}
+
+                        classDef vendor fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        classDef spoke fill:#161b26,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+                        classDef table fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef engine fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+
+                        class CLOUD vendor
+                        class SPOKE,PROFILE spoke
+                        class SUBS,USER,MODEL table
+                        class RECON engine
+                    </div>
+                </div>
+
+                <p>
+                    This automated integration performs three vital tasks on a regular schedule (usually daily):
+                </p>
+                <ol class="feature-bullet-list" style="margin-left: 20px;">
+                    <li><strong>Subscriber Roster Ingestion:</strong> Downloads the complete list of everyone assigned a license in the cloud vendor's admin portal.</li>
+                    <li><strong>User Resolution:</strong> Takes the email address or username returned by the vendor and matches it to an active employee record in the ServiceNow User table (<code>sys_user</code>).</li>
+                    <li><strong>Activity Check:</strong> Inquires when each user last opened an application, signed in, or edited a file in that cloud service.</li>
+                </ol>
+            </section>
+
+            <!-- 3. Which Tables Store What -->
+            <section class="content-section" id="data-flow-and-tables">
+                <h2>Which Tables Store SaaS Data</h2>
+                <p>
+                    Here is where SaaS integration data lands inside the ServiceNow relational data model:
+                </p>
+
+                <div class="data-table-wrapper" style="margin: 20px 0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Table Name</th>
+                                <th>Database Table</th>
+                                <th>What It Stores in Plain English</th>
+                                <th>Why It Matters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Software Subscriptions</strong></td>
+                                <td><code>samp_sw_subscription</code></td>
+                                <td>One row for every single cloud license assigned to a user (e.g. "Jane Doe has a Microsoft 365 E5 license").</td>
+                                <td>This is the central table for SaaS. It holds the user reference, the plan/SKU name, and whether the subscription is active.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Subscription Profiles</strong></td>
+                                <td><code>samp_sw_subscription_profile</code></td>
+                                <td>The connection settings and API credentials used to talk to the cloud vendor.</td>
+                                <td>Stores the OAuth connection, tenant ID, and polling schedule for the integration spoke.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Product Model</strong></td>
+                                <td><code>cmdb_software_product_model</code></td>
+                                <td>The standard catalog representation of the software (e.g., "Microsoft 365 Enterprise E5").</td>
+                                <td>Bridges the vendor's technical subscription SKU to your organization's financial contracts and reconciliation rules.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Master Table</strong></td>
+                                <td><code>sys_user</code></td>
+                                <td>Your company's directory of employees, contractors, departments, and managers.</td>
+                                <td>Connects subscription cost to an employee's department and manager so costs can be accurately cross-charged.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SaaS User Usage</strong></td>
+                                <td><code>samp_sw_usage</code></td>
+                                <td>Activity timestamps and feature usage numbers pulled from the cloud API.</td>
+                                <td>Tells you when the user last signed in and which specific services (Word, Teams, Power BI) they actually used.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. Real User Activity -->
+            <section class="content-section" id="activity-and-metering">
+                <h2>Tracking Real User Activity &amp; Inactivity</h2>
+                <p>
+                    Owning a subscription is not the same as using it. Many employees sign up for a tool during a project, finish their work, and never touch the app again.
+                </p>
+                <p>
+                    ServiceNow compares the <code>last_used</code> timestamp from the vendor API against your organization's <strong>Reclamation Rules (<code>samp_sw_reclamation_rule</code>)</strong>:
+                </p>
+
+                <div class="grid-2">
+                    <div class="info-card">
+                        <div class="info-card-title">60-Day Inactivity Rule</div>
+                        <p>
+                            If an employee has not launched Zoom or logged into Salesforce in 60 continuous days, ServiceNow flags the record as an <strong>inactive candidate</strong>.
+                        </p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">Automated Friendly Verification</div>
+                        <p>
+                            Before pulling the plug, ServiceNow sends an automated message via Microsoft Teams, Slack, or email asking: <em>"We noticed you haven't used Salesforce recently. Do you still need it?"</em>
+                        </p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 16px;">
+                    If the user confirms they no longer need the software (or fails to respond after 5 business days), ServiceNow uses the IntegrationHub Spoke to <strong>automatically revoke the cloud license via API</strong> and returns the seat to your company's pool of available rights.
+                </p>
+            </section>
+
+            <!-- 5. Cost-Saving Use Cases -->
+            <section class="content-section" id="cost-saving-use-cases">
+                <h2>Two Real Cost-Saving Plays</h2>
+                <p>
+                    Understanding SaaS data empowers SAM managers to execute two of the highest-impact financial optimizations in enterprise IT:
+                </p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Play 1: Inactive License Harvesting</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    <strong>The Scenario:</strong> A department hires 50 contractors for a 3-month project and assigns each an Adobe Creative Cloud license (\$85/month each). When the project ends, the contractors leave, but the licenses remain assigned in the Adobe Admin Console.
+                                </p>
+                                <p>
+                                    <strong>The ServiceNow Solution:</strong> Because the contractors have been deactivated in <code>sys_user</code> or haven't logged in for 30 days, SAM flags them immediately in <code>samp_sw_reclamation_candidate</code>. The system revokes the seats via API, saving the enterprise \$51,000 annually without anyone having to file a support ticket.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger">
+                            <span class="accordion-trigger-text">Play 2: Tier Right-Sizing (e.g., Microsoft 365 E5 to E3)</span>
+                            <span class="accordion-icon">▾</span>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <p>
+                                    <strong>The Scenario:</strong> An organization gives all 5,000 employees a top-tier Microsoft 365 E5 license (\$57/user/month). E5 includes premium enterprise features like Power BI Pro, Teams Phone, and advanced compliance analytics.
+                                </p>
+                                <p>
+                                    <strong>The ServiceNow Solution:</strong> ServiceNow queries the Microsoft Graph API for granular feature activity. It discovers that 2,000 of those employees only ever open web Outlook, Word, and Excel. They never touch Power BI or advanced phone features.
+                                </p>
+                                <p>
+                                    SAM Pro recommends downgrading those 2,000 users to a Microsoft 365 E3 license (\$36/user/month). This single recommendation saves the company <strong>\$504,000 every year</strong> (\$21/month &times; 2,000 users &times; 12 months) without affecting any employee's daily productivity.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/sam/normalization" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Discovery &amp; Normalization</span>
+                </a>
+                <a href="/sam/entitlements-and-allocations" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Entitlements &amp; Allocations</span>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+</main>
+
+<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>

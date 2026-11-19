@@ -2794,4 +2794,140 @@ document.querySelectorAll('.module-card, .page-card').forEach(el => {
     }
 })();
 
+// ============================================
+// Navigation Center Indicator Hydration
+// ============================================
+(function initNavCenterIndicator() {
+    const MODULE_LABELS = {
+        'basics': 'Basics',
+        'itsm': 'ITSM',
+        'ham': 'HAM',
+        'sam': 'SAM',
+        'irm': 'IRM',
+        'secops': 'SecOps'
+    };
+
+    const MODULE_PAGE_MAP = {
+        'basics': {
+            'overview': 'The Big Picture & Overview',
+            'pdi-setup': 'Claim PDI & UI Navigation',
+            'data-architecture': 'Tables, Records & Sys IDs',
+            'forms-and-lists': 'Forms, Lists & Filters',
+            'client-scripting': 'UI Policies & Client Scripts',
+            'server-scripting': 'Business Rules & Script Includes',
+            'flow-designer': 'Flow Designer Automation',
+            'security-and-scopes': 'Security, Roles & Update Sets',
+            'app-builder-sandbox': 'Custom App Sandbox Lab',
+            'career-roadmap': 'Career & Learning Roadmap'
+        },
+        'itsm': {
+            'overview': 'Overview & Architecture',
+            'data-model': 'Master Data Model & CSDM',
+            'incident-management': 'Incident & Major Incident',
+            'problem-management': 'Problem Management & KEDB',
+            'change-management': 'Change & Release Management',
+            'service-catalog': 'Service Catalog & Requests',
+            'knowledge-management': 'Knowledge Management',
+            'sla-management': 'Service Level Management',
+            'service-operations-workspace': 'Service Operations Workspace',
+            'walkup-and-cim': 'Walk-up Experience & CIM',
+            'developer-patterns': 'Developer Patterns & APIs',
+            'simulator': 'Process Simulator'
+        },
+        'ham': {
+            'overview': 'Overview & Architecture',
+            'data-model': 'Asset & CI Data Model',
+            'procurement': 'Procurement Lifecycle',
+            'inventory': 'Stockrooms & Transfer Orders',
+            'disposal': 'Disposal & Retirement',
+            'developer-patterns': 'Developer Patterns & APIs',
+            'simulator': 'Process Simulator'
+        },
+        'sam': {
+            'overview': 'Overview & Architecture',
+            'data-model': 'Data Model & Tables',
+            'normalization': 'Discovery & Normalization',
+            'saas-and-cloud': 'SaaS & Cloud Subscriptions',
+            'entitlements-and-allocations': 'Entitlements & Allocations',
+            'reconciliation': 'Reconciliation Engine',
+            'remediation': 'Remediation & Reclamation',
+            'developer-patterns': 'Developer Patterns & APIs',
+            'simulator': 'Process Simulator'
+        },
+        'irm': {
+            'overview': 'Overview & Architecture',
+            'data-model': 'Entity Framework & Data Model',
+            'risk-lifecycle': 'Risk Management Lifecycle',
+            'policy-compliance': 'Policy & Compliance',
+            'audit-regulatory': 'Audit & Regulatory Change',
+            'tprm': 'Third-Party Risk (TPRM)',
+            'operational-resilience': 'Operational Resilience & BCM',
+            'continuous-monitoring': 'Continuous Monitoring',
+            'issues-remediation': 'Issues & Remediation',
+            'developer-patterns': 'Developer Patterns & APIs',
+            'simulator': 'Process Simulator'
+        },
+        'secops': {
+            'overview': 'Overview & Architecture',
+            'data-model': 'SecOps Data Model',
+            'sir-lifecycle': 'SIR Lifecycle & Playbooks',
+            'vulnerability-response': 'Vulnerability Response',
+            'threat-intelligence': 'Threat Intelligence',
+            'developer-patterns': 'Developer Patterns',
+            'simulator': 'Process Simulator'
+        }
+    };
+
+    function updateNavIndicator() {
+        const pathParts = window.location.pathname.replace(/^\/|\/$/g, '').split('/');
+        const currentModule = pathParts[0] || '';
+        const currentPage = (pathParts[1] || 'index').replace(/\.html$/, '');
+
+        const container = document.getElementById('navCenterIndicator');
+        if (!container) return;
+
+        const isModule = Object.prototype.hasOwnProperty.call(MODULE_LABELS, currentModule);
+        if (!isModule) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+            return;
+        }
+
+        const isModuleHome = !currentPage || currentPage === 'index';
+        const moduleLabel = MODULE_LABELS[currentModule];
+        let pageLabel = '';
+
+        if (!isModuleHome) {
+            if (MODULE_PAGE_MAP[currentModule] && MODULE_PAGE_MAP[currentModule][currentPage]) {
+                pageLabel = MODULE_PAGE_MAP[currentModule][currentPage];
+            } else {
+                pageLabel = currentPage.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+            }
+        }
+
+        container.style.display = 'flex';
+        container.innerHTML = `
+            <div class="nav-module-breadcrumb ${isModuleHome ? 'is-home' : ''}">
+                <a href="/${currentModule}" class="nav-module-crumb-link ${isModuleHome ? 'is-single' : ''}" title="Return to ${moduleLabel} Home">
+                    <span class="nav-module-crumb-dot"></span>
+                    <span class="nav-module-crumb-title">${moduleLabel}</span>
+                </a>
+                ${!isModuleHome && pageLabel ? `
+                    <span class="nav-module-crumb-sep">|</span>
+                    <span class="nav-module-crumb-page" title="${pageLabel}">${pageLabel}</span>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateNavIndicator);
+    } else {
+        updateNavIndicator();
+    }
+
+    // Expose for dynamic routers or view transitions if any
+    window.refreshNavCenterIndicator = updateNavIndicator;
+})();
+
 

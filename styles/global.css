@@ -1434,6 +1434,7 @@ body.diagram-modal-open {
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
+    position: relative;
 }
 
 .nav-logo {
@@ -1749,6 +1750,170 @@ body.diagram-modal-open {
 .dropdown-item:hover .dropdown-item-dot {
     background: var(--accent-primary);
     box-shadow: 0 0 6px var(--accent-glow);
+}
+
+/* Center Module & Page Breadcrumb Indicator */
+.nav-center-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: calc(100% - 440px);
+}
+
+.nav-module-breadcrumb {
+    display: inline-flex;
+    align-items: stretch;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    font-size: 14px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    box-sizing: border-box;
+    padding: 0;
+}
+
+.nav-module-breadcrumb:hover {
+    border-color: var(--border-accent);
+}
+
+.nav-module-crumb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    padding: 0 14px 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    cursor: pointer;
+    box-sizing: border-box;
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+    user-select: none;
+}
+
+.nav-module-crumb-link.is-single,
+.nav-module-breadcrumb.is-home .nav-module-crumb-link {
+    padding: 0 18px;
+    border-radius: 9999px;
+    width: 100%;
+}
+
+.nav-module-crumb-link:hover {
+    background: var(--accent-soft);
+    color: var(--text-primary);
+}
+
+.nav-module-crumb-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 6px var(--accent-glow);
+    flex-shrink: 0;
+    display: inline-block;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nav-module-crumb-link:hover .nav-module-crumb-dot {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px var(--accent-primary);
+}
+
+.nav-module-crumb-title {
+    letter-spacing: -0.01em;
+}
+
+.nav-module-crumb-sep {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--border-default);
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 0.6;
+    user-select: none;
+    padding: 0 1px;
+    line-height: 1;
+}
+
+.nav-module-crumb-page {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 16px 0 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+    .nav-center-indicator {
+        max-width: calc(100% - 360px);
+    }
+    .nav-module-crumb-page {
+        max-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-center-indicator {
+        max-width: calc(100% - 150px);
+    }
+    .nav-module-breadcrumb {
+        height: 34px;
+        font-size: 13px;
+    }
+    .nav-module-crumb-link {
+        padding: 0 10px 0 12px;
+        font-size: 13px;
+        gap: 6px;
+    }
+    .nav-module-crumb-link.is-single,
+    .nav-module-breadcrumb.is-home .nav-module-crumb-link {
+        padding: 0 14px;
+    }
+    .nav-module-crumb-page {
+        padding: 0 12px 0 8px;
+        font-size: 13px;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-center-indicator {
+        max-width: calc(100% - 130px);
+    }
+    .nav-module-crumb-sep,
+    .nav-module-crumb-page {
+        display: none !important;
+    }
+    .nav-module-crumb-link {
+        padding: 0 12px !important;
+        border-radius: 9999px !important;
+    }
 }
 
 /* Mobile Navigation Hamburger Toggle */

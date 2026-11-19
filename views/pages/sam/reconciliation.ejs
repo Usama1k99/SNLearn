@@ -313,45 +313,104 @@
 
             <!-- 7. Results Hierarchy -->
             <section class="content-section" id="results-hierarchy">
-                <h2>Reconciliation Results Hierarchy & Debugging</h2>
+                <h2>Reconciliation Results Hierarchy &amp; Drilldown Architecture</h2>
                 <p>
-                    When reconciliation completes, the output is saved in a structured relational hierarchy for reporting:
+                    When reconciliation completes, ServiceNow does not simply output a flat number. Results are written into a rigorous 4-tier relational drilldown hierarchy that allows SAM managers to start at high-level product health and drill directly into individual software editions, licensing metrics, and actionable remediation workflows:
                 </p>
 
-                <div class="data-table-wrapper">
+                <div class="diagram-block" style="margin: 24px 0;">
+                    <div class="diagram-title">4-Tier Reconciliation Drilldown &amp; Remediation Architecture</div>
+                    <div class="mermaid">
+                    graph TD
+                        RUN["1. Reconciliation Run Header<br/>(samp_reconciliation_result)<br/>Scope: All Publishers | Total True-Up: $496,800"] --> PROD1["2. Product Result<br/>(samp_product_result)<br/>Product: Oracle Database | Deficit"]
+                        RUN --> PROD2["2. Product Result<br/>(samp_product_result)<br/>Product: Microsoft 365 | Compliant"]
+                        RUN --> PROD3["2. Product Result<br/>(samp_product_result)<br/>Product: VMware vSphere | Deficit"]
+
+                        PROD1 --> SMR1["3. Software Model Result<br/>(samp_software_model_result)<br/>Model: Oracle DB 19c Enterprise | Non-Compliant"]
+                        PROD1 --> SMR2["3. Software Model Result<br/>(samp_software_model_result)<br/>Model: Oracle DB 19c Standard | Compliant"]
+
+                        SMR1 --> LMR1["4. License Metric Result<br/>(samp_license_metric_result)<br/>Metric: Per Processor (Core Factor) | 32 Owned vs 48 Used"]
+
+                        LMR1 --> REM1["5. Remediation Option<br/>(samp_remediation_option)<br/>Action: Purchase Rights | Cost: $420,000"]
+                        LMR1 --> REM2["5. Remediation Option<br/>(samp_remediation_option)<br/>Action: Reallocate / Reclaim Inactive Installs"]
+
+                        classDef run fill:#161b26,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+                        classDef prod fill:#161b26,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+                        classDef model fill:#161b26,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+                        classDef metric fill:#161b26,stroke:#10b981,stroke-width:2px,color:#f8fafc
+                        classDef remed fill:#161b26,stroke:#ef4444,stroke-width:2px,color:#f8fafc
+
+                        class RUN run
+                        class PROD1,PROD2,PROD3 prod
+                        class SMR1,SMR2 model
+                        class LMR1 metric
+                        class REM1,REM2 remed
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper" style="margin-top: 24px;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Result Table</th>
                                 <th>Granularity Level</th>
-                                <th>Key Fields</th>
+                                <th>Parent FK Reference</th>
+                                <th>Key Computed Fields</th>
+                                <th>Auditing Function</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><code>samp_reconciliation_result</code></td>
                                 <td>Header / Entire Run</td>
-                                <td>Run Date, Scope, Total True-Up Cost, Over-Licensed Cost</td>
+                                <td>—</td>
+                                <td>Run Date, Scope, Compliance %, Total True-Up Cost, Over-Licensed Spend</td>
+                                <td>Master execution audit record stamped every time reconciliation runs (scheduled or manual).</td>
+                            </tr>
+                            <tr>
+                                <td><code>samp_product_result</code></td>
+                                <td>Software Product Line</td>
+                                <td><code>reconciliation_result</code></td>
+                                <td>Product, Publisher, License Position, Rights Owned, Rights Required, True-Up Cost</td>
+                                <td>Consolidates multiple editions and models under one product banner (e.g. Oracle Database or Microsoft 365).</td>
+                            </tr>
+                            <tr>
+                                <td><code>samp_software_model_result</code></td>
+                                <td>Specific Software Model</td>
+                                <td><code>product_result</code>, <code>software_model</code></td>
+                                <td>Software Model, Publisher, Status (Compliant/Non-compliant), Unlicensed Installs</td>
+                                <td>Isolates compliance per specific product model edition (e.g. Enterprise vs Standard Edition).</td>
                             </tr>
                             <tr>
                                 <td><code>samp_license_metric_result</code></td>
-                                <td>Software Model + Metric</td>
-                                <td>Model, Metric, Rights Owned, Rights Used, Over/Under Delta</td>
-                            </tr>
-                            <tr>
-                                <td><code>samp_sw_license_position</code></td>
-                                <td>Publisher Summary</td>
-                                <td>Publisher Name, Total Compliance %, Net Financial Risk</td>
+                                <td>Model + License Metric</td>
+                                <td><code>software_model_result</code>, <code>software_model</code></td>
+                                <td>Metric, Rights Owned, Rights Used, Over/Under Delta, True-Up Cost, Unlicensed Count</td>
+                                <td>Calculates granular compliance balance against specific license metric rules (Per Core, Named User, etc.).</td>
                             </tr>
                             <tr>
                                 <td><code>samp_remediation_option</code></td>
                                 <td>Actionable Fix</td>
-                                <td>Option Type (Purchase, Reclaim), Cost, Recommended Quantity</td>
+                                <td><code>license_metric_result</code></td>
+                                <td>Option Type (Purchase, Remove, Reclaim), Cost, Recommended Quantity</td>
+                                <td>Automated remediation suggestions generated whenever a license metric suffers a deficit.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </section>
+
+            <!-- Page Navigation Footer -->
+            <nav class="page-nav">
+                <a href="/sam/entitlements-and-allocations" class="page-nav-link page-nav-link--prev">
+                    <span class="page-nav-label">← Previous Page</span>
+                    <span class="page-nav-title">Entitlements &amp; Allocations</span>
+                </a>
+                <a href="/sam/remediation" class="page-nav-link page-nav-link--next">
+                    <span class="page-nav-label">Next Page →</span>
+                    <span class="page-nav-title">Remediation &amp; Reclamation</span>
+                </a>
+            </nav>
     
         </div>
     </div>

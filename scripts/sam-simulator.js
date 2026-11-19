@@ -815,7 +815,186 @@ const SamSimulatorData = {
     },
 
     // -----------------------------------------------
-    // TAB 9: License Metric Results (samp_license_metric_result)
+    // TAB 9: Product Results (samp_product_result)
+    // -----------------------------------------------
+    'samp_product_result': {
+        label: 'Product Results',
+        table: 'samp_product_result',
+        description: 'Executive compliance rollup grouped by software product line across the enterprise.',
+        fields: [
+            { name: 'number', label: 'Product Result ID', type: 'string' },
+            { name: 'reconciliation_result', label: 'Reconciliation Run', type: 'reference', refTable: 'samp_reconciliation_result' },
+            { name: 'product', label: 'Software Product Line', type: 'reference', refTable: 'cmdb_software_product' },
+            { name: 'publisher', label: 'Publisher', type: 'reference', refTable: 'core_company' },
+            { name: 'license_position', label: 'License Position', type: 'choice', choices: [
+                { value: 'compliant', label: 'Compliant' },
+                { value: 'non_compliant', label: 'Non-Compliant' },
+                { value: 'over_licensed', label: 'Over-Licensed (Surplus)' }
+            ]},
+            { name: 'rights_owned', label: 'Rights Owned', type: 'number' },
+            { name: 'rights_required', label: 'Rights Required', type: 'number' },
+            { name: 'over_install_count', label: 'Over-Install Count', type: 'number' },
+            { name: 'true_up_cost', label: 'True-Up Liability (USD)', type: 'number' },
+            { name: 'over_licensed_cost', label: 'Shelfware Surplus (USD)', type: 'number' }
+        ],
+        records: [
+            {
+                number: 'PR0010041',
+                reconciliation_result: 'REC0001091',
+                product: 'Microsoft 365',
+                publisher: 'Microsoft Corporation',
+                license_position: 'compliant',
+                rights_owned: 850,
+                rights_required: 820,
+                over_install_count: 0,
+                true_up_cost: 0,
+                over_licensed_cost: 10800
+            },
+            {
+                number: 'PR0010042',
+                reconciliation_result: 'REC0001091',
+                product: 'Oracle Database',
+                publisher: 'Oracle Corporation',
+                license_position: 'non_compliant',
+                rights_owned: 32,
+                rights_required: 48,
+                over_install_count: 16,
+                true_up_cost: 420000,
+                over_licensed_cost: 0
+            },
+            {
+                number: 'PR0010043',
+                reconciliation_result: 'REC0001091',
+                product: 'VMware vSphere',
+                publisher: 'Broadcom / VMware',
+                license_position: 'non_compliant',
+                rights_owned: 64,
+                rights_required: 80,
+                over_install_count: 16,
+                true_up_cost: 76800,
+                over_licensed_cost: 0
+            },
+            {
+                number: 'PR0010044',
+                reconciliation_result: 'REC0001091',
+                product: 'Adobe Creative Cloud',
+                publisher: 'Adobe Systems Inc.',
+                license_position: 'compliant',
+                rights_owned: 120,
+                rights_required: 115,
+                over_install_count: 0,
+                true_up_cost: 0,
+                over_licensed_cost: 4200
+            }
+        ],
+        processExplanation: {
+            title: 'Product Line Compliance Rollup',
+            steps: [
+                {
+                    heading: '1. Executive Product Level Aggregation',
+                    content: 'Reconciliation first aggregates all software models and editions into a single Product Result per software title. This allows executive stakeholders to see immediately whether high-spend vendors like Microsoft or Oracle are compliant overall.'
+                },
+                {
+                    heading: '2. Multi-Edition Balancing',
+                    content: 'Where contract terms allow suite collapsing or product-line fungibility, Product Results capture the net position across editions before drilling into individual Software Model Results.'
+                },
+                {
+                    heading: '3. Financial Exposure Rollup',
+                    content: 'True-up costs and shelfware waste are summed across all underlying license metrics to present an audit-ready executive exposure figure.'
+                }
+            ]
+        }
+    },
+
+    // -----------------------------------------------
+    // TAB 10: Software Model Results (samp_software_model_result)
+    // -----------------------------------------------
+    'samp_software_model_result': {
+        label: 'Model Results',
+        table: 'samp_software_model_result',
+        description: 'Drilldown compliance results per software product model edition, version, and suite parent.',
+        fields: [
+            { name: 'number', label: 'Model Result ID', type: 'string' },
+            { name: 'product_result', label: 'Parent Product Result', type: 'reference', refTable: 'samp_product_result' },
+            { name: 'software_model', label: 'Software Model', type: 'reference', refTable: 'cmdb_software_product_model' },
+            { name: 'publisher', label: 'Publisher', type: 'reference', refTable: 'core_company' },
+            { name: 'status', label: 'Compliance Status', type: 'choice', choices: [
+                { value: 'compliant', label: 'Compliant' },
+                { value: 'non_compliant', label: 'Non-Compliant' },
+                { value: 'not_evaluated', label: 'Not Evaluated' }
+            ]},
+            { name: 'reconciliation_result', label: 'Reconciliation Run', type: 'reference', refTable: 'samp_reconciliation_result' },
+            { name: 'unlicensed_installs', label: 'Unlicensed Installs', type: 'number' },
+            { name: 'true_up_cost', label: 'True-Up Liability (USD)', type: 'number' },
+            { name: 'over_licensed_cost', label: 'Shelfware Surplus (USD)', type: 'number' }
+        ],
+        records: [
+            {
+                number: 'SMR0010081',
+                product_result: 'PR0010041',
+                software_model: 'Microsoft 365 Enterprise E5',
+                publisher: 'Microsoft Corporation',
+                status: 'compliant',
+                reconciliation_result: 'REC0001091',
+                unlicensed_installs: 0,
+                true_up_cost: 0,
+                over_licensed_cost: 7200
+            },
+            {
+                number: 'SMR0010082',
+                product_result: 'PR0010041',
+                software_model: 'Microsoft 365 Enterprise E3',
+                publisher: 'Microsoft Corporation',
+                status: 'compliant',
+                reconciliation_result: 'REC0001091',
+                unlicensed_installs: 0,
+                true_up_cost: 0,
+                over_licensed_cost: 3600
+            },
+            {
+                number: 'SMR0010083',
+                product_result: 'PR0010042',
+                software_model: 'Oracle Database 19c Enterprise',
+                publisher: 'Oracle Corporation',
+                status: 'non_compliant',
+                reconciliation_result: 'REC0001091',
+                unlicensed_installs: 16,
+                true_up_cost: 420000,
+                over_licensed_cost: 0
+            },
+            {
+                number: 'SMR0010084',
+                product_result: 'PR0010043',
+                software_model: 'VMware vSphere Enterprise Plus 8.0',
+                publisher: 'Broadcom / VMware',
+                status: 'non_compliant',
+                reconciliation_result: 'REC0001091',
+                unlicensed_installs: 16,
+                true_up_cost: 76800,
+                over_licensed_cost: 0
+            }
+        ],
+        processExplanation: {
+            title: 'Granular Model & Edition Drilldown',
+            steps: [
+                {
+                    heading: '1. Edition-Specific Compliance Isolation',
+                    content: 'Drilling down from the Product Result, the Software Model Result isolates which exact edition is out of compliance (e.g. Enterprise Edition vs Standard Edition).'
+                },
+                {
+                    heading: '2. Downgrade Rights Fulfillment',
+                    content: 'ServiceNow applies downgrade rights at the Software Model level: surplus rights from newer model editions automatically satisfy shortages in older versions before calculating net deficit.'
+                },
+                {
+                    heading: '3. Bridge to License Metric Results',
+                    content: 'Each Software Model Result spawns one or more child License Metric Results depending on how entitlements for that model were purchased (e.g. Per Core vs User Subscription).'
+                }
+            ]
+        }
+    },
+
+    // -----------------------------------------------
+    // TAB 11: License Metric Results (samp_license_metric_result)
     // -----------------------------------------------
     'samp_license_metric_result': {
         label: 'Metric Results (ELP)',
@@ -823,6 +1002,7 @@ const SamSimulatorData = {
         description: 'Granular Effective License Position (ELP) records calculated per software model and metric during reconciliation.',
         fields: [
             { name: 'reconciliation_result', label: 'Reconciliation Run', type: 'reference', refTable: 'samp_reconciliation_result' },
+            { name: 'software_model_result', label: 'Software Model Result', type: 'reference', refTable: 'samp_software_model_result' },
             { name: 'software_model', label: 'Software Model', type: 'reference', refTable: 'cmdb_software_product_model' },
             { name: 'license_metric', label: 'License Metric', type: 'choice', choices: [
                 { value: 'per_core', label: 'Per Core' },
@@ -844,6 +1024,7 @@ const SamSimulatorData = {
         records: [
             {
                 reconciliation_result: 'REC0001091',
+                software_model_result: 'SMR0010083',
                 software_model: 'Microsoft SQL Server 2019 Standard',
                 license_metric: 'per_core',
                 rights_owned: 128,
@@ -855,6 +1036,7 @@ const SamSimulatorData = {
             },
             {
                 reconciliation_result: 'REC0001091',
+                software_model_result: 'SMR0010081',
                 software_model: 'Microsoft Windows Server 2022 Datacenter',
                 license_metric: 'per_core',
                 rights_owned: 256,
@@ -866,6 +1048,7 @@ const SamSimulatorData = {
             },
             {
                 reconciliation_result: 'REC0001090',
+                software_model_result: 'SMR0010083',
                 software_model: 'Oracle Database 19c Enterprise',
                 license_metric: 'per_processor',
                 rights_owned: 32,
@@ -877,6 +1060,7 @@ const SamSimulatorData = {
             },
             {
                 reconciliation_result: 'REC0001089',
+                software_model_result: 'SMR0010082',
                 software_model: 'Adobe Acrobat Pro DC',
                 license_metric: 'user_subscription',
                 rights_owned: 250,

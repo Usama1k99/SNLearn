@@ -1,133 +1,176 @@
-<%- include('../../partials/head', { title: 'Software Asset Management (SAM Pro) | SN Learn', styles: ['/styles/module-layout.css'] }) %>
-<%- include('../../partials/navbar', { activeTab: 'sam' }) %>
+<%- include('../../partials/head', { title: 'Software Asset Management (SAM Pro) | SN Learn' , styles:
+    ['/styles/module-layout.css'] }) %>
+    <%- include('../../partials/navbar', { activeTab: 'sam' }) %>
 
-<main class="irm-hub">
-    <div class="container">
-        
-        <div class="irm-hub-header">
-            <div class="breadcrumb">
-                <a href="/">Home</a>
-                <span class="breadcrumb-sep">›</span>
-                <span>SAM</span>
+        <main class="irm-hub">
+            <div class="container">
+
+                <div class="irm-hub-header">
+                    <div class="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="breadcrumb-sep">›</span>
+                        <span>SAM</span>
+                    </div>
+                    <div class="irm-title-row">
+                        <div class="irm-icon-badge">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="irm-hub-title">Software Asset <span class="gradient-text">Management (SAM
+                                    Pro)</span></h1>
+                            <p class="irm-hub-subtitle">
+                                Master the closed-loop governance engine. Discover how technical inventory is normalized
+                                against 15M+ Content Library signatures, reconciled against financial purchase
+                                contracts, and automated for multi-million dollar software spend reclamation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pages-grid">
+                    <!-- Page 1: Overview & Architecture -->
+                    <a href="/sam/overview" class="module-card-horizontal page-card">
+                        <span class="page-card-number">01</span>
+                        <h3 class="page-card-title">Overview &amp; Architecture</h3>
+                        <p class="page-card-desc">
+                            The 4-layer SAM Pro stack, 3 parallel ingestion tracks, canonical closed-loop lifecycle
+                            flow, and publisher support risk tracking (GA to EOL).
+                        </p>
+                        <div class="page-card-topics">
+                            <span class="topic-tag">4-Tier Stack</span>
+                            <span class="topic-tag">Closed Loop</span>
+                            <span class="topic-tag">Product Lifecycle (EOL)</span>
+                        </div>
+                    </a>
+
+                    <!-- Page 2: Data Model & Key Tables -->
+                    <a href="/sam/data-model" class="module-card-horizontal page-card">
+                        <span class="page-card-number">02</span>
+                        <h3 class="page-card-title">Master Data Model &amp; Key Tables</h3>
+                        <p class="page-card-desc">
+                            Master entity relationship diagram (ERD), full 22-table dictionaries, column schemas,
+                            inheritance hierarchy, and hardware cluster virtualization topology.
+                        </p>
+                        <div class="page-card-topics">
+                            <span class="topic-tag">22-Table ERD</span>
+                            <span class="topic-tag">Relational Matrix</span>
+                            <span class="topic-tag">ESXi Cluster Topology</span>
+                        </div>
+                    </a>
+
+                    <!-- Page 3: Discovery & Normalization -->
+                    <a href="/sam/normalization" class="module-card-horizontal page-card">
+                        <span class="page-card-number">03</span>
+                        <h3 class="page-card-title">Discovery &amp; Normalization</h3>
+                        <p class="page-card-desc">
+                            The on-premises discovery pipeline: how raw installation strings cluster into discovery
+                            models and resolve through the 4-tier Content Service and DMAPs.
+                        </p>
+                        <div class="page-card-topics">
+                            <span class="topic-tag">4-Tier Hierarchy</span>
+                            <span class="topic-tag">PPNs &amp; DMAPs</span>
+                            <span class="topic-tag">Custom Regex Rules</span>
+                        </div>
+                    </a>
+
+                        <!-- Page 4: SaaS & Cloud Subscriptions -->
+                        <a href="/sam/saas-and-cloud" class="module-card-horizontal page-card">
+                            <span class="page-card-number">04</span>
+                            <h3 class="page-card-title">SaaS &amp; Cloud Subscriptions</h3>
+                            <p class="page-card-desc">
+                                Direct cloud API integrations for Microsoft 365, Adobe, Salesforce, and Zoom. Explore
+                                subscription tables, user matching, and M365 E5 to E3 right-sizing.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">SaaS Spokes</span>
+                                <span class="topic-tag">Cloud Tables</span>
+                                <span class="topic-tag">Tier Right-Sizing</span>
+                            </div>
+                        </a>
+
+                        <!-- Page 5: Entitlements & Allocations -->
+                        <a href="/sam/entitlements-and-allocations" class="module-card-horizontal page-card">
+                            <span class="page-card-number">05</span>
+                            <h3 class="page-card-title">Entitlements &amp; Allocations</h3>
+                            <p class="page-card-desc">
+                                The financial proof of purchase: procurement purchase orders, contracts, alm_license
+                                asset inheritance, and user vs. device allocation strategies.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">alm_license</span>
+                                <span class="topic-tag">User Allocations</span>
+                                <span class="topic-tag">Downgrade Rights</span>
+                            </div>
+                        </a>
+
+                        <!-- Page 6: Reconciliation & Publisher Packs -->
+                        <a href="/sam/reconciliation" class="module-card-horizontal page-card">
+                            <span class="page-card-number">06</span>
+                            <h3 class="page-card-title">Reconciliation &amp; Publisher Packs</h3>
+                            <p class="page-card-desc">
+                                The 7-step mathematical computation engine, 4-tier results hierarchy (Product Results →
+                                Model Results → Metric Results), and Microsoft/Oracle publisher rules.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">7-Step Algorithm</span>
+                                <span class="topic-tag">4-Tier Results</span>
+                                <span class="topic-tag">Publisher Packs</span>
+                            </div>
+                        </a>
+
+                        <!-- Page 7: Reclamation & Remediation -->
+                        <a href="/sam/remediation" class="module-card-horizontal page-card">
+                            <span class="page-card-number">07</span>
+                            <h3 class="page-card-title">Remediation &amp; Reclamation</h3>
+                            <p class="page-card-desc">
+                                Actionable deficit remediation, endpoint usage metering telemetry, Teams/Slack candidate
+                                notifications, and automated silent client uninstallation.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">Candidate Lifecycle</span>
+                                <span class="topic-tag">Zero-Touch Spokes</span>
+                                <span class="topic-tag">Spend Harvesting</span>
+                            </div>
+                        </a>
+
+                        <!-- Page 8: Developer Patterns & APIs -->
+                        <a href="/sam/developer-patterns" class="module-card-horizontal page-card">
+                            <span class="page-card-number">08</span>
+                            <h3 class="page-card-title">Developer Patterns &amp; APIs</h3>
+                            <p class="page-card-desc">
+                                Scripting custom license metrics, IRE JSON ingestion payloads, allocation revocation
+                                subflows, SAMP APIs, and essential diagnostic maintenance scripts.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">Custom Metric Scripting</span>
+                                <span class="topic-tag">IRE Payloads</span>
+                                <span class="topic-tag">Diagnostic Scripts</span>
+                            </div>
+                        </a>
+
+                        <!-- Page 9: Process Simulator -->
+                        <a href="/sam/simulator" class="module-card-horizontal page-card">
+                            <span class="page-card-number">09</span>
+                            <h3 class="page-card-title">Process Simulator</h3>
+                            <p class="page-card-desc">
+                                Interactive enterprise lab with 15 core SAM tables and 60+ realistic records. Explore
+                                installations, discovery models, entitlements, 4-tier ELP results, and SaaS
+                                optimization.
+                            </p>
+                            <div class="page-card-topics">
+                                <span class="topic-tag">15 Interactive Tables</span>
+                                <span class="topic-tag">60+ Rich Records</span>
+                                <span class="topic-tag">Full Form Views</span>
+                            </div>
+                        </a>
+                </div>
+
             </div>
-            <div class="irm-title-row">
-                <div class="irm-icon-badge">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                        <line x1="8" y1="21" x2="16" y2="21"></line>
-                        <line x1="12" y1="17" x2="12" y2="21"></line>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="irm-hub-title">Software Asset <span class="gradient-text">Management (SAM Pro)</span></h1>
-                    <p class="irm-hub-subtitle">
-                        Master the closed-loop governance engine. Discover how technical inventory is normalized against 15M+ Content Library signatures, reconciled against financial purchase contracts, and automated for multi-million dollar software spend reclamation.
-                    </p>
-                </div>
-            </div>
-        </div>
+        </main>
 
-        <div class="pages-grid">
-            <!-- Page 1: Overview & Architecture -->
-            <a href="/sam/overview" class="module-card-horizontal page-card">
-                <span class="page-card-number">01</span>
-                <h3 class="page-card-title">Overview & Architecture</h3>
-                <p class="page-card-desc">
-                    The 4-layer SAM Pro stack, evolution from Foundation, interactive closed-loop lifecycle diagram, and publisher support risk tracking (GA to EOL).
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">4-Tier Stack</span>
-                    <span class="topic-tag">Closed Loop</span>
-                    <span class="topic-tag">Product Lifecycle (EOL)</span>
-                </div>
-            </a>
-
-            <!-- Page 2: Data Model & Key Tables -->
-            <a href="/sam/data-model" class="module-card-horizontal page-card">
-                <span class="page-card-number">02</span>
-                <h3 class="page-card-title">Data Model & Key Tables</h3>
-                <p class="page-card-desc">
-                    Master entity relationship diagram (ERD), full table dictionaries, column schemas, inheritance hierarchy, and hardware cluster virtualization topology.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">Master ERD</span>
-                    <span class="topic-tag">Table Dictionaries</span>
-                    <span class="topic-tag">ESXi Cluster Topology</span>
-                </div>
-            </a>
-
-            <!-- Page 3: Discovery & Normalization -->
-            <a href="/sam/normalization" class="module-card-horizontal page-card">
-                <span class="page-card-number">03</span>
-                <h3 class="page-card-title">Discovery & Normalization</h3>
-                <p class="page-card-desc">
-                    The 4-tier match engine, Publisher Part Numbers (PPNs), Discovery Maps (DMAPs), Content Delivery Service (CDS), and all 7 normalization statuses.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">4-Tier Hierarchy</span>
-                    <span class="topic-tag">PPNs & DMAPs</span>
-                    <span class="topic-tag">Custom Regex Rules</span>
-                </div>
-            </a>
-
-            <!-- Page 4: Reconciliation & Publisher Packs -->
-            <a href="/sam/reconciliation" class="module-card-horizontal page-card">
-                <span class="page-card-number">04</span>
-                <h3 class="page-card-title">Reconciliation & Publisher Packs</h3>
-                <p class="page-card-desc">
-                    The 7-step reconciliation algorithm, Effective License Position (ELP) mathematics, Microsoft core minimums, Oracle multi-core factor & VMware soft-partitioning risk.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">7-Step Algorithm</span>
-                    <span class="topic-tag">Microsoft / Oracle Packs</span>
-                    <span class="topic-tag">IBM PVU / Sub-Capacity</span>
-                </div>
-            </a>
-
-            <!-- Page 5: Reclamation & Remediation -->
-            <a href="/sam/remediation" class="module-card-horizontal page-card">
-                <span class="page-card-number">05</span>
-                <h3 class="page-card-title">Reclamation & Remediation</h3>
-                <p class="page-card-desc">
-                    Remediation options for non-compliance, usage metering telemetry, candidate approval workflows, Flow Designer spoke uninstallation, and SaaS tier optimization.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">Candidate Lifecycle</span>
-                    <span class="topic-tag">Zero-Touch Spokes</span>
-                    <span class="topic-tag">SaaS M365 E5→E3</span>
-                </div>
-            </a>
-
-            <!-- Page 6: Developer Patterns & APIs -->
-            <a href="/sam/developer-patterns" class="module-card-horizontal page-card">
-                <span class="page-card-number">06</span>
-                <h3 class="page-card-title">Developer Patterns & APIs</h3>
-                <p class="page-card-desc">
-                    Scripting custom license metrics, IRE JSON ingestion payloads, allocation revocation subflows, SAMP APIs, and essential diagnostic maintenance scripts.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">Custom Metric Scripting</span>
-                    <span class="topic-tag">IRE Payloads</span>
-                    <span class="topic-tag">Diagnostic Scripts</span>
-                </div>
-            </a>
-
-            <!-- Page 7: Process Simulator -->
-            <a href="/sam/simulator" class="module-card-horizontal page-card">
-                <span class="page-card-number">07</span>
-                <h3 class="page-card-title">Process Simulator</h3>
-                <p class="page-card-desc">
-                    Interactive enterprise lab with 8 core SAM tables and 35+ realistic records. Explore installations, discovery models, entitlements, ELP results, and SaaS optimization.
-                </p>
-                <div class="page-card-topics">
-                    <span class="topic-tag">8 Interactive Tables</span>
-                    <span class="topic-tag">35+ Rich Records</span>
-                    <span class="topic-tag">Full Form Views</span>
-                </div>
-            </a>
-        </div>
-        
-    </div>
-</main>
-
-<%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>
+        <%- include('../../partials/footer', { scripts: ['/scripts/module.js'] }) %>
